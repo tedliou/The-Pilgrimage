@@ -1,0 +1,34 @@
+{
+    "name": "Global Controls",
+    "maps": [
+        {
+            "name": "New action map",
+            "id": "b0e25928-093b-4f27-91da-73f115cba383",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "94190b07-da86-47ef-97e6-6e41b9d1028b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ca36db3e-29ac-4136-b9f5-b4410add745c",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
