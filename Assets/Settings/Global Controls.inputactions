@@ -2,13 +2,22 @@
     "name": "Global Controls",
     "maps": [
         {
-            "name": "KeybordMap",
+            "name": "BasicMap",
             "id": "b0e25928-093b-4f27-91da-73f115cba383",
             "actions": [
                 {
                     "name": "Movement",
                     "type": "Value",
                     "id": "94190b07-da86-47ef-97e6-6e41b9d1028b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotation",
+                    "type": "Value",
+                    "id": "bf27edf7-16b9-422e-b982-9e8bd78906d6",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -123,6 +132,61 @@
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Gamepad",
+                    "id": "14426d79-0b28-4775-8804-306b532a9fc7",
+                    "path": "2DVector(mode=2)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "42a02505-54ba-4b80-a9f6-8a9e51fdc97d",
+                    "path": "<Gamepad>/rightStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "19367f50-ed96-4afc-95da-3bcce2227eaa",
+                    "path": "<Gamepad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "dd00b86d-87d6-423e-8666-db861a83eaff",
+                    "path": "<Gamepad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "8abde5f3-0a3c-4784-8bc2-d7254570406a",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotation",
                     "isComposite": false,
                     "isPartOfComposite": true
                 }
