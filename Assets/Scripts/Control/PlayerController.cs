@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour
     private InRangeTool _hold;
     private InRangeTool _holding;
     private float _angleRange = 22.5f;
+    public Grid grid;
 
     private static readonly string tagTool = "Tool";
     
@@ -157,8 +158,10 @@ public class PlayerController : MonoBehaviour
         {
             _holding.tool.transform.parent = null;
             var pos = transform.TransformPoint(transform.forward);
-            pos.y = 1.13f;
-            _holding.tool.transform.position = pos;
+            grid ??= FindObjectOfType<Grid>();
+            var gridPos = grid.WorldToCell(pos);
+            _holding.tool.transform.position = gridPos + new Vector3(0, 1.13f);
+            
             _holding = null;
         }
         
