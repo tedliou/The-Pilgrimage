@@ -1,18 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ToolController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        var current = transform.position;
+        var cellPos = Grid2DSystem.WorldToCell(current);
+        cellPos.y = GameManager.Instance.propsYPos;
+        Grid2DSystem.Register(cellPos, gameObject);
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        transform.position = cellPos;
     }
 }

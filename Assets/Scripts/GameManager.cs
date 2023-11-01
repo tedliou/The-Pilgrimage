@@ -2,12 +2,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+    
+    public int targetFrameRate = 30;
+
+    [Header("Position Settings")]
+    public float playerYPos = 0;
+    public float floorYPos = .5f;
+    public float propsYPos = 0;
+    
     private void Awake()
     {
-        Application.targetFrameRate = 144;
+        Instance = this;
+        Application.targetFrameRate = targetFrameRate;
     }
 
 

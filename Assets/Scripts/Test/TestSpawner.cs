@@ -6,6 +6,7 @@ public class TestSpawner : MonoBehaviour
 {
     public GameObject sampleCube;
     public Vector2 size;
+    public Vector2 offset;
     
     // Start is called before the first frame update
     void Start()
@@ -14,7 +15,7 @@ public class TestSpawner : MonoBehaviour
         {
             for (int z = 0; z < size.y; z++)
             {
-                var obj = Instantiate(sampleCube, new Vector3(x, 0, z), Quaternion.identity);
+                var obj = Instantiate(sampleCube, new Vector3(x + offset.x, GameManager.Instance.floorYPos, z + offset.y), Quaternion.identity);
                 
             }
         }
