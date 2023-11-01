@@ -55,10 +55,14 @@ public class PlayerController : MonoBehaviour
         
         // Check Forward Props
         var forwardProps = Grid2DSystem.Find(targetBlockCellPos);
-        if (forwardProps && forwardProps.CompareTag("Tool"))
+        if (forwardProps is not null && forwardProps.CompareTag("Tool"))
         {
             // 這邊要改成能兼容破壞地形
             _fowardObject = forwardProps;
+        }
+        else
+        {
+            _fowardObject = null;
         }
     }
 
@@ -137,6 +141,7 @@ public class PlayerController : MonoBehaviour
         {
             if (_fowardObject is not null)
             {
+                _fowardObject.GetComponent<PropsObject>().RemoveFromGrid();
                 _fowardObject.transform.SetParent(transform);
                 _fowardObject.transform.localPosition = new Vector3(0, 1, 0);
                 _holdingObject = _fowardObject;
@@ -146,7 +151,8 @@ public class PlayerController : MonoBehaviour
         {
             _holdingObject.transform.parent = null;
             _holdingObject.transform.position = fowardPlacePos;
-            
+            _holdingObject.GetComponent<PropsObject>().AddToGrid();
+
             _holdingObject = null;
         }
         
@@ -158,7 +164,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag(tagTool))
         {
-            var ctrl = other.GetComponent<ToolController>();
+            var ctrl = other.GetComponent<PropsObject>();
             
             
             //inRangeTools.Add(new InRangeTool(ctrl, CaculateVector(ctrl.transform.position)));
@@ -169,7 +175,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag(tagTool))
         {
-            var ctrl = other.GetComponent<ToolController>();
+            var ctrl = other.GetComponent<PropsObject>();
             
             
             //inRangeTools.RemoveAll(x => x.tool == ctrl);

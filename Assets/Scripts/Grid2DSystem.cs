@@ -8,17 +8,31 @@ public static class Grid2DSystem
 {
     public static Dictionary<Vector2, GameObject> Cells = new Dictionary<Vector2, GameObject>();
 
-    public static void Register(Vector3 position, GameObject gameObject)
+    public static void Add(Vector3 position, GameObject gameObject)
     {
         var key = new Vector2(position.x, position.z);
         
         if (Cells.TryAdd(key, gameObject))
         {
-            Debug.Log($"Registed cell in {key}:{gameObject.name}");   
+            Debug.Log($"Add cell in {key}:{gameObject.name}");   
         }
         else
         {
-            Debug.Log("Register fail");
+            Debug.Log("Add failed");
+        }
+    }
+
+    public static void Remove(Vector3 position)
+    {
+        var key = new Vector2(position.x, position.z);
+
+        if (Cells.Remove(key))
+        {
+            Debug.Log("Removed");
+        }
+        else
+        {
+            Debug.Log("Remove failed");
         }
     }
 
