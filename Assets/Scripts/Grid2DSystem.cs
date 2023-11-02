@@ -4,11 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public static class Grid2DSystem
+public class Grid2DSystem: MonoBehaviour
 {
-    public static Dictionary<Vector2, GameObject> Cells = new Dictionary<Vector2, GameObject>();
+    public static Dictionary<Vector2, InteractableObject> Cells;
 
-    public static void Add(Vector3 position, GameObject gameObject)
+    private void Awake()
+    {
+        Cells = new Dictionary<Vector2, InteractableObject>();
+    }
+
+    public static void Add(Vector3 position, InteractableObject gameObject)
     {
         var key = new Vector2(position.x, position.z);
         
@@ -36,11 +41,11 @@ public static class Grid2DSystem
         }
     }
 
-    public static GameObject Find(Vector3 position)
+    public static InteractableObject Find(Vector3 position)
     {
         var key = new Vector2(position.x, position.z);
         
-        if (Cells.TryGetValue(key, out GameObject gameObject))
+        if (Cells.TryGetValue(key, out InteractableObject gameObject))
         {
             return gameObject;
         }
