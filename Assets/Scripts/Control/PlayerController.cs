@@ -145,12 +145,30 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (!Grid2DSystem.Find(forwardPlacePos))
+            var obj = Grid2DSystem.Find(forwardPlacePos);
+            Debug.Log($"Try Place {_holdingObject}");
+            if (obj)
+            {
+                if (obj.stack)
+                {
+                    obj.AddStack(_holdingObject.stackAmount);
+                    Debug.Log($"Add Exist {_holdingObject.stackAmount} {_holdingObject}");
+                    Destroy(_holdingObject.gameObject);
+                    _holdingObject = null;
+                }
+            }
+            else
             {
                 _holdingObject.transform.parent = null;
                 _holdingObject.transform.position = forwardPlacePos;
                 _holdingObject.transform.eulerAngles = Vector3.zero;
                 _holdingObject.AddToGrid();
+                if (_holdingObject.stack && _holdingObject.stackAmount == 0)
+                {
+                    _holdingObject.AddStack(1);
+                    Debug.Log($"Add 1 {_holdingObject}");
+                }
+                Debug.Log($"Placed {_holdingObject}");
                 _holdingObject = null;
             }
         }

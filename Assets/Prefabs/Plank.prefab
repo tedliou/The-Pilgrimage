@@ -47,6 +47,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 1
   type: 0
+  stack: 1
+  stackAmount: 0
+  stackY: 0.121
+  originObj: {fileID: 5891636026269292931}
+  stackObjs: []
   breakCount: 0
   maxBreakCount: 3
   breakProgress: 0
@@ -55,6 +60,8 @@ MonoBehaviour:
   interactable: 0
   requireProps: {fileID: 0}
   dropProps: {fileID: 0}
+  maxStackCount: 1
+  growing: []
 --- !u!1001 &5892119937249806025
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -124,6 +131,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7affb776ee83c8e4c8d7ab25aff32905, type: 3}
+--- !u!1 &5891636026269292931 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1768140634152778, guid: 7affb776ee83c8e4c8d7ab25aff32905, type: 3}
+  m_PrefabInstance: {fileID: 5892119937249806025}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5893991444661835465 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4127707202260992, guid: 7affb776ee83c8e4c8d7ab25aff32905, type: 3}

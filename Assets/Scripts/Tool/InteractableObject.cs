@@ -16,6 +16,43 @@ public class InteractableObject : MonoBehaviour
         Block = 1,
         Chest = 2
     }
+
+    public bool stack;
+    public int stackAmount = 0;
+    public float stackY;
+
+    public GameObject originObj;
+    public List<GameObject> stackObjs = new List<GameObject>();
+    
+    public void AddStack(int amount)
+    {
+        // Change Object State
+        originObj.SetActive(false);
+        if (amount >= 0)
+        {
+            for (var i = 0; i < amount; i++)
+            {
+                var obj = Instantiate(originObj, transform);
+                obj.SetActive(true);
+                obj.transform.localPosition = new Vector3(0, stackY * stackAmount);
+                //Debug.Log(obj.transform.localPosition);
+                stackObjs.Add(obj);
+                stackAmount += 1;
+            }
+        }
+        else
+        {
+            var abs = Mathf.Abs(amount);
+            for (var i = 0; i < abs; i++)
+            {
+                var obj = stackObjs[i];
+                Destroy(obj);
+                stackObjs[i] = null;
+            }
+
+            stackObjs.RemoveAll(x => x == null);
+        }
+    }
     
     // Type == Block
     public int breakCount;
@@ -48,6 +85,10 @@ public class InteractableObject : MonoBehaviour
         cellPos.y = GameManager.Instance.propsYPos;
         transform.position = cellPos;
         AddToGrid();
+        if (stack && stackObjs.Count == 0)
+        {
+            AddStack(1);
+        }
     }
 
     private Vector3 SelfCellPos => Grid2DSystem.WorldToCell(transform.position);
