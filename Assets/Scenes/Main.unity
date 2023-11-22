@@ -256,8 +256,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sampleCube: {fileID: 652933942288911174, guid: ea2cd155669473745b5b3b9b6d99a0aa, type: 3}
-  size: {x: 100, y: 20}
+  size: {x: 50, y: 20}
   offset: {x: 0, y: 0}
+  stations:
+  - {x: 4, y: 14}
+  - {x: 25, y: 10}
+  stationSize: {x: 4, y: 4}
 --- !u!1001 &568693345
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1169,9 +1173,9 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 1
-  orthographic size: 8.24
+  field of view: 3
+  orthographic: 0
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1195,8 +1199,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25704232, y: 0.16589867, z: -0.044840258, w: 0.95099753}
-  m_LocalPosition: {x: 1.6800003, y: 13.98, z: -12.690001}
+  m_LocalRotation: {x: 0.36504495, y: 0.1671248, z: -0.06679023, w: 0.91342795}
+  m_LocalPosition: {x: -68.4, y: 209.4, z: -196.77}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1901,14 +1905,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1867597592}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25704232, y: 0.16589867, z: -0.044840258, w: 0.95099753}
-  m_LocalPosition: {x: 1.6800003, y: 13.98, z: -12.690001}
+  m_LocalRotation: {x: 0.36504495, y: 0.1671248, z: -0.06679023, w: 0.91342795}
+  m_LocalPosition: {x: -68.4, y: 209.4, z: -196.77}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2066676143}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 32.464, y: 3.3, z: 0}
 --- !u!4 &1871679429 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4185321474572978, guid: 7384e233828f7bf4b88aeb1a36a9b104, type: 3}
@@ -2345,7 +2349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: -7.42, y: 12.78, z: -20.62}
+  m_FollowOffset: {x: -77.5, y: 208.2, z: -204.7}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -2529,13 +2533,13 @@ SceneRoots:
   m_Roots:
   - {fileID: 1336826320}
   - {fileID: 963194228}
+  - {fileID: 1867597594}
   - {fileID: 705507995}
   - {fileID: 459357298}
   - {fileID: 1608536628}
   - {fileID: 2012298108}
   - {fileID: 771279449}
   - {fileID: 692374650}
-  - {fileID: 1867597594}
   - {fileID: 1731870722}
   - {fileID: 7563527701496338652}
   - {fileID: 791239578}
