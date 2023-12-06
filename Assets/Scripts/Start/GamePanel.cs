@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public abstract class GamePanel : MonoBehaviour
 {
     private static readonly UnityEvent<PanelOption> panelEvent = new UnityEvent<PanelOption>();
 
     public bool showOnAwake;
+    public GameObject firstSelected;
     
     private void Awake()
     {
@@ -16,6 +18,11 @@ public abstract class GamePanel : MonoBehaviour
         transform.position = Vector3.zero;
         
         gameObject.SetActive(showOnAwake);
+    }
+
+    protected virtual void OnEnable()
+    {
+        EventSystem.current.SetSelectedGameObject(firstSelected);
     }
 
     protected virtual void OnPanelAction(PanelOption option)
