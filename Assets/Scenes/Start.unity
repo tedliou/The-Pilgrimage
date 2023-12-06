@@ -4039,7 +4039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showOnAwake: 1
-  firstSelected: {fileID: 0}
+  firstSelected: {fileID: 2060645457}
 --- !u!1001 &177911829
 PrefabInstance:
   m_ObjectHideFlags: 0
