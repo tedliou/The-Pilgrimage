@@ -12,6 +12,7 @@ public class ButtonBack : GameButton
 
     private void BackToHome()
     {
+        GameSettingManager.current.Revert();
         GamePanel.Show(GamePanel.PanelOption.Home);
     }
 }

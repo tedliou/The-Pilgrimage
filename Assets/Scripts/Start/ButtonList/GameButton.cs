@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public abstract class GameButton : MonoBehaviour
+public abstract class GameButton : MonoBehaviour, IGameButton
 {
     [HideInInspector]
     public Button button;
@@ -19,5 +19,10 @@ public abstract class GameButton : MonoBehaviour
     protected virtual void OnButtonClick()
     {
         Debug.Log($"Button Click: {gameObject.name}");
+    }
+
+    public void Click()
+    {
+        // Nothing
     }
 }

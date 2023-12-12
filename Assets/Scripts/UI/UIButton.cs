@@ -10,6 +10,6 @@ public class UIButton : MonoBehaviour
 
     private void Update()
     {
-        highlight.SetActive(EventSystem.current.currentSelectedGameObject == gameObject);
+        // highlight.SetActive(EventSystem.current.currentSelectedGameObject == gameObject);
     }
 }
