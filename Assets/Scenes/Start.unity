@@ -15332,7 +15332,7 @@ GameObject:
   - component: {fileID: 726453992}
   - component: {fileID: 726453993}
   m_Layer: 0
-  m_Name: GameSettingManager
+  m_Name: SettingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15366,6 +15366,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   setting:
+    quality: 2
+    resolution: {x: 1920, y: 1080}
+    windowMode: 0
+    volumn:
+      music: 1
+      effect: 1
+  temperate:
     quality: 2
     resolution: {x: 1920, y: 1080}
     windowMode: 0

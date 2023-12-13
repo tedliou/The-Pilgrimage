@@ -9,16 +9,16 @@ public class EnvSpawner : MonoBehaviour
     public GameObject temple;
     public Vector2 size;
     public Vector2 offset;
-
+    public Vector3 originPos;
     public Vector2[] stations = new Vector2[]{};
     public Vector2 stationSize;
     
     
     void Start()
     {
-        for (var x = 0; x < size.x; x++)
+        for (var x = originPos.x; x < originPos.x + size.x; x++)
         {
-            for (var z = 0; z < size.y; z++)
+            for (var z = originPos.z; z < originPos.z + size.y; z++)
             {
                 var buildGround = true;
                 var buildTemple = false;
@@ -44,12 +44,12 @@ public class EnvSpawner : MonoBehaviour
 
                 if (buildGround)
                 {
-                    var obj = Instantiate(sampleCube, new Vector3(x + offset.x, GameManager.Instance.floorYPos, z + offset.y), Quaternion.identity, transform);
+                    var obj = Instantiate(sampleCube, new Vector3(x + offset.x, GameManager.current.floorYPos, z + offset.y), Quaternion.identity, transform);
 
                 }
                 else if (buildTemple)
                 {
-                    var obj = Instantiate(temple, new Vector3(x + offset.x, GameManager.Instance.floorYPos, z + offset.y), Quaternion.identity, transform);
+                    var obj = Instantiate(temple, new Vector3(x + offset.x, GameManager.current.floorYPos, z + offset.y), Quaternion.identity, transform);
 
                 }
             }

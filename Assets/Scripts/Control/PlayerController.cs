@@ -8,6 +8,7 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+    #region Inspector
     public float angle;
     public string holdName;
     [SerializeField]private InteractableObject _fowardObject;
@@ -17,7 +18,8 @@ public class PlayerController : MonoBehaviour
     
     private Rigidbody _rigidbody;
     private Vector3 _direction;
-    private Vector3 _rotation;
+    private Quaternion _rotation;
+    private Vector3 _velocity;
     
     // Movement
     public float moveSpeed;
@@ -30,18 +32,25 @@ public class PlayerController : MonoBehaviour
     // Event
     // public event UnityAction<InteractableObject> onFindObj;
     // public event UnityAction<InteractableObject> onLostObj;
+    #endregion
 
+    #region Private
+    private PlayerInputHandler _inputHandler;
+    #endregion
+
+    #region Unity Messages
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _direction = Vector3.zero;
-        _rotation = Vector3.zero;
         _fowardObject = null;
         _holdingObject = null;
     }
 
     private void Update()
     {
+        return;
+        
         // Self Cell Pos
         selfCellTransform.parent = null;
         selfCellTransform.position = Grid2DSystem.WorldToCell(transform.position);
@@ -50,13 +59,13 @@ public class PlayerController : MonoBehaviour
         // Get Forward Cell
         var targetBlockPos = selfCellTransform.TransformPoint(new Vector3(0, 0, 1.4f));
         var targetBlockCellPos = Grid2DSystem.WorldToCell(targetBlockPos);
-        targetBlockCellPos.y = GameManager.Instance.propsYPos;
+        targetBlockCellPos.y = GameManager.current.propsYPos;
         targetBlock.transform.parent = null;
         targetBlock.transform.position = targetBlockCellPos;
         
         // Forward Pos
         forwardPlacePos = targetBlockCellPos;
-        forwardPlacePos.y = GameManager.Instance.propsYPos;
+        forwardPlacePos.y = GameManager.current.propsYPos;
         
         // Check Forward Props
         var forwardProps = Grid2DSystem.Find(targetBlockCellPos);
@@ -78,57 +87,50 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Move
         if (_direction.x != 0 || _direction.z != 0)
         {
-            _rigidbody.velocity = _direction.normalized * moveSpeed;
+            _velocity =  _direction.normalized * moveSpeed;
         }
         else
         {
-            _rigidbody.velocity = Vector3.zero;
+            _velocity = Vector3.zero;
         }
 
-        if (_rotation.x != 0 || _rotation.y != 0)
+        // Look
+        if (angle != 0)
         {
-            _rigidbody.MoveRotation(Quaternion.Euler(new Vector3(0, angle, 0)));
+            _rotation = Quaternion.Euler(new Vector3(0, angle, 0));
         }
-
-
-        _rigidbody.angularVelocity = Vector3.zero;
         
-        // ConsoleProDebug.Watch("Velocity", $"{_rigidbody.velocity}");
-        // ConsoleProDebug.Watch("AngularVelocity", $"{_rigidbody.angularVelocity}");
-        // ConsoleProDebug.Watch("TargetBlockPos", $"{targetBlockPos}");
+        // Update
+        _rigidbody.velocity = _velocity;
+        _rigidbody.angularVelocity = Vector3.zero;
+        transform.rotation = Quaternion.Lerp(transform.rotation,_rotation, .7f);
 
-        // Fixed Player Y Pos
-        var currentPlayerPos = transform.position;
-        currentPlayerPos.y = GameManager.Instance.playerYPos;
-        transform.position = currentPlayerPos;
+        // Fixed Y Pos
+        var currentPos = transform.position;
+        currentPos.y = GameManager.current.playerYPos;
+        transform.position = currentPos;
     }
-
-    public void OnMovement(InputAction.CallbackContext ctx)
+    #endregion
+    
+    #region Events
+    public void Move(Vector2 direction)
     {
-        var dir = ctx.ReadValue<Vector2>();
-        _direction.x = dir.x;
+        _direction.x = direction.x;
         _direction.y = 0;
-        _direction.z = dir.y;
+        _direction.z = direction.y;
         ConsoleProDebug.Watch("InputMovement", $"{_direction}");
     }
 
-    public void OnRotation(InputAction.CallbackContext ctx)
+    public void Look(float value)
     {
-        var rot = ctx.ReadValue<Vector2>();
-        _rotation = rot;
-        if (_rotation.magnitude >= 1)
-        {
-            angle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
-        }
+        angle = value;
     }
 
-    public void OnInteractive(InputAction.CallbackContext ctx)
+    public void Fire()
     {
-        if (!ctx.performed)
-            return;
-        
         if (_holdingObject is null)
         {
             if (_fowardObject is not null && _fowardObject.type == InteractableObject.ObjectType.Props)
@@ -172,5 +174,14 @@ public class PlayerController : MonoBehaviour
                 _holdingObject = null;
             }
         }
+    }
+    #endregion
+    
+    public void SetInputHandler(PlayerInputHandler playerInputHandler)
+    {
+        _inputHandler = playerInputHandler;
+        _inputHandler.onPlayerMove.AddListener(Move);
+        _inputHandler.onPlayerLook.AddListener(Look);
+        _inputHandler.onPlayerFire.AddListener(Fire);
     }
 }

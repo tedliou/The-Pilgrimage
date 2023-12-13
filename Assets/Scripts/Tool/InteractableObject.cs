@@ -82,7 +82,7 @@ public class InteractableObject : MonoBehaviour
     private void Start()
     {
         var cellPos = SelfCellPos;
-        cellPos.y = GameManager.Instance.propsYPos;
+        cellPos.y = GameManager.current.propsYPos;
         transform.position = cellPos;
         AddToGrid();
         if (stack && stackObjs.Count == 0)
