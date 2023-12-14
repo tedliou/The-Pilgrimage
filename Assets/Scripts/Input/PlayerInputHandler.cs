@@ -9,9 +9,11 @@ using UnityEngine.InputSystem.UI;
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerInputHandler : MonoBehaviour
 {
+    
     #region Public
     public UnityEvent<Vector2> onPlayerMove;
     public UnityEvent<float> onPlayerLook;
+    public UnityEvent onPlayerGet;
     public UnityEvent onPlayerFire;
     #endregion
     
@@ -27,6 +29,7 @@ public class PlayerInputHandler : MonoBehaviour
         _playerInput.currentActionMap.FindAction("Move").performed += OnMove;
         _playerInput.currentActionMap.FindAction("Move").canceled += OnMove;
         _playerInput.currentActionMap.FindAction("Look").performed += OnLook;
+        _playerInput.currentActionMap.FindAction("Get").performed += OnGet;
         _playerInput.currentActionMap.FindAction("Fire").performed += OnFire;
     }
     #endregion
@@ -49,6 +52,13 @@ public class PlayerInputHandler : MonoBehaviour
         }
         onPlayerLook.Invoke(angle);
         ConsoleProDebug.Watch("Rotate", $"Player {_playerInput.playerIndex}: {angle}");
+    }
+    
+    
+    private void OnGet(InputAction.CallbackContext ctx)
+    {
+        onPlayerGet.Invoke();
+        ConsoleProDebug.Watch("Interactive", $"Player {_playerInput.playerIndex}: {ctx.performed}");
     }
 
     private void OnFire(InputAction.CallbackContext ctx)

@@ -47,5 +47,5 @@ MonoBehaviour:
   targetFrameRate: 144
   playerYPos: 0.2
   floorYPos: 0
-  propsYPos: 0
+  propsYPos: 0.2
   playerPrefab: {fileID: 6483123221736047202, guid: ca1a508385d32fb438176dcde1ee20f7, type: 3}

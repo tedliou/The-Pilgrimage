@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
@@ -21,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Player Object")] [SerializeField]
     private GameObject playerPrefab;
+
+    [SerializeField] private Vector3 playerSpawnPos;
     #endregion
 
     #region Private
@@ -29,6 +32,11 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region Static
+
+    public static UnityEvent<Transform> onPlayerSpawn = new();
+    #endregion
+    
     #region Unity Messages
     private void Awake()
     {
@@ -51,8 +59,10 @@ public class GameManager : MonoBehaviour
     private void SpawnPlayerObject(int playerID, PlayerInputHandler inputHandler)
     {
         Debug.Log($"Spawn Player: P{playerID}");
-        var spawnPos = Vector3.zero;
+        var spawnPos = playerSpawnPos;
+        spawnPos.y = playerYPos;
         var playerObj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
         playerObj.GetComponent<PlayerController>().SetInputHandler(inputHandler);
+        onPlayerSpawn.Invoke(playerObj.transform);
     }
 }

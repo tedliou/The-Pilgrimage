@@ -49,8 +49,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        return;
-        
         // Self Cell Pos
         selfCellTransform.parent = null;
         selfCellTransform.position = Grid2DSystem.WorldToCell(transform.position);
@@ -129,7 +127,7 @@ public class PlayerController : MonoBehaviour
         angle = value;
     }
 
-    public void Fire()
+    public void Get()
     {
         if (_holdingObject is null)
         {
@@ -175,6 +173,28 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    public void Fire()
+    {
+        // Test
+        if (_holdingObject && _holdingObject.id == 0)
+        {
+            var targetPos = targetBlock.transform.position;
+            var cellPos = new Vector2(targetPos.x, targetPos.z);
+            Debug.Log(cellPos);
+            var roadBlockObj = EnvSpawner.current.Map_Find(cellPos);
+            if (roadBlockObj)
+            {
+                Debug.Log(roadBlockObj);
+                var roadBlock = roadBlockObj.GetComponent<RoadBlock>();
+                if (!roadBlock)
+                {
+                    EnvSpawner.current.Map_Replace(cellPos, EnvSpawner.current.SpawnBlock(EnvSpawner.BlockType.Road, new Vector3(cellPos.x, 0, cellPos.y)));
+                    Debug.Log("Replace");
+                }
+            }
+        }
+    }
     #endregion
     
     public void SetInputHandler(PlayerInputHandler playerInputHandler)
@@ -182,6 +202,7 @@ public class PlayerController : MonoBehaviour
         _inputHandler = playerInputHandler;
         _inputHandler.onPlayerMove.AddListener(Move);
         _inputHandler.onPlayerLook.AddListener(Look);
+        _inputHandler.onPlayerGet.AddListener(Get);
         _inputHandler.onPlayerFire.AddListener(Fire);
     }
 }

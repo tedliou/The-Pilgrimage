@@ -56,10 +56,10 @@ public class Grid2DSystem: MonoBehaviour
     public static Vector3 WorldToCell(Vector3 position)
     {
         var x = Mathf.FloorToInt(position.x);
-        var y = Mathf.FloorToInt(position.y);
         var z = Mathf.FloorToInt(position.z);
 
-        var cellCenterPos = new Vector3(x >= 0 ? x + .5f : x - .5f, y >= 0 ? y + .5f : y - .5f, z >= 0 ? z + .5f : z - .5f);
+        //var cellCenterPos = new Vector3(x >= 0 ? x + .5f : x - .5f, 0, z >= 0 ? z + .5f : z - .5f);
+        var cellCenterPos = new Vector3(x, 0, z);
         
         return cellCenterPos;
     }
