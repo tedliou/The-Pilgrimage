@@ -63,4 +63,9 @@ public class Grid2DSystem: MonoBehaviour
         
         return cellCenterPos;
     }
+
+    public static Vector2Int WorldTo2DCell(Vector3 position)
+    {
+        return new Vector2Int((int)position.x, (int)position.z);
+    }
 }

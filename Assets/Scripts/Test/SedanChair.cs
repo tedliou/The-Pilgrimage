@@ -6,6 +6,8 @@ using UnityEngine;
 public class SedanChair : MonoBehaviour
 {
     public Direction moveDirection = Direction.Stop;
+    public Direction lastDirection = Direction.Stop;
+    
     public float moveSpeed = .2f;
 
     private Rigidbody _rigidbody;
@@ -37,28 +39,25 @@ public class SedanChair : MonoBehaviour
     private void FixedUpdate()
     {
         var velocity = Vector3.zero;
-        var dir = Vector3.zero;
         switch (moveDirection)
         {
             case Direction.Top:
-                dir = new Vector3(0, 0, 1);
+                velocity = new Vector3(0, 0, 1);
                 break;
             case Direction.Down:
-                dir = new Vector3(0, 0, -1);
+                velocity = new Vector3(0, 0, -1);
                 break;
             case Direction.Right:
-                dir = new Vector3(1, 0, 0);
+                velocity = new Vector3(1, 0, 0);
                 break;
             case Direction.Left:
-                dir = new Vector3(-1, 0, 0);
+                velocity = new Vector3(-1, 0, 0);
                 break;
             case Direction.Stop:
-                dir = Vector3.zero;
+                velocity = Vector3.zero;
                 break;
         }
-        velocity =  dir * moveSpeed;
-        
-
+        velocity *=  moveSpeed;
         _rigidbody.velocity = velocity;
     }
 
@@ -68,24 +67,29 @@ public class SedanChair : MonoBehaviour
     {
         while (gameObject.activeSelf)
         {
-            FindPath();
+            //FindPath();
             
             yield return null;
         }
     }
 
-    private void FindPath()
+    private RoadBlock GetCurrentRoadBlock()
     {
         var cellPos = Grid2DSystem.WorldToCell(transform.position);
         var roadBlockObj = EnvSpawner.current.Map_Find(new Vector2(cellPos.x, cellPos.z));
         if (!roadBlockObj)
+            return null;
+        
+        return roadBlockObj.GetComponent<RoadBlock>();
+    }
+
+    private void FindPath()
+    {
+        var current = GetCurrentRoadBlock();
+        if (!current)
             return;
         
-        var roadBlockStart = roadBlockObj.GetComponent<RoadBlock>();
-        if (!roadBlockStart)
-            return;
-        
-        var roadPos = new Vector2Int((int)cellPos.x, (int)cellPos.z);
+        var roadPos = Grid2DSystem.WorldTo2DCell(transform.position);
         if (FindNear(Direction.Top, roadPos))
         {
             moveDirection = Direction.Top;
@@ -145,12 +149,7 @@ public class SedanChair : MonoBehaviour
         var roadBlock = GetRoadBlock(pos);
         if (!roadBlock)
             return false;
-
-        if (_roadHistory.Contains(roadBlock))
-            return false;
-        
-        _roadHistory.Add(roadBlock);
-        _targetPos = new Vector3Int(pos.x, 0, pos.y);
+         
         return true;
     }
 

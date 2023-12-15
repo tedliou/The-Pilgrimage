@@ -369,7 +369,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveDirection: 4
-  moveSpeed: 1
+  lastDirection: 4
+  moveSpeed: 0.6
   _roadHistory: []
 --- !u!54 &2287977903205889432
 Rigidbody:

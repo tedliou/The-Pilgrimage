@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -175,6 +174,6 @@ public class InteractableObject : MonoBehaviour
 
     private void DropProps()
     {
-        Instantiate(dropProps, transform.position, quaternion.identity);
+        Instantiate(dropProps, transform.position, Quaternion.identity);
     }
 }

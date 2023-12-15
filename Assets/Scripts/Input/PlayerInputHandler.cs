@@ -14,7 +14,9 @@ public class PlayerInputHandler : MonoBehaviour
     public UnityEvent<Vector2> onPlayerMove;
     public UnityEvent<float> onPlayerLook;
     public UnityEvent onPlayerGet;
+    public UnityEvent onPlayerGetCancel;
     public UnityEvent onPlayerFire;
+    public UnityEvent onPlayerFireCancel;
     #endregion
     
     #region Private
@@ -30,7 +32,9 @@ public class PlayerInputHandler : MonoBehaviour
         _playerInput.currentActionMap.FindAction("Move").canceled += OnMove;
         _playerInput.currentActionMap.FindAction("Look").performed += OnLook;
         _playerInput.currentActionMap.FindAction("Get").performed += OnGet;
+        _playerInput.currentActionMap.FindAction("Get").canceled += OnGetCancel;
         _playerInput.currentActionMap.FindAction("Fire").performed += OnFire;
+        _playerInput.currentActionMap.FindAction("Fire").canceled += OnFireCancel;
     }
     #endregion
 
@@ -60,11 +64,19 @@ public class PlayerInputHandler : MonoBehaviour
         onPlayerGet.Invoke();
         ConsoleProDebug.Watch("Interactive", $"Player {_playerInput.playerIndex}: {ctx.performed}");
     }
+    private void OnGetCancel(InputAction.CallbackContext ctx)
+    {
+        onPlayerGetCancel.Invoke();
+    }
 
     private void OnFire(InputAction.CallbackContext ctx)
     {
         onPlayerFire.Invoke();
         ConsoleProDebug.Watch("Interactive", $"Player {_playerInput.playerIndex}: {ctx.performed}");
+    }
+    private void OnFireCancel(InputAction.CallbackContext ctx)
+    {
+        onPlayerFireCancel.Invoke();
     }
     #endregion
 }

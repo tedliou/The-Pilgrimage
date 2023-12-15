@@ -32,19 +32,32 @@ public class PlayerController : MonoBehaviour
     // Event
     // public event UnityAction<InteractableObject> onFindObj;
     // public event UnityAction<InteractableObject> onLostObj;
+    
+    // Hand
+    public Transform playerHand;
+    public GameObject clipTool;
     #endregion
 
     #region Private
     private PlayerInputHandler _inputHandler;
+    private Animator _animator;
+    private string _aniWalk = "Walk";
+    private string _aniPick = "Pick";
     #endregion
 
     #region Unity Messages
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _animator = GetComponentInChildren<Animator>();
         _direction = Vector3.zero;
         _fowardObject = null;
         _holdingObject = null;
+    }
+
+    private void Start()
+    {
+        clipTool.SetActive(false);
     }
 
     private void Update()
@@ -86,14 +99,9 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // Move
-        if (_direction.x != 0 || _direction.z != 0)
-        {
-            _velocity =  _direction.normalized * moveSpeed;
-        }
-        else
-        {
-            _velocity = Vector3.zero;
-        }
+        var isMoving = _direction.x != 0 || _direction.z != 0;
+        _velocity = isMoving ? _direction.normalized * moveSpeed : Vector3.zero;
+        _animator.SetBool(_aniWalk, isMoving);
 
         // Look
         if (angle != 0)
@@ -129,16 +137,29 @@ public class PlayerController : MonoBehaviour
 
     public void Get()
     {
+        _animator.SetBool(_aniPick, true);
+        
         if (_holdingObject is null)
         {
             if (_fowardObject is not null && _fowardObject.type == InteractableObject.ObjectType.Props)
             {
                 _fowardObject.RemoveFromGrid();
-                _fowardObject.transform.SetParent(transform);
+                _fowardObject.gameObject.SetActive(false);
                 
-                // Obj Holding Pos
-                _fowardObject.transform.localPosition = new Vector3(0, .6f, 0);
-                _fowardObject.transform.localEulerAngles = Vector3.zero;
+                if (_fowardObject.id == 0)
+                {
+                    clipTool.SetActive(true);
+                }
+                else
+                {
+                    clipTool.SetActive(false);
+                }
+                
+                // _fowardObject.transform.SetParent(playerHand);
+                //
+                // // Obj Holding Pos
+                // _fowardObject.transform.localPosition = new Vector3(0, 0, 0);
+                // _fowardObject.transform.localEulerAngles = Vector3.zero;
                 
                 _holdingObject = _fowardObject;
             }
@@ -159,6 +180,8 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                clipTool.SetActive(false);
+                _holdingObject.gameObject.SetActive(true);
                 _holdingObject.transform.parent = null;
                 _holdingObject.transform.position = forwardPlacePos;
                 _holdingObject.transform.eulerAngles = Vector3.zero;
@@ -174,8 +197,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void GetCancel()
+    {
+        _animator.SetBool(_aniPick, false);
+    }
+
     public void Fire()
     {
+        _animator.SetBool(_aniPick, true);
+        
         // Test
         if (_holdingObject && _holdingObject.id == 0)
         {
@@ -195,6 +225,11 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    private void FireCancel()
+    {
+        _animator.SetBool(_aniPick, false);
+    }
     #endregion
     
     public void SetInputHandler(PlayerInputHandler playerInputHandler)
@@ -203,6 +238,8 @@ public class PlayerController : MonoBehaviour
         _inputHandler.onPlayerMove.AddListener(Move);
         _inputHandler.onPlayerLook.AddListener(Look);
         _inputHandler.onPlayerGet.AddListener(Get);
+        _inputHandler.onPlayerGetCancel.AddListener(GetCancel);
         _inputHandler.onPlayerFire.AddListener(Fire);
+        _inputHandler.onPlayerFireCancel.AddListener(FireCancel);
     }
 }
