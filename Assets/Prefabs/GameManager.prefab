@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f45714ee8506264ea0b5c83053a49d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetFrameRate: 144
+  targetFrameRate: 30
   playerYPos: 0.2
   floorYPos: 0
   propsYPos: 0.2
   playerPrefab: {fileID: 6483123221736047202, guid: ca1a508385d32fb438176dcde1ee20f7, type: 3}
+  playerSpawnPos: {x: 5, y: 0, z: 5}

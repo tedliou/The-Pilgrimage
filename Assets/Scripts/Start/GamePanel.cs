@@ -22,6 +22,9 @@ public abstract class GamePanel : MonoBehaviour
 
     protected virtual void OnEnable()
     {
+        if (!firstSelected)
+            return;
+        
         EventSystem.current.SetSelectedGameObject(firstSelected);
         firstSelected.GetComponent<IGameButton>().Click();
     }

@@ -173,13 +173,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8079572128417071130, guid: 854644c952235b447a646bc1a4edf2aa, type: 3}
       propertyPath: m_Name
-      value: GamePlayerInputManager
+      value: GameInputManager
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8079572128417071130, guid: 854644c952235b447a646bc1a4edf2aa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 488527387}
   m_SourcePrefab: {fileID: 100100000, guid: 854644c952235b447a646bc1a4edf2aa, type: 3}
+--- !u!1 &488527384 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8079572128417071130, guid: 854644c952235b447a646bc1a4edf2aa, type: 3}
+  m_PrefabInstance: {fileID: 209984311}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &488527387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488527384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06eeb986e46d942cf810e9fb8c080607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &666375302
 GameObject:
   m_ObjectHideFlags: 3
@@ -890,18 +910,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
-    - target: {fileID: 9004856666033382656, guid: 40768a26c0417214f8c8dee9802feb6b, type: 3}
-      propertyPath: targetFrameRate
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 9004856666033382656, guid: 40768a26c0417214f8c8dee9802feb6b, type: 3}
-      propertyPath: playerSpawnPos.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9004856666033382656, guid: 40768a26c0417214f8c8dee9802feb6b, type: 3}
-      propertyPath: playerSpawnPos.z
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -915,7 +923,7 @@ SceneRoots:
   - {fileID: 1466298671}
   - {fileID: 1269818038}
   - {fileID: 874709138}
-  - {fileID: 3191255589468417000}
-  - {fileID: 209984311}
   - {fileID: 1154187712}
   - {fileID: 2669672334555006013}
+  - {fileID: 3191255589468417000}
+  - {fileID: 209984311}

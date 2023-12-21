@@ -24,7 +24,7 @@ public class PanelLobby : GamePanel
     public float pressDuration = 3;
     private float _currentPressDuration = 0;
     
-    private GameObject _playerInputManager;
+    private PlayerInputManager _playerInputManager;
 
     private void Start()
     {
@@ -64,9 +64,10 @@ public class PanelLobby : GamePanel
     protected override void OnEnable()
     {
         base.OnEnable();
-        _playerInputManager = Instantiate(playerInputManager);
-        _playerInputManager.GetComponent<PlayerInputManager>().onPlayerJoined += OnPlayerJoin;
-        _playerInputManager.GetComponent<PlayerInputManager>().onPlayerLeft += OnPlayerLeft;
+        
+        _playerInputManager = FindObjectOfType<PlayerInputManager>();
+        _playerInputManager.onPlayerJoined += OnPlayerJoin;
+        _playerInputManager.onPlayerLeft += OnPlayerLeft;
     }
 
     private void OnDisable()
