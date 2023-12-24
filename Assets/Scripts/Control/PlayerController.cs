@@ -237,8 +237,8 @@ public class PlayerController : MonoBehaviour
         _inputHandler = playerInputHandler;
         _inputHandler.onPlayerMove.AddListener(Move);
         _inputHandler.onPlayerLook.AddListener(Look);
-        _inputHandler.onPlayerGet.AddListener(Get);
-        _inputHandler.onPlayerGetCancel.AddListener(GetCancel);
+        _inputHandler.OnPlayerGet.AddListener(Get);
+        _inputHandler.OnPlayerGetCancel.AddListener(GetCancel);
         _inputHandler.onPlayerFire.AddListener(Fire);
         _inputHandler.onPlayerFireCancel.AddListener(FireCancel);
     }

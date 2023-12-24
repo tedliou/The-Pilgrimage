@@ -5,36 +5,68 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Serialization;
 
-[RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(PlayerInput), typeof(MultiplayerEventSystem))]
 public class PlayerInputHandler : MonoBehaviour
 {
+    #region Properties
+
+    protected PlayerInput Input
+    {
+        get
+        {
+            _input ??= GetComponent<PlayerInput>();
+            return _input;
+        }
+    }
+    private PlayerInput _input;
     
-    #region Public
-    public UnityEvent<Vector2> onPlayerMove;
-    public UnityEvent<float> onPlayerLook;
-    public UnityEvent onPlayerGet;
-    public UnityEvent onPlayerGetCancel;
-    public UnityEvent onPlayerFire;
-    public UnityEvent onPlayerFireCancel;
+    protected InputSystemUIInputModule InputModule
+    {
+        get
+        {
+            _inputModule ??= GetComponent<InputSystemUIInputModule>();
+            return _inputModule;
+        }
+    }
+    private InputSystemUIInputModule _inputModule;
+    
+    protected MultiplayerEventSystem EventSystem
+    {
+        get
+        {
+            _eventSystem ??= GetComponent<MultiplayerEventSystem>();
+            return _eventSystem;
+        }
+    }
+    private MultiplayerEventSystem _eventSystem;
+
     #endregion
     
-    #region Private
-    private PlayerInput _playerInput;
+    
+    #region API
+    public UnityEvent<Vector2> onPlayerMove;
+    public UnityEvent<float> onPlayerLook;
+    [FormerlySerializedAs("onPlayerGet")] public UnityEvent OnPlayerGet;
+    [FormerlySerializedAs("onPlayerGetCancel")] public UnityEvent OnPlayerGetCancel;
+    public UnityEvent onPlayerFire;
+    public UnityEvent onPlayerFireCancel;
     #endregion
 
     #region Unity Messages
     private void Awake()
     {
-        _playerInput = GetComponent<PlayerInput>();
-        _playerInput.uiInputModule = FindObjectOfType<InputSystemUIInputModule>();
-        _playerInput.currentActionMap.FindAction("Move").performed += OnMove;
-        _playerInput.currentActionMap.FindAction("Move").canceled += OnMove;
-        _playerInput.currentActionMap.FindAction("Look").performed += OnLook;
-        _playerInput.currentActionMap.FindAction("Get").performed += OnGet;
-        _playerInput.currentActionMap.FindAction("Get").canceled += OnGetCancel;
-        _playerInput.currentActionMap.FindAction("Fire").performed += OnFire;
-        _playerInput.currentActionMap.FindAction("Fire").canceled += OnFireCancel;
+        InputModule.actionsAsset = Input.actions;
+        Input.SwitchCurrentActionMap("Player");
+        Input.currentActionMap.FindAction("Move").performed += OnMove;
+        Input.currentActionMap.FindAction("Move").canceled += OnMove;
+        Input.currentActionMap.FindAction("Look").performed += OnLook;
+        Input.currentActionMap.FindAction("Get").performed += OnGet;
+        Input.currentActionMap.FindAction("Get").canceled += OnGetCancel;
+        Input.currentActionMap.FindAction("Fire").performed += OnFire;
+        Input.currentActionMap.FindAction("Fire").canceled += OnFireCancel;
+        Input.currentActionMap.FindAction("Active").performed += OnActive;
     }
     #endregion
 
@@ -43,7 +75,7 @@ public class PlayerInputHandler : MonoBehaviour
     {
         var dir = ctx.ReadValue<Vector2>();
         onPlayerMove.Invoke(dir);
-        ConsoleProDebug.Watch("Move", $"Player {_playerInput.playerIndex}: {dir}");
+        ConsoleProDebug.Watch("Move", $"Player {Input.playerIndex}: {dir}");
     }
 
     private void OnLook(InputAction.CallbackContext ctx)
@@ -55,28 +87,36 @@ public class PlayerInputHandler : MonoBehaviour
             angle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
         }
         onPlayerLook.Invoke(angle);
-        ConsoleProDebug.Watch("Rotate", $"Player {_playerInput.playerIndex}: {angle}");
+        ConsoleProDebug.Watch("Rotate", $"Player {Input.playerIndex}: {angle}");
     }
     
     
     private void OnGet(InputAction.CallbackContext ctx)
     {
-        onPlayerGet.Invoke();
-        ConsoleProDebug.Watch("Interactive", $"Player {_playerInput.playerIndex}: {ctx.performed}");
+        OnPlayerGet.Invoke();
+        ConsoleProDebug.Watch("Interactive", $"Player {Input.playerIndex}: {ctx.performed}");
     }
     private void OnGetCancel(InputAction.CallbackContext ctx)
     {
-        onPlayerGetCancel.Invoke();
+        OnPlayerGetCancel.Invoke();
     }
 
     private void OnFire(InputAction.CallbackContext ctx)
     {
         onPlayerFire.Invoke();
-        ConsoleProDebug.Watch("Interactive", $"Player {_playerInput.playerIndex}: {ctx.performed}");
+        ConsoleProDebug.Watch("Interactive", $"Player {Input.playerIndex}: {ctx.performed}");
     }
     private void OnFireCancel(InputAction.CallbackContext ctx)
     {
         onPlayerFireCancel.Invoke();
+    }
+
+    private void OnActive(InputAction.CallbackContext _)
+    {
+        if (!EventSystem.currentSelectedGameObject)
+        {
+            EventSystem.SetSelectedGameObject(FirstSelectObject.Find());
+        }
     }
     #endregion
 }

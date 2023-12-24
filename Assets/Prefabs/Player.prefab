@@ -9,10 +9,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7623364083670291969}
+  - component: {fileID: 3172732469709703110}
   - component: {fileID: 5701202499161916763}
   - component: {fileID: 5722695616095358245}
+  - component: {fileID: 6098431368988005805}
+  - component: {fileID: -6720753927278651177}
+  - component: {fileID: -3498080944791313289}
   m_Layer: 0
-  m_Name: GamePlayerInput
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,6 +37,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3172732469709703110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042990200159030985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf70cfe1a2eb7ac4db1dd070a254f2de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5701202499161916763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,5 +141,81 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac14f72a8100d6748b115d60dc0018e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onPlayerMove:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerLook:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerGet:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerGetCancel:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerFire:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerFireCancel:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6098431368988005805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042990200159030985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b16c6f78230fa4964a222622d8aae332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+  m_PlayerRoot: {fileID: 0}
+--- !u!114 &-6720753927278651177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042990200159030985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 0}
+  m_TrackedDeviceOrientationAction: {fileID: 0}
+  m_DeselectOnBackgroundClick: 0
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+--- !u!114 &-3498080944791313289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042990200159030985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dbe8c02174bc1846af518d2b526031c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

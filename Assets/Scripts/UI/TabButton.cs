@@ -37,6 +37,7 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
     private Image _hoverBackgroundImage;
     private InputActionAsset _inputActionAsset;
     private InputAction _inputAction;
+    private RectTransform _rectTransform;
     #endregion
 
     #region Static
@@ -119,7 +120,8 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
     {
         if (maximumHoverBackgroundSize)
         {
-            hoverBackground.sizeDelta = GetComponent<RectTransform>().sizeDelta;
+            _rectTransform ??= GetComponent<RectTransform>();
+            hoverBackground.sizeDelta = _rectTransform.sizeDelta;
             return;
         }
         

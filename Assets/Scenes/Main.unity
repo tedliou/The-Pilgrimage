@@ -228,14 +228,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42072a56ca75e4a4685f22ff9c7dcffc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sampleCube: {fileID: 6249144520780671330, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
+  grass: {fileID: 0}
+  floor: {fileID: 0}
   temple: {fileID: 8091614514934923835, guid: 9b7f47a22356d5f45a3ab78a89caf0c1, type: 3}
-  size: {x: 50, y: 20}
-  offset: {x: 0, y: 0}
-  stations:
-  - {x: 4, y: 14}
-  - {x: 25, y: 10}
-  stationSize: {x: 4, y: 4}
+  sedanChair: {fileID: 0}
+  mapSize: {x: 0, y: 0}
+  mapOffset: {x: 0, y: 0}
+  mapOriginPos: {x: 0, y: 0, z: 0}
+  templePos: []
+  templeSize: {x: 0, y: 0}
+  templeFirstOffset: {x: 0, y: 0}
+  sedanChairSpawnPos: {x: 0, y: 0}
+  prebuildRoadLength: 6
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +634,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 3
+  field of view: 60
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -776,6 +780,7 @@ MonoBehaviour:
   floorYPos: 0
   propsYPos: 0.5
   playerPrefab: {fileID: 0}
+  playerSpawnPos: {x: 0, y: 0, z: 0}
 --- !u!4 &1336826320
 Transform:
   m_ObjectHideFlags: 0
@@ -1821,6 +1826,8 @@ MonoBehaviour:
   forwardPlacePos: {x: 0, y: 0, z: 0}
   targetBlock: {fileID: 791239574}
   selfCellTransform: {fileID: 8192316413931522859}
+  playerHand: {fileID: 0}
+  clipTool: {fileID: 0}
 --- !u!1 &1610308488443472052
 GameObject:
   m_ObjectHideFlags: 0
@@ -2133,7 +2140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5967279565132968464
 Transform:
   m_ObjectHideFlags: 0

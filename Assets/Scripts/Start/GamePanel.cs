@@ -25,7 +25,7 @@ public abstract class GamePanel : MonoBehaviour
         if (!firstSelected)
             return;
         
-        EventSystem.current.SetSelectedGameObject(firstSelected);
+        //EventSystem.current.SetSelectedGameObject(firstSelected);
         firstSelected.GetComponent<IGameButton>().Click();
     }
 
