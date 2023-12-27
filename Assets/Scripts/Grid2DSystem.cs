@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -13,7 +14,7 @@ public class Grid2DSystem: MonoBehaviour
     {
         var key = new Vector2(position.x, position.z);
 
-        if (block.Setting.Type == BlockType.Prop || block.Setting.Type == BlockType.Tool)
+        if (IsTopGrid(block.Setting.Type))
         {
             if (CellTop.TryAdd(key, block))
             {
@@ -32,7 +33,7 @@ public class Grid2DSystem: MonoBehaviour
             }
             else
             {
-                Debug.Log($"[{nameof(Grid2DSystem)}] {block.name} 註冊失敗");
+                Debug.Log($"[{nameof(Grid2DSystem)}] {block.name} 註冊失敗 {key}");
             }
         }
     }
@@ -41,7 +42,7 @@ public class Grid2DSystem: MonoBehaviour
     {
         var key = new Vector2(position.x, position.z);
         
-        if (blockType == BlockType.Prop || blockType == BlockType.Tool)
+        if (IsTopGrid(blockType))
         {
             if (CellTop.TryGetValue(key, out BlockBase block))
             {
@@ -78,7 +79,7 @@ public class Grid2DSystem: MonoBehaviour
     {
         var key = new Vector2(position.x, position.z);
 
-        if (blockType == BlockType.Prop || blockType == BlockType.Tool)
+        if (IsTopGrid(blockType))
         {
             if (CellTop.TryGetValue(key, out BlockBase entity))
             {
@@ -97,6 +98,41 @@ public class Grid2DSystem: MonoBehaviour
 
         block = null;
         return false;
+    }
+
+    public static bool Find(string blockId, out BlockBase block)
+    {
+        var blockPrefab = GameManager.Instance.GetPrefab(blockId);
+        if (IsTopGrid(blockPrefab.Setting.Type))
+        {
+            var query = CellTop.Values.FirstOrDefault(x => x.Setting.Id == blockId);
+            if (query is not null)
+            {
+                block = query;
+                return true;
+            }
+
+            block = null;
+            return false;
+        }
+        else
+        {
+            var query = CellBottom.Values.FirstOrDefault(x => x.Setting.Id == blockId);
+            if (query is not null)
+            {
+                block = query;
+                return true;
+            }
+
+            block = null;
+            return false;
+        }
+    }
+
+    private static bool IsTopGrid(BlockType input)
+    {
+        return input == BlockType.Prop || input == BlockType.Tool ||
+               input == BlockType.Chest || input == BlockType.Float;
     }
 
     public static Vector3 WorldToCell(Vector3 position)

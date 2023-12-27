@@ -92,6 +92,10 @@ public class GameManager : Singleton<GameManager>
     private void SpawnPlayerObject(Player player)
     {
         var spawnPos = playerSpawnPos;
+        if (Grid2DSystem.Find("Chest_SedanChair", out BlockBase block))
+        {
+            spawnPos = block.transform.position - new Vector3(0, 0, 1);
+        }
         spawnPos.y = playerYPos;
         
         var playerObj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);

@@ -13,7 +13,15 @@ MonoBehaviour:
   m_Name: GamePrefab
   m_EditorClassIdentifier: 
   _prefab:
+  - {fileID: -3230772938628288208, guid: 9b7f47a22356d5f45a3ab78a89caf0c1, type: 3}
   - {fileID: -2172269539206827865, guid: 825027c2dc582894dafdd6a9827a00b8, type: 3}
   - {fileID: 7338726425959259254, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
   - {fileID: 7326213180608557354, guid: e0ce48687a2c2674e90ee59e354bfab5, type: 3}
   - {fileID: 5681585822613095955, guid: 4301665271595d94ba805c27f579998a, type: 3}
+  - {fileID: 3818883354359485616, guid: 84957afae7953ae42892ae453041373f, type: 3}
+  - {fileID: 6714230648231234138, guid: 23de41589edc769438efe36e357e7d9d, type: 3}
+  - {fileID: -8548258767335439451, guid: 723fe2c93b6f19d4681d848a92e68fe0, type: 3}
+  - {fileID: 7378736025826503803, guid: 2510dfb92ec599d4da95c3fcdb298fb9, type: 3}
+  - {fileID: 2537925826147354310, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
+  - {fileID: 3818883354359485616, guid: 4a1e33689bc09c24baae09bdb85c9781, type: 3}
+  - {fileID: 6714230648231234138, guid: a9ffd35af08240948ad361880a7a5454, type: 3}

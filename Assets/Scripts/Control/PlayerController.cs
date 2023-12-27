@@ -77,9 +77,9 @@ public class Inventory
         return true;
     }
 
-    public bool TrySet(string id)
+    public bool TrySet(string id, int amount = 1)
     {
-        if (hasItem)
+        if (hasItem && this.id != id)
         {
             return false;
         }
@@ -88,8 +88,13 @@ public class Inventory
             return false;
 
         hasItem = true;
-        this.id = id;
-        amount += 1;
+        if (this.id == id)
+            this.amount += amount;
+        else
+        {
+            this.id = id;
+            this.amount = amount;
+        }
         return true;
     }
 
@@ -304,6 +309,10 @@ public class PlayerController : MonoBehaviour
         {
             return true;
         }
+        else if (Grid2DSystem.Find(selectedPos, BlockType.Float, out target))
+        {
+            return true;
+        }
         else if (Grid2DSystem.Find(selectedPos, BlockType.Floor, out target))
         {
             return true;
@@ -363,43 +372,28 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        
-        
-        
-        // Test_SetIndicator();
-        
-        // Self Cell Pos
-        // selfCellTransform.parent = null;
-        // selfCellTransform.position = Grid2DSystem.WorldToCell(transform.position);
-        // selfCellTransform.rotation = transform.rotation;
-        
-        // Get Forward Cell
-        // var targetBlockPos = selfCellTransform.TransformPoint(new Vector3(0, 0, 1.4f));
-        // var targetBlockCellPos = Grid2DSystem.WorldToCell(targetBlockPos);
-        // targetBlockCellPos.y = GameManager.Instance.propsYPos;
-        //targetBlock.transform.parent = null;
-        //targetBlock.transform.position = targetBlockCellPos;
-        
-        // Forward Pos
-        //forwardPlacePos = targetBlockCellPos;
-        //forwardPlacePos.y = GameManager.Instance.propsYPos;
-        
-        // Check Forward Props
-        // var forwardProps = Grid2DSystem.Find(targetBlockCellPos);
-        // if (forwardProps && forwardProps.CompareTag(INTERACTABLE_OBJECT))
-        // {
-        //     _fowardObject = forwardProps;
-        //     _fowardObject?.OnFindObj();
-        //     
-        //     // Check Destroy Target
-        //     _fowardObject.Check(_holdingObject);
-        //     _fowardObject.DoDestroy();
-        // }
-        // else
-        // {
-        //     _fowardObject?.OnLostObj();
-        //     _fowardObject = null;
-        // }
+        if (TryGetSelectedBlock(out BlockBase target))
+        {
+            if (target.Setting.Id == "Prop_Garbage" || target.Setting.Id == "Prop_Gas")
+            {
+                if (Tool.TryGet(out string holding))
+                {
+                    if (holding == "Tool_Chip")
+                    {
+                        Animator.SetBool(_aniPick, true);
+                        target.isBroking = true;
+                    }
+                    else
+                    {
+                        Animator.SetBool(_aniPick, false);
+                    }
+                }
+            }
+            else
+            {
+                Animator.SetBool(_aniPick, false);
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -452,31 +446,65 @@ public class PlayerController : MonoBehaviour
                 // Take
                 if (Tool.TryGet(out string holding))
                 {
-                    Debug.Log($"玩家{Player.Id}: 持有 {holding}, 無法再拿取");
+                    Debug.Log($"玩家{Player.Id}: 持有工具 {holding}, 無法再拿取");
                 }
                 else if (Tool.TrySet(target.Setting.Id))
                 {
-                    Debug.Log($"玩家{Player.Id}: 取得 {target.Setting.Id}");
+                    Debug.Log($"玩家{Player.Id}: 取得工具 {target.Setting.Id}");
                     
                     Grid2DSystem.Remove(target.transform.position, BlockType.Tool);
                     
                     if (Tool.TryGet(out string itemId))
                     {
-                        Debug.Log($"玩家{Player.Id}: 持有 {itemId}");
+                        Debug.Log($"玩家{Player.Id}: 持有工具 {itemId}");
                         Animator.SetBool(_aniPick, true);
                     }
                 }
             }
-            else if (target.Setting.Type == BlockType.Prop)
+            else if (target.Setting.Type == BlockType.Float)
             {
                 // Take or Place
+                if (Inventory.TryGet(out string id, out int amount))
+                {
+                    if (id == target.Setting.Id)
+                    {
+                        if (Inventory.TrySet(id, target.amount))
+                        {
+                            Debug.Log($"玩家{Player.Id}: 取得道具 {target.Setting.Id}");
+                            Animator.SetBool(_aniPick, true);
+                            Grid2DSystem.Remove(target.transform.position, target.Setting.Type);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"玩家{Player.Id}: 持有道具 {id}, 無法再拿取");
+                    }
+                }
+                else
+                {
+                    if (Inventory.TrySet(target.Setting.Id, target.amount))
+                    {
+                        Debug.Log($"玩家{Player.Id}: 取得道具 {target.Setting.Id}");
+                        Animator.SetBool(_aniPick, true);
+                        Grid2DSystem.Remove(target.transform.position, target.Setting.Type);
+                    }
+                    else
+                    {
+                        Debug.Log($"玩家{Player.Id}: 道具取得失敗 {target.Setting.Id}");
+                    }
+                }
             }
             else if (target.Setting.Type == BlockType.Floor)
             {
                 // Place
                 if (Inventory.TryGet(out string id, out int amount))
                 {
-                    
+                    var blockPrefab = GameManager.Instance.GetPrefab(id).gameObject;
+                    var obj = Instantiate(blockPrefab, target.transform.position, Quaternion.identity);
+                    var blockBase = obj.GetComponent<BlockBase>();
+                    blockBase.amount = amount;
+                    Grid2DSystem.Add(target.transform.position, blockBase);
+                    Inventory.Reset();
                 }
                 else if (Tool.TryGet(out string itemId))
                 {
@@ -490,6 +518,10 @@ public class PlayerController : MonoBehaviour
                 {
                     // Nothing
                 }
+            }
+            else if (target.Setting.Type == BlockType.Chest)
+            {
+                // 放進去車廂
             }
         }
         else
@@ -505,25 +537,27 @@ public class PlayerController : MonoBehaviour
 
     public void Fire()
     {
-        Animator.SetBool(_aniPick, true);
+        return;
         
-        // Test
-        if (_holdingObject && _holdingObject.id == 0)
+        Debug.Log($"玩家{Player.Id}: 點擊 Fire");
+        if (TryGetSelectedBlock(out BlockBase target))
         {
-            var targetPos = targetBlock.transform.position;
-            var cellPos = new Vector2(targetPos.x, targetPos.z);
-            Debug.Log(cellPos);
-            var roadBlockObj = EnvSpawner.current.Map_Find(cellPos);
-            if (roadBlockObj)
+            Debug.Log($"玩家{Player.Id}: 選擇 {target.Setting.Id}");
+
+            if (target.Setting.Type == BlockType.Prop)
             {
-                Debug.Log(roadBlockObj);
-                var roadBlock = roadBlockObj.GetComponent<RoadBlock>();
-                if (!roadBlock)
+                if (target.Setting.Id == "Garbage" || target.Setting.Id == "Gas")
                 {
-                    EnvSpawner.current.Map_Replace(cellPos, EnvSpawner.current.SpawnBlock(EnvSpawner.BlockType.Road, new Vector3(cellPos.x, 0, cellPos.y)));
-                    Debug.Log("Replace");
+                    if (Tool.TryGet(out string holding))
+                    {
+                        Animator.SetBool(_aniPick, true);
+                    }
                 }
             }
+        }
+        else
+        {
+            // Nothing
         }
     }
 

@@ -73,39 +73,39 @@ public class SedanChair : MonoBehaviour
         }
     }
 
-    private RoadBlock GetCurrentRoadBlock()
-    {
-        var cellPos = Grid2DSystem.WorldToCell(transform.position);
-        var roadBlockObj = EnvSpawner.current.Map_Find(new Vector2(cellPos.x, cellPos.z));
-        if (!roadBlockObj)
-            return null;
-        
-        return roadBlockObj.GetComponent<RoadBlock>();
-    }
+    // private RoadBlock GetCurrentRoadBlock()
+    // {
+    //     var cellPos = Grid2DSystem.WorldToCell(transform.position);
+    //     var roadBlockObj = EnvSpawner.current.Map_Find(new Vector2(cellPos.x, cellPos.z));
+    //     if (!roadBlockObj)
+    //         return null;
+    //     
+    //     return roadBlockObj.GetComponent<RoadBlock>();
+    // }
 
     private void FindPath()
     {
-        var current = GetCurrentRoadBlock();
-        if (!current)
-            return;
-        
-        var roadPos = Grid2DSystem.WorldTo2DCell(transform.position);
-        if (FindNear(Direction.Top, roadPos))
-        {
-            moveDirection = Direction.Top;
-        }
-        else if (FindNear(Direction.Down, roadPos))
-        {
-            moveDirection = Direction.Down;
-        }
-        else if (FindNear(Direction.Right, roadPos))
-        {
-            moveDirection = Direction.Right;
-        }
-        else if (FindNear(Direction.Left, roadPos))
-        {
-            moveDirection = Direction.Left;
-        }
+        // var current = GetCurrentRoadBlock();
+        // if (!current)
+        //     return;
+        //
+        // var roadPos = Grid2DSystem.WorldTo2DCell(transform.position);
+        // if (FindNear(Direction.Top, roadPos))
+        // {
+        //     moveDirection = Direction.Top;
+        // }
+        // else if (FindNear(Direction.Down, roadPos))
+        // {
+        //     moveDirection = Direction.Down;
+        // }
+        // else if (FindNear(Direction.Right, roadPos))
+        // {
+        //     moveDirection = Direction.Right;
+        // }
+        // else if (FindNear(Direction.Left, roadPos))
+        // {
+        //     moveDirection = Direction.Left;
+        // }
     }
 
     private bool FindNear(Direction direction, Vector2Int roadPos)
@@ -155,12 +155,12 @@ public class SedanChair : MonoBehaviour
 
     private RoadBlock GetRoadBlock(Vector2 pos)
     {
-        var block = EnvSpawner.current.Map_Find(pos);
-        if (block)
-        {
-            var roadBlock = block.GetComponent<RoadBlock>();
-            return roadBlock;
-        }
+        // var block = EnvSpawner.current.Map_Find(pos);
+        // if (block)
+        // {
+        //     var roadBlock = block.GetComponent<RoadBlock>();
+        //     return roadBlock;
+        // }
 
         return null;
     }

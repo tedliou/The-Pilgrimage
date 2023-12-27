@@ -22,5 +22,6 @@ public enum BlockType
     Floor = 1,
     Prop = 2,
     Chest = 3,
-    Tool = 4
+    Tool = 4,
+    Float = 5
 }

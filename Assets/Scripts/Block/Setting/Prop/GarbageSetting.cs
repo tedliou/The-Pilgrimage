@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Custom/ChipToolSetting", fileName = "ChipTool")]
-public class ChipToolSetting : BlockSetting
+[CreateAssetMenu(menuName = "Custom/GarbageSetting", fileName = "Garbage")]
+public class GarbageSetting : BlockSetting
 {
     public override bool GetRequirement(out int id)
     {

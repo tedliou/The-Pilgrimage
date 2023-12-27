@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5223916824e14988aa6945c7c5a1a147, type: 3}
-  m_Name: Concrete
+  m_Name: Floor_Concrete
   m_EditorClassIdentifier: 
   _type: 1

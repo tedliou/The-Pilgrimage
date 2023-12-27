@@ -175,6 +175,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClipTool_1
       objectReference: {fileID: 0}
+    - target: {fileID: 6760665219442054982, guid: 4301665271595d94ba805c27f579998a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -435,20 +439,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42072a56ca75e4a4685f22ff9c7dcffc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grass: {fileID: 6249144520780671330, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
-  floor: {fileID: 4491813755074349423, guid: e0ce48687a2c2674e90ee59e354bfab5, type: 3}
-  temple: {fileID: 8091614514934923835, guid: 9b7f47a22356d5f45a3ab78a89caf0c1, type: 3}
-  sedanChair: {fileID: 5714808950427233829, guid: 723fe2c93b6f19d4681d848a92e68fe0, type: 3}
-  mapSize: {x: 100, y: 20}
-  mapOffset: {x: 0, y: 0}
-  mapOriginPos: {x: 0, y: 0, z: 0}
-  templePos:
-  - {x: -583204824, y: 593}
-  - {x: 779251572, y: 1886613065}
+  grass: {fileID: 11400000, guid: 073a7c3e29735d44e90e739549b0a782, type: 2}
+  temple: {fileID: 11400000, guid: 9b119d7179a50b441b83ff384cc27a53, type: 2}
+  garbage: {fileID: 11400000, guid: 360d365a523ce014194d52d4e4efb3a9, type: 2}
+  gas: {fileID: 11400000, guid: 2f313831e62409144a1b432a2591c7d2, type: 2}
+  concrete: {fileID: 11400000, guid: f0f58c08d30728246a080e95a3db8870, type: 2}
+  road: {fileID: 11400000, guid: 25f8d76c15b3522428492e36b5856829, type: 2}
+  sedanChair: {fileID: 11400000, guid: fb8034da9364f3b4992302f4a099be21, type: 2}
+  chip: {fileID: 11400000, guid: 84c1b1f676cd72748adcfbebd075a98f, type: 2}
+  car: {fileID: 11400000, guid: ff9713b1befffa0419f08932ffbd749a, type: 2}
+  carExtend: {fileID: 11400000, guid: 511f571487e2d0c43a126540c11a5229, type: 2}
+  mapSize: {x: 30, y: 20}
+  templeMinX: 2
+  templeMaxX: 6
+  templeMinY: 6
+  templeMaxY: 14
   templeSize: {x: 4, y: 4}
-  templeFirstOffset: {x: -2, y: 2}
-  sedanChairSpawnPos: {x: 5, y: 5}
+  garbageScale: 0.2
+  sedanChairSpawnPos: {x: 0, y: -1}
   prebuildRoadLength: 6
+  spawnedSedanChair: 0
+  templeFirstOffset: {x: -2, y: 2}
 --- !u!4 &1154187712
 Transform:
   m_ObjectHideFlags: 0
@@ -890,6 +901,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ClipTool
       objectReference: {fileID: 0}
+    - target: {fileID: 6760665219442054982, guid: 4301665271595d94ba805c27f579998a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -960,8 +975,8 @@ SceneRoots:
   - {fileID: 1466298671}
   - {fileID: 1269818038}
   - {fileID: 874709138}
-  - {fileID: 1154187712}
   - {fileID: 3191255589468417000}
   - {fileID: 956067986}
   - {fileID: 2669672334555006013}
   - {fileID: 384594649}
+  - {fileID: 1154187712}

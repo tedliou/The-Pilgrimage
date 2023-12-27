@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c07b4457690fe04b8ad5b73b793d13e, type: 3}
-  m_Name: Temple
+  m_Script: {fileID: 11500000, guid: 49e6b27f94ce482e9726bfb61b446023, type: 3}
+  m_Name: Chest_CarExtend
   m_EditorClassIdentifier: 
-  _type: 0
+  _type: 3
