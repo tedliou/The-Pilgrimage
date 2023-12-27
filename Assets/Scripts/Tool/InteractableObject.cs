@@ -81,7 +81,7 @@ public class InteractableObject : MonoBehaviour
     private void Start()
     {
         var cellPos = SelfCellPos;
-        cellPos.y = GameManager.current.propsYPos;
+        cellPos.y = GameManager.Instance.propsYPos;
         transform.position = cellPos;
         AddToGrid();
         if (stack && stackObjs.Count == 0)
@@ -94,12 +94,12 @@ public class InteractableObject : MonoBehaviour
 
     public void AddToGrid()
     {
-        Grid2DSystem.Add(SelfCellPos, this);
+        // Grid2DSystem.Add(SelfCellPos, this);
     }
 
     public void RemoveFromGrid()
     {
-        Grid2DSystem.Remove(SelfCellPos);
+        //Grid2DSystem.Remove(SelfCellPos);
     }
 
     public void OnFindObj()

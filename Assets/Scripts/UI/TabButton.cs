@@ -60,20 +60,20 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
         _hoverBackgroundImage = hoverBackground.GetComponent<Image>();
         _hoverBackgroundImage.DOFade(0, 0);
         selected.DOScaleX(0, 0);
-        _inputActionAsset = FindObjectOfType<InputSystemUIInputModule>().actionsAsset;
-        _inputAction = _inputActionAsset.FindActionMap("UI").FindAction("Submit");
+        //_inputActionAsset = FindObjectOfType<InputSystemUIInputModule>().actionsAsset;
+        //_inputAction = _inputActionAsset.FindActionMap("UI").FindAction("Submit");
     }
 
     private void OnEnable()
     {
         onClick.AddListener(OnClick);
-        _inputAction.performed += OnClickFromInputAction;
+        //_inputAction.performed += OnClickFromInputAction;
     }
 
     private void OnDisable()
     {
         onClick.RemoveListener(OnClick);
-        _inputAction.performed -= OnClickFromInputAction;
+        //_inputAction.performed -= OnClickFromInputAction;
         if (isSelected)
             Deselect();
     }

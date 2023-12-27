@@ -46,8 +46,8 @@ public class PanelLobby : GamePanel
         LoadPlayers();
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerLeft.AddListener(OnPlayerLeft);
-        PlayerManager.Instance.GetPlayer(0).InputHandler.OnPlayerGet.AddListener(SetPressActive);
-        PlayerManager.Instance.GetPlayer(0).InputHandler.OnPlayerGetCancel.AddListener(SetPressCancel);
+        PlayerManager.Instance.GetPlayer(0)?.InputHandler.OnPlayerGet.AddListener(SetPressActive);
+        PlayerManager.Instance.GetPlayer(0)?.InputHandler.OnPlayerGetCancel.AddListener(SetPressCancel);
 
         // _playerInputManager = FindObjectOfType<PlayerInputManager>();
         // _playerInputManager.onPlayerJoined += OnPlayerJoin;
@@ -58,8 +58,8 @@ public class PanelLobby : GamePanel
     {
         PlayerManager.Instance.OnPlayerJoined.RemoveListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerLeft.RemoveListener(OnPlayerLeft);
-        PlayerManager.Instance.GetPlayer(0).InputHandler.OnPlayerGet.RemoveListener(SetPressActive);
-        PlayerManager.Instance.GetPlayer(0).InputHandler.OnPlayerGetCancel.RemoveListener(SetPressCancel);
+        PlayerManager.Instance.GetPlayer(0)?.InputHandler.OnPlayerGet.RemoveListener(SetPressActive);
+        PlayerManager.Instance.GetPlayer(0)?.InputHandler.OnPlayerGetCancel.RemoveListener(SetPressCancel);
         // if (_playerInputManager)
         // {
         //     Destroy(_playerInputManager);

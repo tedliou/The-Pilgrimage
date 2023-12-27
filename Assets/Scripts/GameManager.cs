@@ -1,18 +1,47 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    #region Singleton
-    public static GameManager current;
+    #region API
+
+    public BlockBase GetPrefab(string id) => _gamePrefab.GetPrefab(id);
+
+    #endregion
+    
+    
+    #region Properties
+    
+    protected PlayerManager PlayerManager
+    {
+        get
+        {
+            _playerManager ??= PlayerManager.Instance;
+            return _playerManager;
+        }
+    }
+    private PlayerManager _playerManager;
+    
+    protected PlayerInputManager PlayerInputManager
+    {
+        get
+        {
+            _playerInputManager ??= FindObjectOfType<PlayerInputManager>();
+            return _playerInputManager;
+        }
+    }
+    private PlayerInputManager _playerInputManager;
+
     #endregion
 
     #region Inspector
+
+    [SerializeField] private GamePrefab _gamePrefab;
+    
     public int targetFrameRate = 30;
 
     [Header("Position Settings")]
@@ -26,43 +55,53 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Vector3 playerSpawnPos;
     #endregion
 
-    #region Private
-    private PlayerInputManager _playerInputManager;
-    
-
-    #endregion
-
-    #region Static
 
     public static UnityEvent<Transform> onPlayerSpawn = new();
-    #endregion
     
     #region Unity Messages
-    private void Awake()
+
+    private void Start()
     {
-        current = this;
+        _gamePrefab.Init();
         Application.targetFrameRate = targetFrameRate;
-        _playerInputManager = FindObjectOfType<PlayerInputManager>();
-        _playerInputManager.onPlayerJoined += OnPlayerJoin;
+        PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
+        PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
     }
+
     #endregion
 
     #region Events
-    private void OnPlayerJoin(PlayerInput playerInput)
+    // private void OnPlayerJoin(PlayerInput playerInput)
+    // {
+    //     var playerIndex = playerInput.playerIndex;
+    //     var inputHandler = playerInput.GetComponent<PlayerInputHandler>();
+    //     SpawnPlayerObject(playerIndex, inputHandler);
+    // }
+
+    private void OnPlayerJoined(int id, Player player)
     {
-        var playerIndex = playerInput.playerIndex;
-        var inputHandler = playerInput.GetComponent<PlayerInputHandler>();
-        SpawnPlayerObject(playerIndex, inputHandler);
+        SpawnPlayerObject(player);
+    }
+    
+    private void OnPlayerLeft(int id, Player player)
+    {
+        DespawnPlayerObject(player);
     }
     #endregion
 
-    private void SpawnPlayerObject(int playerID, PlayerInputHandler inputHandler)
+    private void SpawnPlayerObject(Player player)
     {
-        Debug.Log($"Spawn Player: P{playerID}");
         var spawnPos = playerSpawnPos;
         spawnPos.y = playerYPos;
+        
         var playerObj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-        playerObj.GetComponent<PlayerController>().SetInputHandler(inputHandler);
+        playerObj.GetComponent<PlayerController>().Player = player;
+        
         onPlayerSpawn.Invoke(playerObj.transform);
+    }
+
+    private void DespawnPlayerObject(Player player)
+    {
+        Debug.Log("Despawn //NOTHING");
     }
 }

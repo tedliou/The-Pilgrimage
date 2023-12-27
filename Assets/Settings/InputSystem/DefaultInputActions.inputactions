@@ -285,50 +285,6 @@
                 },
                 {
                     "name": "",
-                    "id": "55c52604-0198-4df6-ad75-ac9a2c70854d",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Active",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "cb51b84d-9477-48d7-9703-b5b4d10c9563",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Active",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b3491ccb-8c34-4dfe-bbda-1aae5a0dfbcc",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Active",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "805f2e35-e044-46ae-b5bc-0abf553bb93c",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Active",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "417d4f2d-2b1e-482f-9a58-a04f9e53d0e0",
                     "path": "<Gamepad>/dpad/down",
                     "interactions": "",

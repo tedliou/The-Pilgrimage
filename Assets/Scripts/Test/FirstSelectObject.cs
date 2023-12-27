@@ -6,6 +6,6 @@ public class FirstSelectObject : MonoBehaviour
 {
     public static GameObject Find()
     {
-        return FindObjectOfType<FirstSelectObject>().gameObject;
+        return FindObjectOfType<FirstSelectObject>()?.gameObject;
     }
 }

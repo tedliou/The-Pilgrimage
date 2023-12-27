@@ -140,7 +140,7 @@ public class EnvSpawner : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Add failed in {key}:{obj.name}");
+            //Debug.Log($"Add failed in {key}:{obj.name}");
         }
     }
     
@@ -153,11 +153,11 @@ public class EnvSpawner : MonoBehaviour
         {
             _map[key] = replaceObj;
             Destroy(obj);
-            Debug.Log($"Add cell in {key}:{obj.name}");   
+            //Debug.Log($"Add cell in {key}:{obj.name}");   
         }
         else
         {
-            Debug.Log("Add failed");
+            //Debug.Log("Add failed");
         }
     }
 
@@ -193,7 +193,7 @@ public class EnvSpawner : MonoBehaviour
     {
         var pos = (Vector3)(Vector2)sedanChairSpawnPos;
         pos.z = sedanChairSpawnPos.y;
-        pos.y = GameManager.current.propsYPos;
+        pos.y = GameManager.Instance.propsYPos;
         var obj = Instantiate(sedanChair, pos, Quaternion.identity);
     }
 
@@ -203,7 +203,7 @@ public class EnvSpawner : MonoBehaviour
         
         if (blockType is BlockType.Grass or BlockType.Road or BlockType.Temple)
         {
-            position.y = GameManager.current.floorYPos;
+            position.y = GameManager.Instance.floorYPos;
         }
         
         switch (blockType)

@@ -48,8 +48,8 @@ public class PlayerInputHandler : MonoBehaviour
     #region API
     public UnityEvent<Vector2> onPlayerMove;
     public UnityEvent<float> onPlayerLook;
-    [FormerlySerializedAs("onPlayerGet")] public UnityEvent OnPlayerGet;
-    [FormerlySerializedAs("onPlayerGetCancel")] public UnityEvent OnPlayerGetCancel;
+    public UnityEvent OnPlayerGet;
+    public UnityEvent OnPlayerGetCancel;
     public UnityEvent onPlayerFire;
     public UnityEvent onPlayerFireCancel;
     #endregion
@@ -86,6 +86,9 @@ public class PlayerInputHandler : MonoBehaviour
         {
             angle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
         }
+        if (angle == 0)
+            return;
+        
         onPlayerLook.Invoke(angle);
         ConsoleProDebug.Watch("Rotate", $"Player {Input.playerIndex}: {angle}");
     }
