@@ -71,13 +71,7 @@ public class GameManager : Singleton<GameManager>
     #endregion
 
     #region Events
-    // private void OnPlayerJoin(PlayerInput playerInput)
-    // {
-    //     var playerIndex = playerInput.playerIndex;
-    //     var inputHandler = playerInput.GetComponent<PlayerInputHandler>();
-    //     SpawnPlayerObject(playerIndex, inputHandler);
-    // }
-
+    
     private void OnPlayerJoined(int id, Player player)
     {
         SpawnPlayerObject(player);
