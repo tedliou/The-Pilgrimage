@@ -190,4 +190,7 @@ MonoBehaviour:
   duration: 2
   floatSpeed: 2
   amount: 1
+  isStaking: 1
+  originPosition: {x: 0.5, y: 0, z: 0.5}
   stackingHeight: 0.114
+  stackingLimit: 10

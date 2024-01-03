@@ -5,6 +5,7 @@ using Sirenix.OdinInspector;
 
 public class PropBlock : BlockBase
 {
+    public bool isStaking = false;
     public Vector3 originPosition = new Vector3(.5f, 0, .5f);
     public float stackingHeight;
     public int stackingLimit = 10;
@@ -15,16 +16,25 @@ public class PropBlock : BlockBase
 
     protected override void Start()
     {
-        Debug.Assert(transform.childCount > 0);
-        m_propPrefab = transform.GetChild(0).gameObject;
-        m_propPrefab.SetActive(false);
+        if (isStaking)
+        {
+            Debug.Assert(transform.childCount > 0);
+            m_propPrefab = transform.GetChild(0).gameObject;
+            m_propPrefab.SetActive(false);
+        }
     }
 
     [Button]
     public bool SetAmount(int amount)
     {
-        if (amount > stackingLimit)
+        if (!isStaking)
+        {
             return false;
+        }
+        
+        if (amount > stackingLimit){
+            return false;
+        }
         
         m_amount = amount;
         UpdateCurrentObject();
@@ -33,6 +43,11 @@ public class PropBlock : BlockBase
 
     private void UpdateCurrentObject()
     {
+        if (!isStaking)
+        {
+            return;
+        }
+        
         if (m_amount == m_propList.Count)
         {
             return;
