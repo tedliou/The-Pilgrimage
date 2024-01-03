@@ -112,7 +112,7 @@ Transform:
   m_GameObject: {fileID: 2202746179991438835}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.70115817, z: 0, w: 0.7130058}
-  m_LocalPosition: {x: 1.0304824, y: 0, z: 0.5176842}
+  m_LocalPosition: {x: 0.5305526, y: 0, z: 0.509307}
   m_LocalScale: {x: 0.0749326, y: 0.0749326, z: 0.0749326}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -312,7 +312,6 @@ GameObject:
   - component: {fileID: 920307820753879469}
   - component: {fileID: 7772129659575276720}
   - component: {fileID: 2287977903205889432}
-  - component: {fileID: -8548258767335439451}
   m_Layer: 0
   m_Name: Car_SedanChair
   m_TagString: Untagged
@@ -369,9 +368,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781dca821ebde3241ac76267af4932a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellType: 0
+  blockType: 0
   moveDirection: 4
   lastDirection: 4
-  moveSpeed: 0.6
+  moveSpeed: 0.2
   _roadHistory: []
 --- !u!54 &2287977903205889432
 Rigidbody:
@@ -400,19 +401,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 116
   m_CollisionDetection: 0
---- !u!114 &-8548258767335439451
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5714808950427233829}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: fb8034da9364f3b4992302f4a099be21, type: 2}
 --- !u!1 &6343975606873953580
 GameObject:
   m_ObjectHideFlags: 0

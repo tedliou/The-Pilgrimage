@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Events;
 
 [Serializable]
 public enum RoadDirection
@@ -17,6 +18,11 @@ public enum RoadDirection
 
 public class RoadBlock : BlockBase
 {
+    public static UnityEvent OnRoadUpdate = new UnityEvent();
+    public static UnityEvent OnResetRoad = new UnityEvent();
+    public static int CurrentDepth = 0;
+    public static List<RoadBlock> Nodes = new List<RoadBlock>();
+    
     public GameObject indicatorHorizontal;
     public GameObject indicatorVertical;
     public GameObject indicatorTopToRight;
@@ -30,21 +36,52 @@ public class RoadBlock : BlockBase
     public Dictionary<RoadDirection, RoadBlock> aroundRoadDict = new Dictionary<RoadDirection, RoadBlock>();
     public int selfScore = 0;
     public bool isBranchRoad = false;
+    public RoadDirection selectRoadDirection = RoadDirection.Unknown;
     public int[] roadScores = new int[4];
 
     private void Awake()
     {
+        OnResetRoad.AddListener(ResetRoad);
+        isPassed = false;
+        ResetRoad();
+    }
+
+    private void ResetRoad()
+    {
+        if (isPassed)
+        {
+            return;
+        }
         previewRoadDirection = RoadDirection.Unknown;
+        selectRoadDirection = RoadDirection.Unknown;
+        selfScore = 0;
+        isBranchRoad = false;
+        roadScores = new int[4];
+        aroundRoadDict.Clear();
+        CurrentDepth = 0;
+        if (Nodes.Count > 0)
+        {
+            Nodes.Clear();
+        }
+        SetRoadMode(RoadMode.Unknown);
     }
 
     protected override void Start()
     {
         base.Start();
         SetRoadMode(RoadMode.Unknown);
+        OnRoadUpdate.Invoke();
     }
 
     public void SetRoadMode(RoadMode roadMode)
     {
+        indicatorHorizontal.SetActive(false);
+        indicatorVertical.SetActive(false);
+        indicatorTopToRight.SetActive(false);
+        indicatorTopToLeft.SetActive(false);
+        indicatorBottomToRight.SetActive(false);
+        indicatorBottomToLeft.SetActive(false);
+        
         switch (roadMode)
         {
             case RoadMode.Horizontal:
@@ -59,10 +96,10 @@ public class RoadBlock : BlockBase
             case RoadMode.TopToLeft:
                 indicatorTopToLeft.SetActive(true);
                 break;
-            case RoadMode.BottomToRight:
+            case RoadMode.DownToRight:
                 indicatorBottomToRight.SetActive(true);
                 break;
-            case RoadMode.BottomToLeft:
+            case RoadMode.DownToLeft:
                 indicatorBottomToLeft.SetActive(true);
                 break;
             default:
@@ -71,29 +108,30 @@ public class RoadBlock : BlockBase
     }
 
     [Button("尋路")]
-    public void NavigateAll()
+    public void NavigateAll(int depth = -1)
     {
-        // 執行尋路
-        var result = new List<RoadBlock>();
-        Navigate(ref selfScore);
+        // 重置所有道路
+        OnResetRoad.Invoke();
         
-        // 建立完整路徑
-        if (aroundRoadDict.Count == 0)
-        {
-            return;
-        }
-
-        foreach (var ar in aroundRoadDict.Values)
-        {
-            
-        }
+        // 執行尋路
+        Navigate(ref selfScore, depth);
+        
+        // 建立節點庫與完整路徑外觀
+        UpdateRoadState();
+        
+        Debug.Log($"[{nameof(RoadBlock)}] 完成尋路：路徑共長 {Nodes.Count}");
     }
 
-    public void Navigate(ref int score)
+    public void Navigate(ref int score, int depth)
     {
         FindAround();
-
         score += 1;
+        CurrentDepth += 1;
+        // if (CurrentDepth > depth)
+        // {
+        //     return;
+        // }
+        
 
         if (aroundRoadDict.Count == 0)
         {
@@ -103,7 +141,8 @@ public class RoadBlock : BlockBase
         else if (aroundRoadDict.Count == 1)
         {
             isBranchRoad = false;
-            aroundRoadDict.First().Value.Navigate(ref score);
+            aroundRoadDict.First().Value.Navigate(ref score, depth);
+            selectRoadDirection = aroundRoadDict.First().Key;
             selfScore = score;
         }
         else
@@ -112,19 +151,19 @@ public class RoadBlock : BlockBase
             isBranchRoad = true;
             for (var i = 0; i < 4; i++)
             {
-                roadScores[i] = selfScore;
                 var key = (RoadDirection)i;
                 if (!aroundRoadDict.ContainsKey(key))
                 {
                     continue;
                 }
-                aroundRoadDict[(RoadDirection)i].Navigate(ref roadScores[i]);
+                roadScores[i] = selfScore;
+                aroundRoadDict[(RoadDirection)i].Navigate(ref roadScores[i], depth);
             }
 
             var selectedIndex = 0;
             for (var i = 1; i < 4; i++)
             {
-                if (roadScores[selectedIndex] > roadScores[1])
+                if (roadScores[selectedIndex] > roadScores[i])
                 {
                     continue;
                 }
@@ -132,11 +171,90 @@ public class RoadBlock : BlockBase
                 selectedIndex = i;
             }
 
-            var finalDir = (RoadDirection)selectedIndex;
-            Debug.Log(finalDir);
+            selectRoadDirection = (RoadDirection)selectedIndex;
         }
     }
-    
+
+    public void UpdateRoadState()
+    {
+        Nodes.Add(this);
+        if (previewRoadDirection == RoadDirection.Unknown || aroundRoadDict.Count == 0)
+        {
+            if (aroundRoadDict.Count == 0)
+            {
+                switch (previewRoadDirection)
+                {
+                    case RoadDirection.Top:
+                        SetRoadMode(RoadMode.Vertical);
+                        break;
+                    case RoadDirection.Down:
+                        SetRoadMode(RoadMode.Vertical);
+                        break;
+                    case RoadDirection.Left:
+                        SetRoadMode(RoadMode.Horizontal);
+                        break;
+                    case RoadDirection.Right:
+                        SetRoadMode(RoadMode.Horizontal);
+                        break;
+                }
+            }
+            else
+            {
+                var firstDir = isBranchRoad ? selectRoadDirection : aroundRoadDict.First().Value.previewRoadDirection;
+                switch (firstDir)
+                {
+                    case RoadDirection.Top:
+                        SetRoadMode(RoadMode.Vertical);
+                        break;
+                    case RoadDirection.Down:
+                        SetRoadMode(RoadMode.Vertical);
+                        break;
+                    case RoadDirection.Left:
+                        SetRoadMode(RoadMode.Horizontal);
+                        break;
+                    case RoadDirection.Right:
+                        SetRoadMode(RoadMode.Horizontal);
+                        break;
+                }
+                aroundRoadDict.First().Value.UpdateRoadState();
+            }
+        }
+        else
+        {
+            if ((previewRoadDirection == RoadDirection.Top && selectRoadDirection == RoadDirection.Down) ||
+                (previewRoadDirection == RoadDirection.Down && selectRoadDirection == RoadDirection.Top))
+            {
+                SetRoadMode(RoadMode.Vertical);
+            }
+            else if ((previewRoadDirection == RoadDirection.Left && selectRoadDirection == RoadDirection.Right) ||
+                     (previewRoadDirection == RoadDirection.Right && selectRoadDirection == RoadDirection.Left))
+            {
+                SetRoadMode(RoadMode.Horizontal);
+            }
+            else if ((previewRoadDirection == RoadDirection.Top && selectRoadDirection == RoadDirection.Right) ||
+                     (previewRoadDirection == RoadDirection.Right && selectRoadDirection == RoadDirection.Top))
+            {
+                SetRoadMode(RoadMode.TopToRight);
+            }
+            else if ((previewRoadDirection == RoadDirection.Top && selectRoadDirection == RoadDirection.Left) ||
+                     (previewRoadDirection == RoadDirection.Left && selectRoadDirection == RoadDirection.Top))
+            {
+                SetRoadMode(RoadMode.TopToLeft);
+            }
+            else if ((previewRoadDirection == RoadDirection.Down && selectRoadDirection == RoadDirection.Right) ||
+                     (previewRoadDirection == RoadDirection.Right && selectRoadDirection == RoadDirection.Down))
+            {
+                SetRoadMode(RoadMode.DownToRight);
+            }
+            else if ((previewRoadDirection == RoadDirection.Down && selectRoadDirection == RoadDirection.Left) ||
+                     (previewRoadDirection == RoadDirection.Left && selectRoadDirection == RoadDirection.Down))
+            {
+                SetRoadMode(RoadMode.DownToLeft);
+            }
+            
+            aroundRoadDict[selectRoadDirection].UpdateRoadState();
+        }
+    }
 
     /// <summary>
     /// 搜尋周圍的道路
@@ -161,12 +279,6 @@ public class RoadBlock : BlockBase
                 continue;
             }
 
-            // 神轎已經過的道路不可再使用
-            if (isPassed)
-            {
-                continue;
-            }
-
             // 過濾上一動
             if ((RoadDirection)i == previewRoadDirection)
             {
@@ -175,6 +287,12 @@ public class RoadBlock : BlockBase
 
             // 取得道路
             var roadBlock = aroundBlocks[i].GetComponent<RoadBlock>();
+
+            // 神轎已經過的道路不可再使用
+            if (roadBlock.isPassed)
+            {
+                continue;
+            }
             
             // 過濾已被設定的道路
             if (roadBlock.previewRoadDirection != RoadDirection.Unknown)
@@ -200,7 +318,7 @@ public class RoadBlock : BlockBase
             }
             
             aroundRoadDict.Add(direction, roadBlock);
-            Debug.Log($"[{nameof(RoadBlock)}] 找到 {direction} 道路: {roadBlock.name}, {roadBlock.transform.GetGridKey()}");
+            //Debug.Log($"[{nameof(RoadBlock)}] 找到 {direction} 道路: {roadBlock.name}, {roadBlock.transform.GetGridKey()}");
         }
     }
 }

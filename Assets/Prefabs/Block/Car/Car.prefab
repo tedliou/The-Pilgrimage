@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5076516766603459990}
-  - component: {fileID: 7378736025826503803}
+  - component: {fileID: 8085888922298053298}
+  - component: {fileID: 3014095592585889688}
   m_Layer: 0
   m_Name: Car
   m_TagString: Untagged
@@ -33,7 +34,7 @@ Transform:
   - {fileID: 2333728140003378882}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7378736025826503803
+--- !u!114 &8085888922298053298
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,10 +43,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 7008990687377964591}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
+  m_Script: {fileID: 11500000, guid: 03dab982246758b478f8271ceab01006, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: ff9713b1befffa0419f08932ffbd749a, type: 2}
+  cellType: 0
+  blockType: 0
+  sedanChair: {fileID: 0}
+  currentHistoryIndex: -1
+--- !u!54 &3014095592585889688
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7008990687377964591}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 116
+  m_CollisionDetection: 0
 --- !u!1001 &8300603195392318526
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68,7 +99,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6004067687652186876, guid: df4031272bf3b0e4893cac43fbf63a32, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.07700002
+      value: -0.57700014
       objectReference: {fileID: 0}
     - target: {fileID: 6004067687652186876, guid: df4031272bf3b0e4893cac43fbf63a32, type: 3}
       propertyPath: m_LocalPosition.y
@@ -76,7 +107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6004067687652186876, guid: df4031272bf3b0e4893cac43fbf63a32, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.5
+      value: 0.5000001
       objectReference: {fileID: 0}
     - target: {fileID: 6004067687652186876, guid: df4031272bf3b0e4893cac43fbf63a32, type: 3}
       propertyPath: m_LocalRotation.w

@@ -8,6 +8,6 @@ public enum RoadMode
     Vertical = 1,
     TopToRight = 2,
     TopToLeft = 3,
-    BottomToRight = 4,
-    BottomToLeft = 5
+    DownToRight = 4,
+    DownToLeft = 5
 }

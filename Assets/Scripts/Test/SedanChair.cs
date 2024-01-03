@@ -1,18 +1,33 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class SedanChair : MonoBehaviour
+public class SedanChair : BlockBase
 {
     public Direction moveDirection = Direction.Stop;
     public Direction lastDirection = Direction.Stop;
     
     public float moveSpeed = .2f;
 
-    private Rigidbody _rigidbody;
-    [SerializeField]private List<RoadBlock> _roadHistory = new List<RoadBlock>();
-    private Vector3Int _targetPos;
+    public List<Vector3> history = new List<Vector3>();
+    
+    public Rigidbody m_rigidbody;
+    private Vector3 m_targetPos;
+    private bool m_isTargetPosSet = false;
+
+    public int m_currentNodeIndex;
+    public RoadBlock m_currentRoad;
+    public RoadBlock m_nextRoad;
+    private Transform m_child;
+
+    public bool isMoving = false;
+    public bool isWaiting = false;
+
+    private Coroutine m_moveJob;
+    private List<Vector3> m_roads;
 
     [System.Serializable]
     public enum Direction
@@ -24,144 +39,192 @@ public class SedanChair : MonoBehaviour
         Stop
     }
     
-    #region Unity Messages
 
     private void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        m_rigidbody = GetComponent<Rigidbody>();
+        m_child = transform.GetChild(0);
     }
 
-    private void Start()
+    private void OnRoadUpdate()
     {
-        StartCoroutine(FindPathLoop());
+        StartCoroutine(FindPath());
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        StartCoroutine(FindPath());
+        RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
     }
 
     private void FixedUpdate()
     {
-        var velocity = Vector3.zero;
-        switch (moveDirection)
+        return;
+        
+        if (RoadBlock.Nodes.Count == 1)
         {
-            case Direction.Top:
-                velocity = new Vector3(0, 0, 1);
-                break;
-            case Direction.Down:
-                velocity = new Vector3(0, 0, -1);
-                break;
-            case Direction.Right:
-                velocity = new Vector3(1, 0, 0);
-                break;
-            case Direction.Left:
-                velocity = new Vector3(-1, 0, 0);
-                break;
-            case Direction.Stop:
-                velocity = Vector3.zero;
-                break;
+            return;
         }
-        velocity *=  moveSpeed;
-        _rigidbody.velocity = velocity;
+        
+        if (!m_isTargetPosSet)
+            return;
+        
+        var dir = m_targetPos - transform.position;
+        var dirNormalized = dir.normalized;
+        var velocity =  moveSpeed * dirNormalized;
+        if (Vector3.Distance(transform.position, m_targetPos) < 0.02f)
+        {
+            velocity = Vector3.zero;
+            transform.position = Vector3.Lerp(transform.position, m_targetPos, .5f);
+            
+            history.Add(m_currentRoad.transform.position);
+            var pos = m_nextRoad.transform.position;
+            m_targetPos = new Vector3(pos.x, 0, pos.z);
+
+            var getNodeState = GetNextNode();
+            isWaiting = !getNodeState;
+            if (getNodeState)
+            {
+                Debug.Log("Success");
+            }
+        }
+        
+        m_rigidbody.velocity = velocity;
+        
+        if (dirNormalized.magnitude > 0)
+        {
+            m_child.forward = Vector3.Lerp(m_child.forward, dirNormalized, .5f);
+        }
     }
 
-    #endregion
 
-    private IEnumerator FindPathLoop()
+    private void StartMoveJob(Vector3 targetPos)
     {
-        while (gameObject.activeSelf)
+        if (m_moveJob != null)
+            return;
+
+        m_moveJob = StartCoroutine(MoveJob(targetPos));
+    }
+
+    private IEnumerator MoveJob(Vector3 targetPos)
+    {
+        Debug.Log($"[{nameof(SedanChair)}] Start Move Job, Target Pos: {targetPos}");
+        
+        var vector = targetPos - transform.position;
+        var normal = vector.normalized;
+        var param =  moveSpeed * normal * Time.fixedTime;
+        
+        while (true)
         {
-            //FindPath();
+            if (vector.magnitude < param.magnitude)
+            {
+                param = vector;
+            }
+
+            transform.position += param;
+            isMoving = true;
             
+            yield return new WaitForFixedUpdate();
+
+            if (transform.position == targetPos)
+            {
+                break;
+            }
+        }
+
+        isMoving = false;
+        m_moveJob = null;
+        
+        Debug.Log($"[{nameof(SedanChair)}] End Move Job");
+    }
+
+    private IEnumerator ObserveMoveJob()
+    {
+        while (true)
+        {
+            yield return new WaitUntil(() => !isMoving);
+            
+            if (m_roads.Count > 0)
+            {
+                StartMoveJob(m_roads[0]);
+            }
+
             yield return null;
         }
     }
 
-    // private RoadBlock GetCurrentRoadBlock()
-    // {
-    //     var cellPos = Grid2DSystem.WorldToCell(transform.position);
-    //     var roadBlockObj = EnvSpawner.current.Map_Find(new Vector2(cellPos.x, cellPos.z));
-    //     if (!roadBlockObj)
-    //         return null;
-    //     
-    //     return roadBlockObj.GetComponent<RoadBlock>();
-    // }
-
-    private void FindPath()
+    private IEnumerator FindPath()
     {
-        // var current = GetCurrentRoadBlock();
-        // if (!current)
-        //     return;
-        //
-        // var roadPos = Grid2DSystem.WorldTo2DCell(transform.position);
-        // if (FindNear(Direction.Top, roadPos))
-        // {
-        //     moveDirection = Direction.Top;
-        // }
-        // else if (FindNear(Direction.Down, roadPos))
-        // {
-        //     moveDirection = Direction.Down;
-        // }
-        // else if (FindNear(Direction.Right, roadPos))
-        // {
-        //     moveDirection = Direction.Right;
-        // }
-        // else if (FindNear(Direction.Left, roadPos))
-        // {
-        //     moveDirection = Direction.Left;
-        // }
+        Debug.Log("Path finder started");
+        while (true)
+        {
+            var roadBlock = FindRoadBlock();
+            roadBlock.NavigateAll();
+
+            m_roads = RoadBlock.Nodes.Select(r => r.transform.position).ToList();
+            if (m_roads.Count == 0 || m_roads.Count < 2)
+            {
+                yield return null;
+                continue;
+            }
+            m_roads.RemoveAt(0);
+            
+            Debug.Log(m_roads.Count);
+            Debug.Log(m_roads[0]);
+            
+            // New Nodes
+            /// index 0 is current
+            
+            
+            // m_currentNodeIndex = 0;
+            // m_currentRoad = RoadBlock.Nodes[m_currentNodeIndex];
+            // m_currentRoad.isPassed = true;
+            //
+            // if (RoadBlock.Nodes.Count > 1)
+            // {
+            //     m_nextRoad = RoadBlock.Nodes[m_currentNodeIndex + 1];
+            //     m_nextRoad.isPassed = true;
+            //         
+            //     if (!m_isTargetPosSet)
+            //     {
+            //         m_targetPos = m_nextRoad.transform.position;
+            //         m_isTargetPosSet = true;
+            //     }
+            //     
+            //     Debug.Log("Path finder ended");
+            //     
+            //     yield break;
+            // }
+            
+            yield return new WaitForSeconds(.5f);
+        }
     }
 
-    private bool FindNear(Direction direction, Vector2Int roadPos)
+    private RoadBlock FindRoadBlock()
     {
-        var roadLimit = EnvSpawner.current.mapSize;
-        var pos = roadPos;
-        switch (direction)
+        var downBlock = GridSystem.FindDownBlock(this);
+        if (downBlock)
         {
-            case Direction.Top:
-                pos.y += 1;
-                if (pos.y > roadLimit.y)
-                {
-                    return false;
-                }
-                break;
-            case Direction.Down:
-                pos.y -= 1;
-                if (pos.y < 0)
-                {
-                    return false;
-                }
-                break;
-            case Direction.Right:
-                pos.x += 1;
-                if (pos.x > roadLimit.x)
-                {
-                    return false;
-                }
-                break;
-            case Direction.Left:
-                pos.x -= 1;
-                if (pos.x < 0)
-                {
-                    return false;
-                }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            return downBlock.GetComponent<RoadBlock>();
         }
 
-        var roadBlock = GetRoadBlock(pos);
-        if (!roadBlock)
-            return false;
-         
-        return true;
+        Debug.Log("找不到底下的路");
+        return null;
     }
 
-    private RoadBlock GetRoadBlock(Vector2 pos)
+    private bool GetNextNode()
     {
-        // var block = EnvSpawner.current.Map_Find(pos);
-        // if (block)
-        // {
-        //     var roadBlock = block.GetComponent<RoadBlock>();
-        //     return roadBlock;
-        // }
+        m_currentNodeIndex += 1;
+        if (m_currentNodeIndex < RoadBlock.Nodes.Count - 1)
+        {
+            m_currentRoad = RoadBlock.Nodes[m_currentNodeIndex];
+            m_nextRoad = RoadBlock.Nodes[m_currentNodeIndex + 1];
+            m_targetPos = m_nextRoad.transform.position;
+            Debug.Log(nameof(GetNextNode));
+            return true;
+        }
 
-        return null;
+        return false;
     }
 }

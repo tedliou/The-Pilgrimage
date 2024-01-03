@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1075078873545172632}
-  - component: {fileID: 2537925826147354310}
+  - component: {fileID: 5508423370340913521}
+  - component: {fileID: 2332869126331808040}
   m_Layer: 0
   m_Name: Car_Extend
   m_TagString: Untagged
@@ -33,7 +34,7 @@ Transform:
   - {fileID: 1533735387413778603}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2537925826147354310
+--- !u!114 &5508423370340913521
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,17 +43,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 4877333694228911168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
+  m_Script: {fileID: 11500000, guid: 03dab982246758b478f8271ceab01006, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: 511f571487e2d0c43a126540c11a5229, type: 2}
-  floatBlock: {fileID: 0}
-  progress: {fileID: 0}
-  floatObj: {fileID: 0}
-  isBroking: 0
-  duration: 2
-  floatSpeed: 2
-  amount: 1
+  cellType: 0
+  blockType: 0
+  sedanChair: {fileID: 0}
+  historyIndexOffset: 2
+  currentHistoryIndex: -1
+--- !u!54 &2332869126331808040
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4877333694228911168}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 116
+  m_CollisionDetection: 0
 --- !u!1001 &7051870625793147903
 PrefabInstance:
   m_ObjectHideFlags: 0

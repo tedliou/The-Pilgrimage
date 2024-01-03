@@ -72,7 +72,38 @@ public class GridSystem: Singleton<GridSystem>
             }
         }
     }
+    
+    public static void Move(BlockBase block, BlockType blockType, CellType cellType)
+    {
+        var cellDict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+        var oldKey = cellDict.First(c => c.Value == block).Key;
+        var newkey = block.transform.GetGridKey();
+        
+        if (cellDict.TryGetValue(oldKey, out BlockBase blockbase))
+        {
+            if (cellDict.TryAdd(newkey, blockbase))
+            {
+                Debug.Log($"[{nameof(GridSystem)}] {blockbase.name} 註冊於 {blockbase.cellType} {newkey}");
+            }
+            else
+            {
+                Debug.Log($"[{nameof(GridSystem)}] {blockbase.name} 註冊失敗");
+            }
+            
+        }
+        
+        if (cellDict.Remove(oldKey))
+        {
+            Debug.Log($"[{nameof(GridSystem)}] 刪除位於 {oldKey} 的 {block.name}");
+        }
+        else
+        {
+            Debug.Log($"[{nameof(GridSystem)}] {block.name} 刪除失敗");
+        }
+    }
 
+    
+    
     public static bool Find(Vector3 position, BlockType blockType, out BlockBase block)
     {
         var key = new Vector2(position.x, position.z);
@@ -96,6 +127,17 @@ public class GridSystem: Singleton<GridSystem>
 
         block = null;
         return false;
+    }
+    
+    public static BlockBase FindDownBlock(BlockBase current)
+    {
+        var key = current.transform.GetGridKey();
+        if (Instance.m_cellBottom.TryGetValue(key, out BlockBase entity))
+        {
+            return entity;
+        }
+
+        return null;
     }
     
     public static List<BlockBase> FindAround(BlockBase current)
