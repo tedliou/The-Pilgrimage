@@ -1,13 +1,19 @@
 using System;
 using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : UnityEngine.Object
+public class Singleton<T> : MonoBehaviour where T : UnityEngine.MonoBehaviour
 {
     public static T Instance
     {
         get
         {
             _instance ??= FindObjectOfType<T>();
+            if (_instance is null)
+            {
+                var prefab = Resources.Load<T>(typeof(T).Name).gameObject;
+                var instanceObj = Instantiate(prefab);
+                _instance = instanceObj.GetComponent<T>();
+            }
             return _instance;
         }
     }
@@ -18,6 +24,10 @@ public class Singleton<T> : MonoBehaviour where T : UnityEngine.Object
         if (Instance is not null && Instance != this)
         {
             gameObject.SetActive(false);
+            return;
         }
+
+        name = $"[{typeof(T).Name}]";
+        DontDestroyOnLoad(gameObject);
     }
 }

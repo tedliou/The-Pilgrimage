@@ -90,7 +90,7 @@ public class InteractableObject : MonoBehaviour
         }
     }
 
-    private Vector3 SelfCellPos => Grid2DSystem.WorldToCell(transform.position);
+    private Vector3 SelfCellPos => GridSystem.WorldToCell(transform.position);
 
     public void AddToGrid()
     {

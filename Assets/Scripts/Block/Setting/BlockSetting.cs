@@ -14,14 +14,3 @@ public abstract class BlockSetting : ScriptableObject
 
     public abstract bool GetRequirement(out int id);
 }
-
-[System.Serializable]
-public enum BlockType
-{
-    Building = 0,
-    Floor = 1,
-    Prop = 2,
-    Chest = 3,
-    Tool = 4,
-    Float = 5
-}

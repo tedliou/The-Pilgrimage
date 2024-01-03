@@ -62,10 +62,10 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        _gamePrefab.Init();
+        // _gamePrefab.Init();
         Application.targetFrameRate = targetFrameRate;
-        PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
-        PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
+        // PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
+        // PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
     }
 
     #endregion
@@ -86,7 +86,7 @@ public class GameManager : Singleton<GameManager>
     private void SpawnPlayerObject(Player player)
     {
         var spawnPos = playerSpawnPos;
-        if (Grid2DSystem.Find("Chest_SedanChair", out BlockBase block))
+        if (GridSystem.Find("Chest_SedanChair", out BlockBase block))
         {
             spawnPos = block.transform.position - new Vector3(0, 0, 1);
         }

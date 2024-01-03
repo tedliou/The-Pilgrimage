@@ -120,10 +120,10 @@ public class EnvSpawner : MonoBehaviour
             var dimision = size.x * size.y;
             i += dimision;
 
-            if (Grid2DSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
+            if (GridSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
             {
                 // 只替換草地
-                if (block.Setting.Id != grass.Id)
+                if (block.name != grass.Id)
                     continue;
                 
                 ReplaceBlock(offset.x + randX, offset.y + randY, garbage.Id, size);
@@ -146,10 +146,10 @@ public class EnvSpawner : MonoBehaviour
             var dimision = size.x * size.y;
             i += dimision;
 
-            if (Grid2DSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
+            if (GridSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
             {
                 // 只替換草地
-                if (block.Setting.Id != grass.Id)
+                if (block.name != grass.Id)
                     continue;
                 
                 ReplaceBlock(offset.x + randX, offset.y + randY, gas.Id, size);
@@ -208,7 +208,7 @@ public class EnvSpawner : MonoBehaviour
         var prefab = GameManager.Instance.GetPrefab(blockId).gameObject;
         var blockObj = Instantiate(prefab, position, Quaternion.identity);
         var block = blockObj.GetComponent<BlockBase>();
-        Grid2DSystem.Add(position, block);
+        GridSystem.Add(block);
         return block;
     }
     
@@ -230,7 +230,7 @@ public class EnvSpawner : MonoBehaviour
         // 挖空
         for (var i = 0; i < queue.Count; i++)
         {
-            Grid2DSystem.Remove(queue[i], blockBase.Setting.Type);
+            //GridSystem.Remove(queue[i], blockBase.setting.Type);
         }
 
         if (once)
@@ -239,14 +239,14 @@ public class EnvSpawner : MonoBehaviour
             var entity = SpawnBlock(queue[0].x, queue[0].z, blockId);
             for (var i = 1; i < queue.Count; i++)
             {
-                Grid2DSystem.Add(queue[i], entity);
+                //GridSystem.Add(queue[i], entity);
             }
         }
         else
         {
             for (var i = 0; i < queue.Count; i++)
             {
-                Grid2DSystem.Add(queue[i], SpawnBlock(queue[i].x, queue[i].z, blockId));
+                //GridSystem.Add(queue[i], SpawnBlock(queue[i].x, queue[i].z, blockId));
             }
         }
     }

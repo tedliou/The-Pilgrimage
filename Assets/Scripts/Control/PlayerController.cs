@@ -281,7 +281,7 @@ public class PlayerController : MonoBehaviour
     private bool TryGetSelectedBlock(out BlockBase target)
     {
         var selectedPos = Vector3.zero;
-        var selfPos = Grid2DSystem.WorldToCell(transform.position);
+        var selfPos = GridSystem.WorldToCell(transform.position);
         var lookAngle = angle;
         
         if (lookAngle >= -45 && lookAngle < 45)
@@ -301,19 +301,19 @@ public class PlayerController : MonoBehaviour
             selectedPos = selfPos + new Vector3(-1, 0, 0);
         }
 
-        if (Grid2DSystem.Find(selectedPos, BlockType.Tool, out target))
+        if (GridSystem.Find(selectedPos, BlockType.Tool, out target))
         {
             return true;
         }
-        else if (Grid2DSystem.Find(selectedPos, BlockType.Prop, out target))
+        else if (GridSystem.Find(selectedPos, BlockType.Prop, out target))
         {
             return true;
         }
-        else if (Grid2DSystem.Find(selectedPos, BlockType.Float, out target))
+        else if (GridSystem.Find(selectedPos, BlockType.Drop, out target))
         {
             return true;
         }
-        else if (Grid2DSystem.Find(selectedPos, BlockType.Floor, out target))
+        else if (GridSystem.Find(selectedPos, BlockType.Floor, out target))
         {
             return true;
         }
@@ -374,14 +374,13 @@ public class PlayerController : MonoBehaviour
     {
         if (TryGetSelectedBlock(out BlockBase target))
         {
-            if (target.Setting.Id == "Prop_Garbage" || target.Setting.Id == "Prop_Gas")
+            if (target.name == "Prop_Garbage" || target.name == "Prop_Gas")
             {
                 if (Tool.TryGet(out string holding))
                 {
                     if (holding == "Tool_Chip")
                     {
                         Animator.SetBool(_aniPick, true);
-                        target.isBroking = true;
                     }
                     else
                     {
@@ -440,19 +439,19 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"玩家{Player.Id}: 點擊 A");
         if (TryGetSelectedBlock(out BlockBase target))
         {
-            Debug.Log($"玩家{Player.Id}: 選擇 {target.Setting.Id}");
-            if (target.Setting.Type == BlockType.Tool)
+            Debug.Log($"玩家{Player.Id}: 選擇 {target.name}");
+            if (target.blockType == BlockType.Tool)
             {
                 // Take
                 if (Tool.TryGet(out string holding))
                 {
                     Debug.Log($"玩家{Player.Id}: 持有工具 {holding}, 無法再拿取");
                 }
-                else if (Tool.TrySet(target.Setting.Id))
+                else if (Tool.TrySet(target.name))
                 {
-                    Debug.Log($"玩家{Player.Id}: 取得工具 {target.Setting.Id}");
+                    Debug.Log($"玩家{Player.Id}: 取得工具 {target.name}");
                     
-                    Grid2DSystem.Remove(target.transform.position, BlockType.Tool);
+                    //GridSystem.Remove(target.transform.position, BlockType.Tool);
                     
                     if (Tool.TryGet(out string itemId))
                     {
@@ -461,19 +460,19 @@ public class PlayerController : MonoBehaviour
                     }
                 }
             }
-            else if (target.Setting.Type == BlockType.Float)
+            else if (target.blockType == BlockType.Drop)
             {
                 // Take or Place
                 if (Inventory.TryGet(out string id, out int amount))
                 {
-                    if (id == target.Setting.Id)
+                    if (id == target.name)
                     {
-                        if (Inventory.TrySet(id, target.amount))
-                        {
-                            Debug.Log($"玩家{Player.Id}: 取得道具 {target.Setting.Id}");
-                            Animator.SetBool(_aniPick, true);
-                            Grid2DSystem.Remove(target.transform.position, target.Setting.Type);
-                        }
+                        // if (Inventory.TrySet(id, target.amount))
+                        // {
+                        //     Debug.Log($"玩家{Player.Id}: 取得道具 {target.setting.Id}");
+                        //     Animator.SetBool(_aniPick, true);
+                        //     //GridSystem.Remove(target.transform.position, target.setting.Type);
+                        // }
                     }
                     else
                     {
@@ -482,19 +481,19 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if (Inventory.TrySet(target.Setting.Id, target.amount))
-                    {
-                        Debug.Log($"玩家{Player.Id}: 取得道具 {target.Setting.Id}");
-                        Animator.SetBool(_aniPick, true);
-                        Grid2DSystem.Remove(target.transform.position, target.Setting.Type);
-                    }
-                    else
-                    {
-                        Debug.Log($"玩家{Player.Id}: 道具取得失敗 {target.Setting.Id}");
-                    }
+                    // if (Inventory.TrySet(target.name, target.amount))
+                    // {
+                    //     Debug.Log($"玩家{Player.Id}: 取得道具 {target.setting.Id}");
+                    //     Animator.SetBool(_aniPick, true);
+                    //     //GridSystem.Remove(target.transform.position, target.setting.Type);
+                    // }
+                    // else
+                    // {
+                    //     Debug.Log($"玩家{Player.Id}: 道具取得失敗 {target.setting.Id}");
+                    // }
                 }
             }
-            else if (target.Setting.Type == BlockType.Floor)
+            else if (target.blockType == BlockType.Floor)
             {
                 // Place
                 if (Inventory.TryGet(out string id, out int amount))
@@ -502,15 +501,15 @@ public class PlayerController : MonoBehaviour
                     var blockPrefab = GameManager.Instance.GetPrefab(id).gameObject;
                     var obj = Instantiate(blockPrefab, target.transform.position, Quaternion.identity);
                     var blockBase = obj.GetComponent<BlockBase>();
-                    blockBase.amount = amount;
-                    Grid2DSystem.Add(target.transform.position, blockBase);
+                    //blockBase.amount = amount;
+                    GridSystem.Add(blockBase);
                     Inventory.Reset();
                 }
                 else if (Tool.TryGet(out string itemId))
                 {
                     var blockPrefab = GameManager.Instance.GetPrefab(itemId).gameObject;
                     var obj = Instantiate(blockPrefab, target.transform.position, Quaternion.identity);
-                    Grid2DSystem.Add(target.transform.position, obj.GetComponent<BlockBase>());
+                    GridSystem.Add(obj.GetComponent<BlockBase>());
                     
                     Tool.Reset();
                 }
@@ -519,7 +518,7 @@ public class PlayerController : MonoBehaviour
                     // Nothing
                 }
             }
-            else if (target.Setting.Type == BlockType.Chest)
+            else if (target.blockType == BlockType.Chest)
             {
                 // 放進去車廂
             }
@@ -542,11 +541,11 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"玩家{Player.Id}: 點擊 Fire");
         if (TryGetSelectedBlock(out BlockBase target))
         {
-            Debug.Log($"玩家{Player.Id}: 選擇 {target.Setting.Id}");
+            Debug.Log($"玩家{Player.Id}: 選擇 {target.name}");
 
-            if (target.Setting.Type == BlockType.Prop)
+            if (target.blockType == BlockType.Prop)
             {
-                if (target.Setting.Id == "Garbage" || target.Setting.Id == "Gas")
+                if (target.name == "Garbage" || target.name == "Gas")
                 {
                     if (Tool.TryGet(out string holding))
                     {

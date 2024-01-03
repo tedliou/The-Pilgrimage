@@ -152,18 +152,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c05f443fff14cdf8a6ef14e249995ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: 673c655b6f8443e40994fc0dc8fd8239, type: 2}
-  floatBlock: {fileID: 0}
-  progress: {fileID: 0}
-  floatObj: {fileID: 0}
+  cellType: 0
+  blockType: 5
+  setting: {fileID: 0}
   isBroking: 0
   duration: 2
   floatSpeed: 2
   amount: 1
-  isStaking: 1
+  isStackable: 1
+  isWreckable: 0
+  isPickupable: 1
   originPosition: {x: 0.5, y: 0, z: 0.5}
+  propPrefab: {fileID: 7762665201827358620}
   stackingHeight: 0.114
   stackingLimit: 10
+  dropPrefab: {fileID: 0}
+  dropAmount: 1
+  wreckEffect: {fileID: 0}
 --- !u!1 &7762665201827358620
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,8 +12,8 @@ public class GamePrefab : ScriptableObject
     {
         foreach (var e in _prefab)
         {
-            Debug.Log($"[{nameof(GameManager)}] 註冊 {e.Setting.Id} ({e})");
-            _prefabDict.Add(e.Setting.Id, e);
+            Debug.Log($"[{nameof(GameManager)}] 註冊 {e.name} ({e})");
+            _prefabDict.Add(e.name, e);
         }
     }
 
