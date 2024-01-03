@@ -42,7 +42,7 @@ public class PropBlock : BlockBase
 
     #region Private
     
-    private int m_amount = 0;
+    public int m_amount = 0;
     private List<GameObject> m_propList = new List<GameObject>();
     
     #endregion
@@ -168,7 +168,7 @@ public class PropBlock : BlockBase
             return 0;
         }
 
-        if (amount == m_amount)
+        if (amount >= m_amount)
         {
             GridSystem.Remove(this, blockType, cellType);
             return amount;

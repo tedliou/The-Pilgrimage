@@ -183,12 +183,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellType: 0
-  blockType: 5
-  setting: {fileID: 0}
-  isBroking: 0
-  duration: 2
-  floatSpeed: 2
-  amount: 1
+  blockType: 9
   isStackable: 1
   isWreckable: 0
   isPickupable: 1

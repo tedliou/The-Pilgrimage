@@ -9,6 +9,10 @@ public class GridSystem: Singleton<GridSystem>
     private Dictionary<Vector2, BlockBase> m_cellTop = new Dictionary<Vector2, BlockBase>();
     private Dictionary<Vector2, BlockBase> m_cellBottom = new Dictionary<Vector2, BlockBase>();
 
+    public static void Add(BlockBase block, Vector3 key)
+    {
+        
+    }
     public static void Add(BlockBase block)
     {
         var key = block.transform.GetGridKey();
@@ -37,10 +41,8 @@ public class GridSystem: Singleton<GridSystem>
         }
     }
 
-    public static void Remove(BlockBase block, BlockType blockType, CellType cellType)
+    public static void Remove(Vector2 key, BlockType blockType, CellType cellType)
     {
-        var key = block.transform.GetGridKey();
-        
         if (cellType == CellType.Top)
         {
             if (Instance.m_cellTop.TryGetValue(key, out BlockBase blockbase))
@@ -52,7 +54,7 @@ public class GridSystem: Singleton<GridSystem>
                 }
                 else
                 {
-                    Debug.Log($"[{nameof(GridSystem)}] {block.name} 刪除失敗");
+                    Debug.Log($"[{nameof(GridSystem)}] 刪除失敗");
                 }
             }
         }
@@ -71,6 +73,11 @@ public class GridSystem: Singleton<GridSystem>
                 }
             }
         }
+    }
+    public static void Remove(BlockBase block, BlockType blockType, CellType cellType)
+    {
+        var key = block.transform.GetGridKey();
+        Remove(key, blockType, cellType);
     }
     
     public static void Move(BlockBase block, BlockType blockType, CellType cellType)
@@ -102,7 +109,13 @@ public class GridSystem: Singleton<GridSystem>
         }
     }
 
-    
+    public static bool Find(Vector3 position, CellType cellType)
+    {
+        var key = new Vector2(position.x, position.z);
+        var dict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+        return dict.ContainsKey(key);
+
+    }
     
     public static bool Find(Vector3 position, BlockType blockType, out BlockBase block)
     {

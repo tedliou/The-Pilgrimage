@@ -128,4 +128,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: 073a7c3e29735d44e90e739549b0a782, type: 2}
+  cellType: 1
+  blockType: 1

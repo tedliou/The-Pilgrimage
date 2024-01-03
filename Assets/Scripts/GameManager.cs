@@ -53,6 +53,12 @@ public class GameManager : Singleton<GameManager>
     private GameObject playerPrefab;
 
     [SerializeField] private Vector3 playerSpawnPos;
+
+    public GameObject toolPrefab;
+    public GameObject bombPrefab;
+    public GameObject garbagePrefab;
+    public GameObject gasPrefab;
+    public GameObject roadPrefab;
     #endregion
 
 
@@ -64,8 +70,8 @@ public class GameManager : Singleton<GameManager>
     {
         // _gamePrefab.Init();
         Application.targetFrameRate = targetFrameRate;
-        // PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
-        // PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
+        PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
+        PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
     }
 
     #endregion
@@ -86,10 +92,8 @@ public class GameManager : Singleton<GameManager>
     private void SpawnPlayerObject(Player player)
     {
         var spawnPos = playerSpawnPos;
-        if (GridSystem.Find("Chest_SedanChair", out BlockBase block))
-        {
-            spawnPos = block.transform.position - new Vector3(0, 0, 1);
-        }
+        var sedanChair = FindObjectOfType<SedanChair>();
+        spawnPos = sedanChair.transform.position - new Vector3(0, 0, 1);
         spawnPos.y = playerYPos;
         
         var playerObj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);

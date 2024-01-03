@@ -654,7 +654,6 @@ MonoBehaviour:
   targetBlockR: {fileID: 6442007513160896810}
   selfCellTransform: {fileID: 3095011475215638617}
   playerHand: {fileID: 1921001304137547692}
-  clipTool: {fileID: 2936444962852713701}
   playerColors:
   - {fileID: 2100000, guid: 17882434814ec6d47b1e08bb3d0ba81a, type: 2}
   - {fileID: 2100000, guid: dab3279cc191c8946926ea981bfdbaf2, type: 2}
@@ -662,6 +661,17 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 200df9bc8ebb8cf4f870611edbe1872b, type: 2}
   skinnedMeshRenderer: {fileID: 1862988305477888867}
   replaceMaterialIndex: 2
+  hasToolProp: 0
+  hasBombProp: 0
+  gasAmount: 0
+  garbageAmount: 0
+  gasAmountLimit: 10
+  garbageAmountLimit: 10
+  roadAmount: 0
+  clipTool: {fileID: 2936444962852713701}
+  canPlaceWreckProp: 0
+  canTakeProp: 0
+  triggerBlock: {fileID: 0}
 --- !u!54 &501192887103765860
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -727,7 +737,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 4
   m_Height: 10

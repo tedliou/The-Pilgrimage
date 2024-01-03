@@ -474,6 +474,7 @@ MonoBehaviour:
   indicatorTopToLeft: {fileID: 4136114008803023211}
   indicatorBottomToRight: {fileID: 7916321947074037884}
   indicatorBottomToLeft: {fileID: 3934166604537235340}
+  isEndPoint: 0
   isPassed: 0
   previewRoadDirection: -1
   selfScore: 0

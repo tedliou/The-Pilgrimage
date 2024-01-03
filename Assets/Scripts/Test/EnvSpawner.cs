@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
@@ -14,7 +15,22 @@ public class EnvSpawner : MonoBehaviour
     #endregion
     
     #region Inspector
+
     [Header("Block")]
+    public GameObject grassBlock;
+    public GameObject concreteBlock;
+    public GameObject roadBlock;
+    
+    public GameObject templeBlock;
+    
+    public GameObject garbageProp;
+    public GameObject gasProp;
+
+    public GameObject sedanChairPrefab;
+
+    public GameObject chipProp;
+    
+    
     public BlockSetting grass;
     public BlockSetting temple;
     public BlockSetting garbage;
@@ -47,6 +63,9 @@ public class EnvSpawner : MonoBehaviour
     
     
     public Vector2Int templeFirstOffset;
+
+    private Vector2Int m_lastMapPos;
+    private int m_lastMapIndex;
     #endregion
 
     private void Awake()
@@ -56,16 +75,22 @@ public class EnvSpawner : MonoBehaviour
 
     void Start()
     {
-        GenerateNewMap(Vector2Int.zero);
-        GenerateNewMap(new Vector2Int(mapSize.x, 0));
+        m_lastMapPos = Vector2Int.zero;
+        m_lastMapIndex = 0;
+        GenerateNewMap();
+        GenerateNewMap();
     }
 
-    private void GenerateNewMap(Vector2Int offset)
+    public void GenerateNewMap()
     {
-        GenerateGrass(offset);
-        GenerateTemple(offset);
-        GenerateGarbage(offset);
-        GenerateGas(offset);
+        m_lastMapPos = new Vector2Int(m_lastMapIndex * mapSize.x, 0);
+        
+        GenerateTemple(m_lastMapPos);
+        GenerateGarbage(m_lastMapPos);
+        GenerateGas(m_lastMapPos);
+        GenerateGrass(m_lastMapPos);
+
+        m_lastMapIndex++;
     }
     
     private void GenerateGrass(Vector2Int offset)
@@ -74,7 +99,10 @@ public class EnvSpawner : MonoBehaviour
         {
             for (var z = offset.y; z < offset.y + mapSize.y; z++)
             {
-                SpawnBlock(x, z, grass.Id);
+                if (!GridSystem.Find(new Vector3(x, 0, z), CellType.Down))
+                {
+                    SpawnBlock(x, z, grassBlock);
+                }
             }
         }
     }
@@ -86,21 +114,21 @@ public class EnvSpawner : MonoBehaviour
         
         x += offset.x;
         y += offset.y;
-        
-        ReplaceBlock(x, y, temple.Id, templeSize, true);
+
+        SpawnBlock(x, y, templeBlock);
+        //ReplaceBlock(x, y, templeBlock, templeSize, true);
         
         // Road and SedanChair
         x += sedanChairSpawnPos.x;
         y += sedanChairSpawnPos.y;
-        ReplaceBlock(x, y, road.Id, new Vector2Int(prebuildRoadLength, 1));
+        var endPoint = SpawnBlock(x, y, roadBlock).GetComponent<RoadBlock>();
+        endPoint.isEndPoint = true;
+        //ReplaceBlock(x, y, roadBlock, new Vector2Int(prebuildRoadLength, 1));
 
         if (!spawnedSedanChair)
         {
-            ReplaceBlock(x + 4, y, sedanChair.Id, new Vector2Int(1, 1));
-            ReplaceBlock(x + 3, y, car.Id, new Vector2Int(1, 1));
-            ReplaceBlock(x + 1, y, carExtend.Id, new Vector2Int(1, 1));
-            
-            ReplaceBlock(x, y - 2, chip.Id, new Vector2Int(1, 1));
+            SpawnBlock(x, y, sedanChairPrefab);
+            SpawnBlock(x, y - 2, chipProp);
             
             spawnedSedanChair = true;
         }
@@ -120,14 +148,11 @@ public class EnvSpawner : MonoBehaviour
             var dimision = size.x * size.y;
             i += dimision;
 
-            if (GridSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
+            var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
             {
-                // 只替換草地
-                if (block.name != grass.Id)
-                    continue;
-                
-                ReplaceBlock(offset.x + randX, offset.y + randY, garbage.Id, size);
-                ReplaceBlock(offset.x + randX, offset.y + randY, concrete.Id, size);
+                SpawnBlock(offset.x + randX, offset.y + randY, garbageProp);
+                SpawnBlock(offset.x + randX, offset.y + randY, concreteBlock);
             }
         }
     }
@@ -146,107 +171,55 @@ public class EnvSpawner : MonoBehaviour
             var dimision = size.x * size.y;
             i += dimision;
 
-            if (GridSystem.Find(new Vector3(offset.x + randX, 0, offset.y + randY), concrete.Type, out BlockBase block))
-            {
-                // 只替換草地
-                if (block.name != grass.Id)
-                    continue;
-                
-                ReplaceBlock(offset.x + randX, offset.y + randY, gas.Id, size);
-                ReplaceBlock(offset.x + randX, offset.y + randY, concrete.Id, size);
-            }
+            SpawnBlock(offset.x + randX, offset.y + randY, gasProp);
+            SpawnBlock(offset.x + randX, offset.y + randY, concreteBlock);
         }
     }
 
-    // private void GenerateMap()
-    // {
-    //     for (var x = 0; x < mapSize.x; x++)
-    //     {
-    //         for (var z = 0; z < mapSize.y; z++)
-    //         {
-    //             var buildBlock = false;
-    //
-    //             var cellPos = new Vector2(x, z);
-    //             
-    //             foreach (var e in templePos)
-    //             {
-    //                 var cellFix = new Vector2(e.x, e.y);
-    //                 var spawnPos = new Vector3(cellPos.x + mapOffset.x, 0, cellPos.y + mapOffset.y);
-    //                 if (cellPos.x >= cellFix.x && cellPos.y >= cellFix.y && cellPos.x <= cellFix.x + templeSize.x - 1 && cellPos.y <= cellFix.y + templeSize.y - 1)
-    //                 {
-    //                     buildBlock = true;
-    //                     if (cellPos == cellFix)
-    //                     {
-    //                         Map_Add(cellPos, SpawnTemple(spawnPos));
-    //                     }
-    //                     else
-    //                     {
-    //                         Map_Add(cellPos, Map_Find(cellFix));
-    //                     }
-    //                     break;
-    //                 }
-    //             }
-    //             
-    //             if (!buildBlock)
-    //                 Map_Add(cellPos, SpawnBlock(BlockType.Grass, new Vector3(cellPos.x + mapOffset.x, 0, cellPos.y + mapOffset.y)));
-    //         }
-    //     }
-    //     
-    //     // Sedan Road Prebuild
-    //     var sedanRoadOriginPos = sedanChairSpawnPos;
-    //     for (var i = sedanRoadOriginPos.x; i < sedanRoadOriginPos.x + prebuildRoadLength; i++)
-    //     {
-    //         var key = new Vector2(i, sedanRoadOriginPos.y);
-    //         Map_Replace(key, SpawnBlock(BlockType.Road, new Vector3(key.x, 0, key.y)));
-    //     }
-    // }
-
     #region Map
-    private BlockBase SpawnBlock(int x, int z, string blockId)
+    private BlockBase SpawnBlock(float x, float z, GameObject prefab)
     {
         var position = new Vector3(x, 0, z);
-        var prefab = GameManager.Instance.GetPrefab(blockId).gameObject;
         var blockObj = Instantiate(prefab, position, Quaternion.identity);
         var block = blockObj.GetComponent<BlockBase>();
-        GridSystem.Add(block);
         return block;
     }
     
-    private void ReplaceBlock(int x, int z, string blockId, Vector2Int size, bool once = false)
+    private void ReplaceBlock(int x, int z, GameObject prefab, Vector2Int size, bool once = false)
     {
         var position = new Vector3Int(x, 0, z);
-        var blockBase = GameManager.Instance.GetPrefab(blockId);
+        var blockBase = prefab;
         
         // 建立要挖空的座標
-        var queue = new List<Vector3Int>();
+        var queue = new List<Vector3>();
         for (var i = 0; i < size.x; i++)
         {
             for (var j = 0; j < size.y; j++)
             {
-                queue.Add(position + new Vector3Int(i, 0, j));
+                queue.Add(position + new Vector3(i, 0, j));
             }
         }
             
         // 挖空
         for (var i = 0; i < queue.Count; i++)
         {
-            //GridSystem.Remove(queue[i], blockBase.setting.Type);
+            GridSystem.Remove(queue[i], BlockType.Floor, CellType.Down);
         }
 
         if (once)
         {
             // 在起點建立物件，並連結到所有被挖空的位置
-            var entity = SpawnBlock(queue[0].x, queue[0].z, blockId);
+            var entity = SpawnBlock(queue[0].x, queue[0].z, prefab);
             for (var i = 1; i < queue.Count; i++)
             {
-                //GridSystem.Add(queue[i], entity);
+                GridSystem.Add(entity, queue[i]);
             }
         }
         else
         {
             for (var i = 0; i < queue.Count; i++)
             {
-                //GridSystem.Add(queue[i], SpawnBlock(queue[i].x, queue[i].z, blockId));
+                //GridSystem.Add(SpawnBlock(queue[i].x, queue[i].z, blockId), queue[i]);
             }
         }
     }

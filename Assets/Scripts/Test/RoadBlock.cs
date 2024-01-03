@@ -30,6 +30,7 @@ public class RoadBlock : BlockBase
     public GameObject indicatorBottomToRight;
     public GameObject indicatorBottomToLeft;
 
+    public bool isEndPoint = false;
     public bool isPassed = false;
     public RoadDirection previewRoadDirection;
 
@@ -38,6 +39,11 @@ public class RoadBlock : BlockBase
     public bool isBranchRoad = false;
     public RoadDirection selectRoadDirection = RoadDirection.Unknown;
     public int[] roadScores = new int[4];
+
+    private void OnEnable()
+    {
+        OnRoadUpdate.Invoke();
+    }
 
     private void Awake()
     {
@@ -70,7 +76,6 @@ public class RoadBlock : BlockBase
     {
         base.Start();
         SetRoadMode(RoadMode.Unknown);
-        OnRoadUpdate.Invoke();
     }
 
     public void SetRoadMode(RoadMode roadMode)
@@ -119,7 +124,7 @@ public class RoadBlock : BlockBase
         // 建立節點庫與完整路徑外觀
         UpdateRoadState();
         
-        Debug.Log($"[{nameof(RoadBlock)}] 完成尋路：路徑共長 {Nodes.Count}");
+        //Debug.Log($"[{nameof(RoadBlock)}] 完成尋路：路徑共長 {Nodes.Count}");
     }
 
     public void Navigate(ref int score, int depth)

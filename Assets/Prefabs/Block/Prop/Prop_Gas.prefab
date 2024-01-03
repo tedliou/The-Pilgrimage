@@ -4929,17 +4929,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellType: 0
-  blockType: 2
-  setting: {fileID: 0}
-  isBroking: 0
-  duration: 2
-  floatSpeed: 2
-  amount: 1
+  blockType: 7
   isStackable: 0
   isWreckable: 1
   isPickupable: 0
   originPosition: {x: 0.5, y: 0, z: 0.5}
+  propPrefab: {fileID: 0}
   stackingHeight: 0
   stackingLimit: 0
   dropPrefab: {fileID: 7659076405668296362, guid: a9ffd35af08240948ad361880a7a5454, type: 3}
+  dropAmount: 1
   wreckEffect: {fileID: 3691074968001716701, guid: 842d69ccf982e364f83a40042eb968df, type: 3}

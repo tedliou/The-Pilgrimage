@@ -2,14 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 public class SedanChair : BlockBase
 {
-    public Direction moveDirection = Direction.Stop;
-    public Direction lastDirection = Direction.Stop;
-    
     public float moveSpeed = .2f;
 
     public List<Vector3> history = new List<Vector3>();
@@ -24,10 +22,11 @@ public class SedanChair : BlockBase
     private Transform m_child;
 
     public bool isMoving = false;
-    public bool isWaiting = false;
+    public bool isFinding = false;
+    public bool isRoadUpdated = false;
 
     private Coroutine m_moveJob;
-    private List<Vector3> m_roads;
+    [SerializeField]private List<RoadBlock> m_roads;
 
     [System.Serializable]
     public enum Direction
@@ -42,19 +41,23 @@ public class SedanChair : BlockBase
 
     private void Awake()
     {
-        m_rigidbody = GetComponent<Rigidbody>();
         m_child = transform.GetChild(0);
     }
 
     private void OnRoadUpdate()
     {
-        StartCoroutine(FindPath());
+        isRoadUpdated = true;
+        if (!isFinding && !isMoving)
+        {
+            StartCoroutine(FindPath());
+        }
     }
 
     protected override void Start()
     {
         base.Start();
         StartCoroutine(FindPath());
+        StartCoroutine(ObserveMoveJob());
         RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
     }
 
@@ -62,43 +65,44 @@ public class SedanChair : BlockBase
     {
         return;
         
-        if (RoadBlock.Nodes.Count == 1)
-        {
-            return;
-        }
-        
-        if (!m_isTargetPosSet)
-            return;
-        
-        var dir = m_targetPos - transform.position;
-        var dirNormalized = dir.normalized;
-        var velocity =  moveSpeed * dirNormalized;
-        if (Vector3.Distance(transform.position, m_targetPos) < 0.02f)
-        {
-            velocity = Vector3.zero;
-            transform.position = Vector3.Lerp(transform.position, m_targetPos, .5f);
-            
-            history.Add(m_currentRoad.transform.position);
-            var pos = m_nextRoad.transform.position;
-            m_targetPos = new Vector3(pos.x, 0, pos.z);
-
-            var getNodeState = GetNextNode();
-            isWaiting = !getNodeState;
-            if (getNodeState)
-            {
-                Debug.Log("Success");
-            }
-        }
-        
-        m_rigidbody.velocity = velocity;
-        
-        if (dirNormalized.magnitude > 0)
-        {
-            m_child.forward = Vector3.Lerp(m_child.forward, dirNormalized, .5f);
-        }
+        // if (RoadBlock.Nodes.Count == 1)
+        // {
+        //     return;
+        // }
+        //
+        // if (!m_isTargetPosSet)
+        //     return;
+        //
+        // var dir = m_targetPos - transform.position;
+        // var dirNormalized = dir.normalized;
+        // var velocity =  moveSpeed * dirNormalized;
+        // if (Vector3.Distance(transform.position, m_targetPos) < 0.02f)
+        // {
+        //     velocity = Vector3.zero;
+        //     transform.position = Vector3.Lerp(transform.position, m_targetPos, .5f);
+        //     
+        //     history.Add(m_currentRoad.transform.position);
+        //     var pos = m_nextRoad.transform.position;
+        //     m_targetPos = new Vector3(pos.x, 0, pos.z);
+        //
+        //     var getNodeState = GetNextNode();
+        //     //isWaiting = !getNodeState;
+        //     if (getNodeState)
+        //     {
+        //         Debug.Log("Success");
+        //     }
+        // }
+        //
+        // m_rigidbody.velocity = velocity;
+        //
+        // if (dirNormalized.magnitude > 0)
+        // {
+        //     m_child.forward = Vector3.Lerp(m_child.forward, dirNormalized, .5f);
+        // }
     }
 
 
+    [Button]
     private void StartMoveJob(Vector3 targetPos)
     {
         if (m_moveJob != null)
@@ -111,43 +115,50 @@ public class SedanChair : BlockBase
     {
         Debug.Log($"[{nameof(SedanChair)}] Start Move Job, Target Pos: {targetPos}");
         
-        var vector = targetPos - transform.position;
-        var normal = vector.normalized;
-        var param =  moveSpeed * normal * Time.fixedTime;
+        var param =  moveSpeed * Time.deltaTime;
         
         while (true)
         {
-            if (vector.magnitude < param.magnitude)
-            {
-                param = vector;
-            }
-
-            transform.position += param;
-            isMoving = true;
-            
-            yield return new WaitForFixedUpdate();
-
             if (transform.position == targetPos)
             {
                 break;
             }
+            
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, param);
+            m_child.forward = Vector3.Lerp(m_child.forward, (targetPos - transform.position).normalized, .2f);
+            isMoving = true;
+            
+            yield return null;
+
         }
 
+        if (m_roads[0].isEndPoint)
+        {
+            EnvSpawner.current.GenerateNewMap();
+        }
+        m_roads.RemoveAt(0);
         isMoving = false;
         m_moveJob = null;
         
         Debug.Log($"[{nameof(SedanChair)}] End Move Job");
+
+        if (isRoadUpdated)
+        {
+            StartCoroutine(FindPath());
+        }
     }
 
     private IEnumerator ObserveMoveJob()
     {
+        yield return new WaitForSeconds(5);
         while (true)
         {
             yield return new WaitUntil(() => !isMoving);
             
-            if (m_roads.Count > 0)
+            if (m_roads.Count > 1)
             {
-                StartMoveJob(m_roads[0]);
+                m_roads[0].isPassed = true;
+                StartMoveJob(m_roads[0].transform.position);
             }
 
             yield return null;
@@ -156,22 +167,30 @@ public class SedanChair : BlockBase
 
     private IEnumerator FindPath()
     {
-        Debug.Log("Path finder started");
+        Debug.Log($"[{nameof(SedanChair)}] Start Path Finder");
+        
+        isFinding = true;
+        
         while (true)
         {
             var roadBlock = FindRoadBlock();
-            roadBlock.NavigateAll();
-
-            m_roads = RoadBlock.Nodes.Select(r => r.transform.position).ToList();
-            if (m_roads.Count == 0 || m_roads.Count < 2)
+            if (roadBlock)
             {
-                yield return null;
-                continue;
+                roadBlock.NavigateAll();
+                m_roads = RoadBlock.Nodes.ToList();
+                if (m_roads.Count == 0 || m_roads.Count < 2)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                m_roads[0].isPassed = true;
+                m_roads.RemoveAt(0);
+                break;
             }
-            m_roads.RemoveAt(0);
+
             
-            Debug.Log(m_roads.Count);
-            Debug.Log(m_roads[0]);
+            
             
             // New Nodes
             /// index 0 is current
@@ -197,8 +216,12 @@ public class SedanChair : BlockBase
             //     yield break;
             // }
             
-            yield return new WaitForSeconds(.5f);
+            yield return null;
         }
+
+        isFinding = false;
+        
+        Debug.Log($"[{nameof(SedanChair)}] Stop Path Finder");
     }
 
     private RoadBlock FindRoadBlock()

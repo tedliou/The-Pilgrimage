@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Tool
   - InteractableObject
+  - Missile
+  - Car
+  - CarExtend
   layers:
   - Default
   - TransparentFX

@@ -92,8 +92,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6000206442680537729}
-  - component: {fileID: 5681585822613095955}
   - component: {fileID: 5929147003760715361}
+  - component: {fileID: 6827035905706270169}
   m_Layer: 0
   m_Name: Prop_ClipTool
   m_TagString: InteractableObject
@@ -117,20 +117,6 @@ Transform:
   - {fileID: 7690981458855321980}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5681585822613095955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6760665219442054982}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 2
-  settings: {fileID: 11400000, guid: 84c1b1f676cd72748adcfbebd075a98f, type: 2}
 --- !u!65 &5929147003760715361
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -148,7 +134,21 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0.5, y: 0.5, z: 0.5}
+--- !u!114 &6827035905706270169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6760665219442054982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f733ed3d4e664bb7b0d302b30256bb48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellType: 0
+  blockType: 4

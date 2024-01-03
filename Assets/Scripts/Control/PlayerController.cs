@@ -222,7 +222,6 @@ public class PlayerController : MonoBehaviour
     
     // Hand
     public Transform playerHand;
-    public GameObject clipTool;
 
 
 
@@ -232,9 +231,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Material[] playerColors;
     [SerializeField] private SkinnedMeshRenderer skinnedMeshRenderer;
     [SerializeField] private int replaceMaterialIndex = 2;
-    
-    
-    
+
+
+    public bool hasToolProp = false;
+    public bool hasBombProp = false;
+    public int gasAmount = 0;
+    public int garbageAmount = 0;
+    public int gasAmountLimit = 10;
+    public int garbageAmountLimit = 10;
+    public int roadAmount = 0;
+    public GameObject clipTool;
     
     #endregion
 
@@ -257,9 +263,13 @@ public class PlayerController : MonoBehaviour
         _direction = Vector3.zero;
         _fowardObject = null;
         _holdingObject = null;
-        clipTool.SetActive(false);
         
         SetPlayerColor();
+    }
+
+    private void Update()
+    {
+        clipTool.SetActive(hasToolProp);
     }
 
     private void SetPlayerColor()
@@ -323,78 +333,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // private void Test_SetIndicator()
-    // {
-    //     targetBlock.parent = null;
-    //     targetBlockT.parent = null;
-    //     targetBlockD.parent = null;
-    //     targetBlockL.parent = null;
-    //     targetBlockR.parent = null;
-    //     
-    //     targetBlock.position = Grid2DSystem.WorldToCell(transform.position);
-    //     targetBlockT.position = Grid2DSystem.WorldToCell(transform.position) + new Vector3(0, 0, 1);
-    //     targetBlockD.position = Grid2DSystem.WorldToCell(transform.position) + new Vector3(0, 0, -1);
-    //     targetBlockL.position = Grid2DSystem.WorldToCell(transform.position) + new Vector3(-1, 0, 0);
-    //     targetBlockR.position = Grid2DSystem.WorldToCell(transform.position) + new Vector3(1, 0, 0);
-    //     
-    //    
-    //     targetBlock.gameObject.SetActive(false);
-    //     targetBlockT.gameObject.SetActive(false);
-    //     targetBlockD.gameObject.SetActive(false);
-    //     targetBlockL.gameObject.SetActive(false);
-    //     targetBlockR.gameObject.SetActive(false);
-    //     
-    //     var testAngle = angle;
-    //     // if (testAngle > 360)
-    //     //     testAngle -= 360;
-    //     // if (testAngle < 0)
-    //     //     testAngle += 360;
-    //     
-    //     ConsoleProDebug.Watch("Debug Angle", $"{testAngle}");
-    //     
-    //     if (testAngle >= -45 && testAngle < 45)
-    //     {
-    //         targetBlockT.gameObject.SetActive(true);
-    //     }
-    //     else if (testAngle >= 45 && testAngle < 135)
-    //     {
-    //         targetBlockR.gameObject.SetActive(true);
-    //     }
-    //     else if ((testAngle >= 135 && testAngle < 180) || (testAngle >= -135 && testAngle < -180)) 
-    //     {
-    //         targetBlockD.gameObject.SetActive(true);
-    //     }
-    //     else
-    //     {
-    //         targetBlockL.gameObject.SetActive(true);
-    //     }
-    // }
-
-    private void Update()
-    {
-        if (TryGetSelectedBlock(out BlockBase target))
-        {
-            if (target.name == "Prop_Garbage" || target.name == "Prop_Gas")
-            {
-                if (Tool.TryGet(out string holding))
-                {
-                    if (holding == "Tool_Chip")
-                    {
-                        Animator.SetBool(_aniPick, true);
-                    }
-                    else
-                    {
-                        Animator.SetBool(_aniPick, false);
-                    }
-                }
-            }
-            else
-            {
-                Animator.SetBool(_aniPick, false);
-            }
-        }
-    }
-
     private void FixedUpdate()
     {
         // Move
@@ -436,86 +374,148 @@ public class PlayerController : MonoBehaviour
 
     public void Get()
     {
-        Debug.Log($"玩家{Player.Id}: 點擊 A");
+
+        if (canPlaceWreckProp)
+        {
+            var car = triggerBlock.GetComponent<CarController>();
+
+            if (gasAmount > 0)
+            {
+                car.PutGas(gasAmount);
+                gasAmount = 0;
+            }
+            else if (garbageAmount > 0)
+            {
+                car.PutGarbage(garbageAmount);
+                garbageAmount = 0;
+            }
+            
+            
+            return;
+        }
+        else if (canTakeProp)
+        {
+            if (garbageAmount > 0 || gasAmount > 0 || hasToolProp || hasBombProp)
+            {
+                return;
+            }
+            
+            var carExtend = triggerBlock.GetComponent<CarExtendController>();
+            var amount = carExtend.Take();
+            if (amount > 0)
+            {
+                roadAmount = amount;
+            }
+            
+            return;   
+        }
+        
+        Debug.Log(nameof(Get));
+
+        
         if (TryGetSelectedBlock(out BlockBase target))
         {
-            Debug.Log($"玩家{Player.Id}: 選擇 {target.name}");
+            Debug.Log(target.name);
+            
             if (target.blockType == BlockType.Tool)
             {
                 // Take
-                if (Tool.TryGet(out string holding))
+                if (hasToolProp)
                 {
-                    Debug.Log($"玩家{Player.Id}: 持有工具 {holding}, 無法再拿取");
-                }
-                else if (Tool.TrySet(target.name))
-                {
-                    Debug.Log($"玩家{Player.Id}: 取得工具 {target.name}");
-                    
-                    //GridSystem.Remove(target.transform.position, BlockType.Tool);
-                    
-                    if (Tool.TryGet(out string itemId))
-                    {
-                        Debug.Log($"玩家{Player.Id}: 持有工具 {itemId}");
-                        Animator.SetBool(_aniPick, true);
-                    }
-                }
-            }
-            else if (target.blockType == BlockType.Drop)
-            {
-                // Take or Place
-                if (Inventory.TryGet(out string id, out int amount))
-                {
-                    if (id == target.name)
-                    {
-                        // if (Inventory.TrySet(id, target.amount))
-                        // {
-                        //     Debug.Log($"玩家{Player.Id}: 取得道具 {target.setting.Id}");
-                        //     Animator.SetBool(_aniPick, true);
-                        //     //GridSystem.Remove(target.transform.position, target.setting.Type);
-                        // }
-                    }
-                    else
-                    {
-                        Debug.Log($"玩家{Player.Id}: 持有道具 {id}, 無法再拿取");
-                    }
+                    // Nothing
                 }
                 else
                 {
-                    // if (Inventory.TrySet(target.name, target.amount))
-                    // {
-                    //     Debug.Log($"玩家{Player.Id}: 取得道具 {target.setting.Id}");
-                    //     Animator.SetBool(_aniPick, true);
-                    //     //GridSystem.Remove(target.transform.position, target.setting.Type);
-                    // }
-                    // else
-                    // {
-                    //     Debug.Log($"玩家{Player.Id}: 道具取得失敗 {target.setting.Id}");
-                    // }
+                    hasToolProp = true;
+                    GridSystem.Remove(target, BlockType.Tool, CellType.Top);
+                    Animator.SetBool(_aniPick, true);
+                }
+            }
+            else if (target.blockType == BlockType.GasWreck)
+            {
+                if (garbageAmount > 0)
+                {
+                    return;
+                }
+
+                if (hasToolProp || hasBombProp)
+                {
+                    return;
+                }
+                
+                var prop = target.GetComponent<PropBlock>();
+
+                if (gasAmount > 0)
+                {
+                    var placeAmount = prop.Place(gasAmount);
+                    gasAmount -= placeAmount;
+                }
+                else
+                {
+                    var takeAmount = prop.Pickup();
+                    gasAmount += takeAmount;
+                }
+            }
+            else if (target.blockType == BlockType.GarbageWreck)
+            {
+                // Take or Place
+                if (gasAmount > 0)
+                {
+                    return;
+                }
+
+                if (hasToolProp || hasBombProp)
+                {
+                    return;
+                }
+                
+                var prop = target.GetComponent<PropBlock>();
+
+                if (garbageAmount > 0)
+                {
+                    var placeAmount = prop.Place(garbageAmount);
+                    garbageAmount -= placeAmount;
+                }
+                else
+                {
+                    var takeAmount = prop.Pickup();
+                    garbageAmount += takeAmount;
                 }
             }
             else if (target.blockType == BlockType.Floor)
             {
                 // Place
-                if (Inventory.TryGet(out string id, out int amount))
+                if (hasToolProp)
                 {
-                    var blockPrefab = GameManager.Instance.GetPrefab(id).gameObject;
-                    var obj = Instantiate(blockPrefab, target.transform.position, Quaternion.identity);
-                    var blockBase = obj.GetComponent<BlockBase>();
-                    //blockBase.amount = amount;
-                    GridSystem.Add(blockBase);
-                    Inventory.Reset();
+                    var toolObj = Instantiate(GameManager.Instance.toolPrefab);
+                    toolObj.transform.position = target.transform.position;
+                    hasToolProp = false;
                 }
-                else if (Tool.TryGet(out string itemId))
+                else if (hasBombProp)
                 {
-                    var blockPrefab = GameManager.Instance.GetPrefab(itemId).gameObject;
-                    var obj = Instantiate(blockPrefab, target.transform.position, Quaternion.identity);
-                    GridSystem.Add(obj.GetComponent<BlockBase>());
-                    
-                    Tool.Reset();
+                    var bombObj = Instantiate(GameManager.Instance.bombPrefab);
+                    bombObj.transform.position = target.transform.position;
+                    hasBombProp = false;
                 }
-                else
+                else if (garbageAmount > 0)
                 {
-                    // Nothing
+                    var garbageObj = Instantiate(GameManager.Instance.garbagePrefab);
+                    garbageObj.transform.position = target.transform.position;
+                    garbageObj.GetComponent<PropBlock>().SetAmount(garbageAmount);
+                    garbageAmount = 0;
+                }
+                else if (gasAmount > 0)
+                {
+                    var gasObj = Instantiate(GameManager.Instance.gasPrefab);
+                    gasObj.transform.position = target.transform.position;
+                    gasObj.GetComponent<PropBlock>().SetAmount(gasAmount);
+                    gasAmount = 0;
+                }else if (roadAmount > 0)
+                {
+                    GridSystem.Remove(target, BlockType.Floor, CellType.Down);
+                    var roadObj = Instantiate(GameManager.Instance.roadPrefab);
+                    roadObj.transform.position = target.transform.position;
+                    roadAmount --;
                 }
             }
             else if (target.blockType == BlockType.Chest)
@@ -536,27 +536,26 @@ public class PlayerController : MonoBehaviour
 
     public void Fire()
     {
-        return;
-        
-        Debug.Log($"玩家{Player.Id}: 點擊 Fire");
         if (TryGetSelectedBlock(out BlockBase target))
         {
-            Debug.Log($"玩家{Player.Id}: 選擇 {target.name}");
-
-            if (target.blockType == BlockType.Prop)
+            if (target.blockType == BlockType.Garbage)
             {
-                if (target.name == "Garbage" || target.name == "Gas")
+                var prop = target.GetComponent<PropBlock>();
+                if (hasToolProp)
                 {
-                    if (Tool.TryGet(out string holding))
-                    {
-                        Animator.SetBool(_aniPick, true);
-                    }
+                    prop.Wreck();
+                    Animator.SetBool(_aniPick, true);
                 }
             }
-        }
-        else
-        {
-            // Nothing
+            else if (target.blockType == BlockType.Gas)
+            {
+                var prop = target.GetComponent<PropBlock>();
+                if (hasToolProp)
+                {
+                    prop.Wreck();
+                    Animator.SetBool(_aniPick, true);
+                }
+            }
         }
     }
 
@@ -565,4 +564,37 @@ public class PlayerController : MonoBehaviour
         Animator.SetBool(_aniPick, false);
     }
     #endregion
+
+
+    public bool canPlaceWreckProp = false;
+    public bool canTakeProp = false;
+    public GameObject triggerBlock;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Car"))
+        {
+            canPlaceWreckProp = true;
+            triggerBlock = other.gameObject;
+        }
+        else if (other.CompareTag("CarExtend"))
+        {
+            canTakeProp = true;
+            triggerBlock = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Car"))
+        {
+            canPlaceWreckProp = false;
+            triggerBlock = null;
+        }
+        else if (other.CompareTag("CarExtend"))
+        {
+            canTakeProp = false;
+            triggerBlock = null;
+        }
+    }
 }
