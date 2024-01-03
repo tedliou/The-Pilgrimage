@@ -13,18 +13,22 @@ public class BlockBase : MonoBehaviour
             return settings;
         }
     }
+    
     [SerializeField] private BlockSetting settings;
     [SerializeField] private BlockSetting floatBlock;
     [SerializeField] private Transform progress;
     [SerializeField] private Transform floatObj;
+    
     public bool isBroking = false;
     public float duration = 2;
     public float floatSpeed = 2;
     public int amount = 1;
     private float _time = 0;
 
-    private void Start()
+    protected virtual void Start()
     {
+        return;
+        
         transform.position = Grid2DSystem.WorldToCell(transform.position);
         isBroking = false;
         if (progress)
@@ -33,6 +37,8 @@ public class BlockBase : MonoBehaviour
 
     private void Update()
     {
+        return;
+        
         if (Setting.Type == BlockType.Float)
         {
             floatObj.Rotate(Vector3.up, floatSpeed);
@@ -41,6 +47,8 @@ public class BlockBase : MonoBehaviour
 
     private void LateUpdate()
     {
+        return;
+        
         if (isBroking)
         {
             _time += Time.deltaTime;
