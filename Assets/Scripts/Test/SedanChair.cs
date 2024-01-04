@@ -134,6 +134,8 @@ public class SedanChair : BlockBase
 
         if (m_roads[0].isEndPoint)
         {
+            Debug.Log("Reach EndPoint!");
+            m_roads[0].isEndPoint = false;
             EnvSpawner.current.GenerateNewMap();
         }
         m_roads.RemoveAt(0);
@@ -155,10 +157,14 @@ public class SedanChair : BlockBase
         {
             yield return new WaitUntil(() => !isMoving);
             
-            if (m_roads.Count > 1)
+            
+            if (m_roads.Count > 0)
             {
-                m_roads[0].isPassed = true;
-                StartMoveJob(m_roads[0].transform.position);
+                if (m_roads[0].transform.GetGridKey() != transform.GetGridKey())
+                {
+                    m_roads[0].isPassed = true;
+                    StartMoveJob(m_roads[0].transform.position);
+                }
             }
 
             yield return null;

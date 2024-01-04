@@ -122,7 +122,8 @@ public class EnvSpawner : MonoBehaviour
         x += sedanChairSpawnPos.x;
         y += sedanChairSpawnPos.y;
         var endPoint = SpawnBlock(x, y, roadBlock).GetComponent<RoadBlock>();
-        endPoint.isEndPoint = true;
+        endPoint.isPassed = m_lastMapIndex == 0;
+        endPoint.isEndPoint = m_lastMapIndex != 0;
         //ReplaceBlock(x, y, roadBlock, new Vector2Int(prebuildRoadLength, 1));
 
         if (!spawnedSedanChair)
