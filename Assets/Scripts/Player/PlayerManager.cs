@@ -56,7 +56,6 @@ public class PlayerManager : Singleton<PlayerManager>
     private Dictionary<int, Player> _players;
 
     #endregion
-    
 
     #region Unity Messages
 

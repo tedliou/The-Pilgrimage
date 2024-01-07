@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : UnityEngine.MonoBehaviour
+public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehaviour
 {
     public static T Instance
     {
@@ -19,6 +19,8 @@ public class Singleton<T> : MonoBehaviour where T : UnityEngine.MonoBehaviour
     }
     private static T _instance;
 
+    protected bool m_inited = false;
+
     private void Awake()
     {
         if (Instance is not null && Instance != this)
@@ -29,5 +31,18 @@ public class Singleton<T> : MonoBehaviour where T : UnityEngine.MonoBehaviour
 
         name = $"[{typeof(T).Name}]";
         DontDestroyOnLoad(gameObject);
+    }
+
+    public void Init()
+    {
+        if (m_inited)
+            return;
+        m_inited = true;
+        OnInit();
+    }
+
+    public virtual void OnInit()
+    {
+        
     }
 }

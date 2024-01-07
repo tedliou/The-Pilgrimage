@@ -75,7 +75,6 @@ public class PlayerInputHandler : MonoBehaviour
     {
         var dir = ctx.ReadValue<Vector2>();
         onPlayerMove.Invoke(dir);
-        ConsoleProDebug.Watch("Move", $"Player {Input.playerIndex}: {dir}");
     }
 
     private void OnLook(InputAction.CallbackContext ctx)
@@ -90,14 +89,12 @@ public class PlayerInputHandler : MonoBehaviour
             return;
         
         onPlayerLook.Invoke(angle);
-        ConsoleProDebug.Watch("Rotate", $"Player {Input.playerIndex}: {angle}");
     }
     
     
     private void OnGet(InputAction.CallbackContext ctx)
     {
         OnPlayerGet.Invoke();
-        ConsoleProDebug.Watch("Interactive", $"Player {Input.playerIndex}: {ctx.performed}");
     }
     private void OnGetCancel(InputAction.CallbackContext ctx)
     {
@@ -107,7 +104,6 @@ public class PlayerInputHandler : MonoBehaviour
     private void OnFire(InputAction.CallbackContext ctx)
     {
         onPlayerFire.Invoke();
-        ConsoleProDebug.Watch("Interactive", $"Player {Input.playerIndex}: {ctx.performed}");
     }
     private void OnFireCancel(InputAction.CallbackContext ctx)
     {

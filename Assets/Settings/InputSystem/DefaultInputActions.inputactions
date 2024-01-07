@@ -502,6 +502,28 @@
                     "action": "Active",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cbbcb064-4b34-4b1d-a149-768deef7e841",
+                    "path": "<Mouse>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Active",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6774a167-b70d-412c-99f1-85949c209b46",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Active",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

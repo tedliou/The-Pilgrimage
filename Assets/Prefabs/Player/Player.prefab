@@ -63,7 +63,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Actions: {fileID: -944628639613478452, guid: 7a32d457f7b15e0499fdbdf40445282e, type: 3}
   m_NotificationBehavior: 3
-  m_UIInputModule: {fileID: 0}
+  m_UIInputModule: {fileID: -6720753927278651177}
   m_DeviceLostEvent:
     m_PersistentCalls:
       m_Calls: []

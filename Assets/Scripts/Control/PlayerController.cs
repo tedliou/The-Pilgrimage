@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -188,10 +187,6 @@ public class PlayerController : MonoBehaviour
     
     public float angle;
     public string holdName;
-    [SerializeField]private InteractableObject _fowardObject;
-    [SerializeField]private InteractableObject _holdingObject;
-
-    private static readonly string INTERACTABLE_OBJECT = "InteractableObject";
     
     private Vector3 _direction;
     private Quaternion _rotation;
@@ -261,8 +256,6 @@ public class PlayerController : MonoBehaviour
         InputHandler.onPlayerFireCancel.AddListener(FireCancel);
         
         _direction = Vector3.zero;
-        _fowardObject = null;
-        _holdingObject = null;
         
         SetPlayerColor();
     }
@@ -364,7 +357,6 @@ public class PlayerController : MonoBehaviour
         _direction.x = direction.x;
         _direction.y = 0;
         _direction.z = direction.y;
-        ConsoleProDebug.Watch("InputMovement", $"{_direction}");
     }
 
     public void Look(float value)

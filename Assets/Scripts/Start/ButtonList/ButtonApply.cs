@@ -9,6 +9,6 @@ public class ButtonApply : GameButton
 
     private void SaveSetting()
     {
-        GameSettingManager.current.Save();
+        SettingManager.Instance.Save();
     }
 }

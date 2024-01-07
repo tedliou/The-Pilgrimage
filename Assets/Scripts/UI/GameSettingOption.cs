@@ -4,17 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameSettingOption : MonoBehaviour
+public class GameSettingOption : CustomBehaviour<GameSettingOption>
 {
-    #region Inspector
     [SerializeField] private GameSetting.Option option;
     [SerializeField] private int intValue;
     [SerializeField] private int floatValue;
     [SerializeField] private Vector2Int vectorValue;
-    #endregion
     
 
-    #region Unity Messages
 
     private void Awake()
     {
@@ -28,33 +25,32 @@ public class GameSettingOption : MonoBehaviour
         }
     }
 
-    #endregion
 
     public void Load()
     {
         switch (option)
         {
             case GameSetting.Option.Quality:
-                if (GameSettingManager.current.GetIntSetting(GameSetting.Option.Quality) == intValue)
+                if (SettingManager.Instance.GetIntSetting(GameSetting.Option.Quality) == intValue)
                 {
                     GetComponent<TabButton>().Click();
                 }
                 break;
             case GameSetting.Option.Resolution:
-                var vector = GameSettingManager.current.GetVector2IntSetting(GameSetting.Option.Resolution);
+                var vector = SettingManager.Instance.GetVector2IntSetting(GameSetting.Option.Resolution);
                 if (vector.x == vectorValue.x && vector.y == vectorValue.y)
                 {
                     GetComponent<TabButton>().Click();
                 }
                 break;
             case GameSetting.Option.WindowMode:
-                if (GameSettingManager.current.GetIntSetting(GameSetting.Option.WindowMode) == intValue)
+                if (SettingManager.Instance.GetIntSetting(GameSetting.Option.WindowMode) == intValue)
                 {
                     GetComponent<TabButton>().Click();
                 }
                 break;
             case GameSetting.Option.Volumn:
-                GetComponent<Slider>().value = GameSettingManager.current.GetFloatSetting(GameSetting.Option.Volumn, intValue);
+                GetComponent<Slider>().value = SettingManager.Instance.GetFloatSetting(GameSetting.Option.Volumn, intValue);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -63,20 +59,20 @@ public class GameSettingOption : MonoBehaviour
 
     private void Cache()
     {
-        Debug.Log($"Cache: {option}, {intValue}, {floatValue}, {vectorValue}");
+        Log($"Cache: {option}, {intValue}, {floatValue}, {vectorValue}");
         switch (option)
         {
             case GameSetting.Option.Quality:
-                GameSettingManager.current.SetIntSetting(GameSetting.Option.Quality, value: intValue);
+                SettingManager.Instance.SetIntSetting(GameSetting.Option.Quality, value: intValue);
                 break;
             case GameSetting.Option.Resolution:
-                GameSettingManager.current.SetVector2IntSetting(GameSetting.Option.Resolution, value: vectorValue);
+                SettingManager.Instance.SetVector2IntSetting(GameSetting.Option.Resolution, value: vectorValue);
                 break;
             case GameSetting.Option.WindowMode:
-                GameSettingManager.current.SetIntSetting(GameSetting.Option.WindowMode, value: intValue);
+                SettingManager.Instance.SetIntSetting(GameSetting.Option.WindowMode, value: intValue);
                 break;
             case GameSetting.Option.Volumn:
-                GameSettingManager.current.SetFloatSetting(GameSetting.Option.Volumn, intValue, GetComponent<Slider>().value);
+                SettingManager.Instance.SetFloatSetting(GameSetting.Option.Volumn, intValue, GetComponent<Slider>().value);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

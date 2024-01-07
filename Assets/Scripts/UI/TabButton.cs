@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
@@ -6,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
-public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IGameButton
+public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IGameButton
 {
     #region Inspector
     [Header("State")] [SerializeField] private bool isHover = false;
@@ -50,8 +51,8 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        SetHoverBackgroundSize();
-        SetHighlightSelectedSize();
+        //SetHoverBackgroundSize();
+        //SetHighlightSelectedSize();
     }
 #endif
 
@@ -62,52 +63,57 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
         selected.DOScaleX(0, 0);
         //_inputActionAsset = FindObjectOfType<InputSystemUIInputModule>().actionsAsset;
         //_inputAction = _inputActionAsset.FindActionMap("UI").FindAction("Submit");
+        onClick.AddListener(OnClick);
     }
 
     private void OnEnable()
     {
-        onClick.AddListener(OnClick);
         //_inputAction.performed += OnClickFromInputAction;
     }
 
     private void OnDisable()
     {
-        onClick.RemoveListener(OnClick);
         //_inputAction.performed -= OnClickFromInputAction;
+    }
+
+    private void OnDestroy()
+    {
+        onClick.RemoveListener(OnClick);
         if (isSelected)
             Deselect();
     }
+
     #endregion
 
     #region Events
     public void OnSelect(BaseEventData eventData)
     {
         MouseEnter();
-        Debug.Log($"{name} Mouse Enter (Select)");
+        //Debug.Log($"{name} Mouse Enter (Select)");
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
         MouseExit();
-        Debug.Log($"{name} Mouse Exit (Deselect)");
+        //Debug.Log($"{name} Mouse Exit (Deselect)");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         MouseEnter();
-        Debug.Log($"{name} Mouse Enter");
+        //Debug.Log($"{name} Mouse Enter");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         MouseExit();
-        Debug.Log($"{name} Mouse Exit");
+        //Debug.Log($"{name} Mouse Exit");
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         onClick.Invoke(group, this);
-        Debug.Log($"{name} Mouse Click");
+        //Debug.Log($"{name} Mouse Click");
     }
 
     public void Click()
@@ -157,12 +163,13 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
     
     private void OnClick(string groupID, TabButton entry)
     {
+        //Log(nameof(OnClick));
         if (groupID == group && entry == this)
         {
             isSelected = true;
             onEntryClick.Invoke();
             Select();
-            Debug.Log($"{name} Selected");
+            //Log($"{name} Selected");
         }
         else
         {
@@ -174,7 +181,7 @@ public class TabButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPoint
 
             isSelected = false;
             Deselect();
-            Debug.Log($"{name} Deselected");
+            //Log($"{name} Deselected");
         }
     }
 

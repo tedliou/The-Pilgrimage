@@ -7,13 +7,13 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public abstract class GameButton : MonoBehaviour, IGameButton
 {
-    [HideInInspector]
-    public Button button;
+    private Button m_button;
 
     private void Awake()
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(OnButtonClick);
+        m_button = GetComponent<Button>();
+        m_button.onClick.AddListener(OnButtonClick);
+        m_button.image.alphaHitTestMinimumThreshold = .1f;
     }
 
     protected virtual void OnButtonClick()

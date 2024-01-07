@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonBack : GameButton
+public class BackButton : GameButton
 {
     protected override void OnButtonClick()
     {
@@ -12,7 +12,7 @@ public class ButtonBack : GameButton
 
     private void BackToHome()
     {
-        GameSettingManager.current.Revert();
-        GamePanel.Show(GamePanel.PanelOption.Home);
+        SettingManager.Instance.Revert();
+        SettingUI.Instance.Hide();
     }
 }

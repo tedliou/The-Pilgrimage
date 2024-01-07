@@ -1,7 +1,5 @@
-using JetBrains.Rider.Unity.Editor;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour

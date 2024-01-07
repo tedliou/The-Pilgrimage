@@ -4,32 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class GameSettingManager : MonoBehaviour
+public class SettingManager : Singleton<SettingManager>
 {
-    #region Singleton
-    public static GameSettingManager current;
-    #endregion
-    
-    #region Inspector
     [SerializeField] private GameSetting setting;
     [FormerlySerializedAs("temprate")] [SerializeField] private GameSetting temperate;
-    #endregion
     
-    #region Private
     private GameSetting _default;
     private const string SaveKey = "GameSetting";
 
-    #endregion
-
-    #region Unity Messages
-    private void Awake()
+    public override void OnInit()
     {
-        current = this;
-        LoadSave();
+        Load();
     }
-    #endregion
 
-    private void LoadSave()
+    public void Load()
     {
         if (PlayerPrefs.HasKey(SaveKey))
         {
