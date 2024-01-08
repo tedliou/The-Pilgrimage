@@ -12,6 +12,7 @@ public class ButtonStart : GameButton
 
     private void ShowLobby()
     {
-        GamePanel.Show(GamePanel.PanelOption.Lobby);
+        LobbyUI.Instance.Show();
+        
     }
 }

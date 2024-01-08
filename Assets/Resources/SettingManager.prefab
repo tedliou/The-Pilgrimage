@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6af671e1ba8d5424282cef58ae7701da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: a0ce84191feb7de4a8c1a5ec0dea6c9b, type: 2}
   setting:
     quality: 2
     resolution: {x: 1920, y: 1080}

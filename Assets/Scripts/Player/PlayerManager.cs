@@ -27,7 +27,7 @@ public class PlayerManager : Singleton<PlayerManager>
     
     public List<Player> GetPlayers()
     {
-        return Players.Values.ToList();
+        return Players.Values.Where(p => !p.IsKeyboardMouse).ToList();
     }
 
     #endregion

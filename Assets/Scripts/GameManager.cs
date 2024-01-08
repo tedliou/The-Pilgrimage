@@ -16,16 +16,6 @@ public class GameManager : Singleton<GameManager>
     
     #region Properties
     
-    protected PlayerManager PlayerManager
-    {
-        get
-        {
-            _playerManager ??= PlayerManager.Instance;
-            return _playerManager;
-        }
-    }
-    private PlayerManager _playerManager;
-    
     protected PlayerInputManager PlayerInputManager
     {
         get
@@ -69,9 +59,8 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         // _gamePrefab.Init();
-        Application.targetFrameRate = targetFrameRate;
-        PlayerManager.OnPlayerJoined.AddListener(OnPlayerJoined);
-        PlayerManager.OnPlayerJoined.AddListener(OnPlayerLeft);
+        PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerJoined);
+        PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerLeft);
     }
 
     #endregion

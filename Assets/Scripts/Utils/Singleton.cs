@@ -33,6 +33,21 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
         DontDestroyOnLoad(gameObject);
     }
 
+    protected virtual void OnAwake()
+    {
+        Init();
+    }
+
+    private void Start()
+    {
+        OnStart();
+    }
+
+    protected virtual void OnStart()
+    {
+        Init();
+    }
+
     public void Init()
     {
         if (m_inited)
@@ -41,7 +56,7 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
         OnInit();
     }
 
-    public virtual void OnInit()
+    protected virtual void OnInit()
     {
         
     }

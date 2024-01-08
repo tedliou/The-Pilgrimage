@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
-public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IGameButton
+public class TabButton : GameButton, ISelectHandler, IDeselectHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, ISubmitHandler
 {
     #region Inspector
     [Header("State")] [SerializeField] private bool isHover = false;
@@ -51,13 +51,15 @@ public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHa
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        //SetHoverBackgroundSize();
-        //SetHighlightSelectedSize();
+        
+        // SetHoverBackgroundSize();
+        // SetHighlightSelectedSize();
     }
 #endif
 
-    private void Awake()
+    protected override void Awake()
     {
+        //base.Awake();
         _hoverBackgroundImage = hoverBackground.GetComponent<Image>();
         _hoverBackgroundImage.DOFade(0, 0);
         selected.DOScaleX(0, 0);
@@ -89,31 +91,36 @@ public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHa
     public void OnSelect(BaseEventData eventData)
     {
         MouseEnter();
-        //Debug.Log($"{name} Mouse Enter (Select)");
+        Debug.Log($"{name} Mouse Enter (Select)");
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
         MouseExit();
-        //Debug.Log($"{name} Mouse Exit (Deselect)");
+        Debug.Log($"{name} Mouse Exit (Deselect)");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         MouseEnter();
-        //Debug.Log($"{name} Mouse Enter");
+        Debug.Log($"{name} Mouse Enter");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         MouseExit();
-        //Debug.Log($"{name} Mouse Exit");
+        Debug.Log($"{name} Mouse Exit");
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         onClick.Invoke(group, this);
-        //Debug.Log($"{name} Mouse Click");
+        Debug.Log($"{name} Mouse Click");
+    }
+
+    public void OnSubmit(BaseEventData eventData)
+    {
+        onClick.Invoke(group, this);
     }
 
     public void Click()
@@ -163,13 +170,14 @@ public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHa
     
     private void OnClick(string groupID, TabButton entry)
     {
-        //Log(nameof(OnClick));
+        Log(nameof(OnClick));
         if (groupID == group && entry == this)
         {
             isSelected = true;
             onEntryClick.Invoke();
             Select();
-            //Log($"{name} Selected");
+            //MouseEnter();
+            Log($"{name} Selected");
         }
         else
         {
@@ -181,7 +189,8 @@ public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHa
 
             isSelected = false;
             Deselect();
-            //Log($"{name} Deselected");
+            //MouseExit();
+            Log($"{name} Deselected");
         }
     }
 
@@ -201,7 +210,7 @@ public class TabButton : CustomBehaviour<TabButton>, ISelectHandler, IDeselectHa
         selected.DOScaleX(0, fadeInDuration);
     }
 
-    private void MouseEnter()
+    public void MouseEnter()
     {
         isHover = true;
         _hoverBackgroundImage.DOFade(1, fadeInDuration);

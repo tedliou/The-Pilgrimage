@@ -1,4 +1,5 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Serialization;
@@ -6,34 +7,34 @@ using UnityEngine.Serialization;
 public class SettingUI : Singleton<SettingUI>
 {
     public GameObject firstSelect;
-    public GameSettingOption[] options;
+    public SettingOption[] options;
 
     private void Start()
     {
         PlayerManager.Instance.Init();
         SettingManager.Instance.Init();
-        
-        Hide();
+    }
+
+    [Button]
+    private void GetAllOptions()
+    {
+        options = GetComponentsInChildren<SettingOption>();
     }
 
     private void OnEnable()
     {
-        if (options.Length == 0)
-        {
-            options = GetComponentsInChildren<GameSettingOption>();
-        }
-        
         foreach (var e in options)
         {
             e.Load();
         }
 
+        firstSelect.GetComponent<TabButton>().Click();
+        firstSelect.GetComponent<TabButton>().MouseEnter();
         var inputEvents = FindObjectsOfType<MultiplayerEventSystem>();
         foreach (var ie in inputEvents)
         {
             ie.SetSelectedGameObject(firstSelect);
         }
-        firstSelect.GetComponent<TabButton>().Click();
     }
 
     // private void OnDisable()
@@ -44,6 +45,7 @@ public class SettingUI : Singleton<SettingUI>
     public void Show()
     {
         gameObject.SetActive(true);
+        HomeUI.Instance.Hide();
     }
 
     public void Hide()

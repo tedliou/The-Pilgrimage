@@ -32,6 +32,8 @@ public class Player : MonoBehaviour
     }
     private PlayerInputHandler _inputHandler;
 
+    public bool IsKeyboardMouse => Input.currentControlScheme == "Keyboard&Mouse";
+
     #endregion
     
     
@@ -48,7 +50,6 @@ public class Player : MonoBehaviour
     private PlayerInput _input;
 
     #endregion
-
 
     #region Unity Messages
 

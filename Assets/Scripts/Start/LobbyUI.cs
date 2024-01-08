@@ -1,14 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class PanelLobby : GamePanel
+public class LobbyUI : Singleton<LobbyUI>
 {
-    public static PanelLobby Instance;
-    
     public GameObject playerInputManager;
 
     public PlayerSetting[] players = new PlayerSetting[4];
@@ -28,21 +27,18 @@ public class PanelLobby : GamePanel
     private Dictionary<int, Player> _players;
     
     // private PlayerInputManager _playerInputManager;
-
-    private void Start()
-    {
-        Instance = this;
-    }
     
     
     /// 拿到所有玩家
     /// 在玩家加入和離開時更新資料
     
 
-    protected override void OnEnable()
+    protected void OnEnable()
     {
-        base.OnEnable();
-
+        if (PlayerManager.Instance.GetPlayers().Count == 0)
+        {
+            return;
+        }
         LoadPlayers();
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerLeft.AddListener(OnPlayerLeft);
@@ -56,6 +52,10 @@ public class PanelLobby : GamePanel
 
     private void OnDisable()
     {
+        if (PlayerManager.Instance.GetPlayers().Count == 0)
+        {
+            return;
+        }
         PlayerManager.Instance.OnPlayerJoined.RemoveListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerLeft.RemoveListener(OnPlayerLeft);
         PlayerManager.Instance.GetPlayer(0)?.InputHandler.OnPlayerGet.RemoveListener(SetPressActive);
@@ -117,15 +117,25 @@ public class PanelLobby : GamePanel
         }
     }
 
-    protected override void OnPanelAction(PanelOption option)
+    public void Show()
     {
-        base.OnPanelAction(option);
-        SetDisplay(option);
+        gameObject.SetActive(true);
+        HomeUI.Instance.Hide();
     }
 
-    private void SetDisplay(PanelOption option)
+    public void Hide()
     {
-        gameObject.SetActive(option == PanelOption.Lobby);
+        gameObject.SetActive(false);
+    }
+
+    protected override void OnStart()
+    {
+        base.OnStart();
+    }
+
+    protected override void OnInit()
+    {
+        base.OnInit();
     }
 
     private void Update()
@@ -138,7 +148,7 @@ public class PanelLobby : GamePanel
             if (p > 1)
             {
                 Debug.Log("Game Start!");
-                SceneManager.LoadScene(1);
+                StartCoroutine(LoadScene());
             }
         }
         else
@@ -146,5 +156,13 @@ public class PanelLobby : GamePanel
             _currentPressDuration = 0;
             progress.fillAmount = 0;
         }
+    }
+
+    private IEnumerator LoadScene()
+    {
+        FadeImage.Instance.Hide();
+        yield return new WaitForSeconds(2);
+        LobbyUI.Instance.Hide();
+        SceneManager.LoadSceneAsync(1);
     }
 }

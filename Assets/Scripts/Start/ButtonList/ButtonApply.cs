@@ -4,6 +4,7 @@ public class ButtonApply : GameButton
     {
         base.OnButtonClick();
         SaveSetting();
+        ButtonClickSFX.Instance.Play();
     }
     
 

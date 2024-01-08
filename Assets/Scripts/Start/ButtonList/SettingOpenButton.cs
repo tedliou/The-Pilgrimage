@@ -7,7 +7,7 @@ public class SettingOpenButton : GameButton
 {
     private void Start()
     {
-        SettingUI.Instance.Init();
+        
     }
 
     protected override void OnButtonClick()

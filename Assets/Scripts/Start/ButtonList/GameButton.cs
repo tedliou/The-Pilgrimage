@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-public abstract class GameButton : MonoBehaviour, IGameButton
+public abstract class GameButton : CustomBehaviour<GameButton>, IGameButton
 {
     private Button m_button;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         m_button = GetComponent<Button>();
         m_button.onClick.AddListener(OnButtonClick);

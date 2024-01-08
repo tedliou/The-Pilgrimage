@@ -2,17 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Serialization;
 
 public class SettingManager : Singleton<SettingManager>
 {
-    [SerializeField] private GameSetting setting;
-    [FormerlySerializedAs("temprate")] [SerializeField] private GameSetting temperate;
+    public AudioMixer audioMixer;
     
-    private GameSetting _default;
+    [SerializeField] private Setting setting;
+    [FormerlySerializedAs("temprate")] [SerializeField] private Setting temperate;
+    
+    private Setting _default;
     private const string SaveKey = "GameSetting";
 
-    public override void OnInit()
+    protected override void OnInit()
     {
         Load();
     }
@@ -25,6 +28,11 @@ public class SettingManager : Singleton<SettingManager>
             {
                 setting = Decode(PlayerPrefs.GetString(SaveKey));
                 temperate = setting.Clone();
+                GetQuality();
+                GetResolution();
+                GetWindowMode();
+                GetMusicVolumn();
+                GetEffectVolumn();
             }
             catch (Exception e)
             {
@@ -58,223 +66,111 @@ public class SettingManager : Singleton<SettingManager>
         Debug.Log("Reset Game Setting");
     }
 
-    private string Encode(GameSetting source)
+    private string Encode(Setting source)
     {
         var json = JsonUtility.ToJson(source);
         Debug.Log($"Encode JSON: {json}");
         return json;
     }
     
-    private GameSetting Decode(string source)
+    private Setting Decode(string source)
     {
         Debug.Log($"Decode JSON: {source}");
-        return JsonUtility.FromJson<GameSetting>(source);
+        return JsonUtility.FromJson<Setting>(source);
     }
 
-    public int GetIntSetting(GameSetting.Option option, int id = 0)
+    public Setting.Quality GetQuality()
     {
-        switch (option)
+        var quality = temperate.quality;
+        SetQuality(quality);
+        return quality;
+    }
+
+    public void SetQuality(Setting.Quality quality)
+    {
+        temperate.quality = quality;
+        QualitySettings.SetQualityLevel((int)quality);
+        
+        Log($"{nameof(SetQuality)}: {quality}");
+    }
+
+    public Vector2Int GetResolution()
+    {
+        var res = temperate.resolution;
+        SetResolution(res);
+        return res;
+    }
+    
+    public void SetResolution(Vector2Int resolution)
+    {
+        temperate.resolution = resolution;
+        var mode = FullScreenMode.FullScreenWindow;
+        if (temperate.windowMode == Setting.WindowMode.Fullscreen)
         {
-            case GameSetting.Option.Quality:
-                return (int)setting.quality;
-            case GameSetting.Option.Resolution:
-                Debug.LogError("This setting is not integer");
-                break;
-            case GameSetting.Option.WindowMode:
-                return (int)setting.windowMode;
-            case GameSetting.Option.Volumn:
-                Debug.LogError("This setting is not integer");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
+            mode = FullScreenMode.ExclusiveFullScreen;
         }
-
-        return -1;
-    }
-    
-    public float GetFloatSetting(GameSetting.Option option, int id = 0)
-    {
-        switch (option)
+        else if (temperate.windowMode == Setting.WindowMode.Windowed)
         {
-            case GameSetting.Option.Quality:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.Resolution:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.WindowMode:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.Volumn:
-                if (id == 0)
-                {
-                    return setting.volumn.music;
-                }
-                if (id == 1)
-                {
-                    return setting.volumn.effect;
-                }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
+            mode = FullScreenMode.Windowed;
         }
+        Screen.SetResolution(temperate.resolution.x, temperate.resolution.y, mode);
+        
+        Log($"{nameof(SetResolution)}: {resolution}");
+    }
 
-        return -1;
+    public Setting.WindowMode GetWindowMode()
+    {
+        var mode = temperate.windowMode;
+        SetWindowMode(mode);
+        return mode;
     }
     
-    public Vector2Int GetVector2IntSetting(GameSetting.Option option, int id = 0)
+    public void SetWindowMode(Setting.WindowMode windowMode)
     {
-        switch (option)
+        temperate.windowMode = windowMode;
+        if (temperate.windowMode == Setting.WindowMode.Borderless)
         {
-            case GameSetting.Option.Quality:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            case GameSetting.Option.Resolution:
-                return setting.resolution;
-            case GameSetting.Option.WindowMode:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            case GameSetting.Option.Volumn:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
+            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
         }
-
-        return new Vector2Int(1920, 1080);
-    }
-
-    public void SetIntSetting(GameSetting.Option option, int id = 0, int value = 0)
-    {
-        switch (option)
+        else if (temperate.windowMode == Setting.WindowMode.Fullscreen)
         {
-            case GameSetting.Option.Quality:
-                temperate.quality = (GameSetting.Quality)value;
-                Debug.Log($"TEMPERATE: {temperate.quality}, {value}");
-                break;
-            case GameSetting.Option.Resolution:
-                Debug.LogError("This setting is not integer");
-                break;
-            case GameSetting.Option.WindowMode:
-                temperate.windowMode = (GameSetting.WindowMode)value;
-                break;
-            case GameSetting.Option.Volumn:
-                Debug.LogError("This setting is not integer");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
+            Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
         }
-    }
-    
-    public void SetFloatSetting(GameSetting.Option option, int id = 0, float value = 0)
-    {
-        switch (option)
+        else if (temperate.windowMode == Setting.WindowMode.Windowed)
         {
-            case GameSetting.Option.Quality:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.Resolution:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.WindowMode:
-                Debug.LogError("This setting is not float");
-                break;
-            case GameSetting.Option.Volumn:
-                if (id == 0)
-                {
-                    temperate.volumn.music = Mathf.Clamp(value, 0, 1);
-                }
-                if (id == 1)
-                {
-                    temperate.volumn.effect = Mathf.Clamp(value, 0, 1);
-                }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
-        }
-    }
-    
-    public void SetVector2IntSetting(GameSetting.Option option, int id = 0, Vector2Int value = new Vector2Int())
-    {
-        switch (option)
-        {
-            case GameSetting.Option.Quality:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            case GameSetting.Option.Resolution:
-                temperate.resolution = value;
-                break;
-            case GameSetting.Option.WindowMode:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            case GameSetting.Option.Volumn:
-                Debug.LogError("This setting is not Vector2");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(option), option, null);
-        }
-    }
-}
-
-[System.Serializable]
-public class GameSetting
-{
-    public Quality quality = Quality.High;
-    public Vector2Int resolution = new (1920, 1080);
-    public WindowMode windowMode = WindowMode.Fullscreen;
-    public Volumn volumn = new Volumn(1, 1);
-
-    public GameSetting Clone()
-    {
-        return new GameSetting
-        {
-            quality = this.quality,
-            resolution = this.resolution,
-            windowMode = this.windowMode,
-            volumn = this.volumn.Clone()
-        };
-    }
-    
-    [System.Serializable]
-    public enum Option
-    {
-        Quality = 0,
-        Resolution = 1,
-        WindowMode = 2,
-        Volumn = 3
-    }
-    
-    [System.Serializable]
-    public enum Quality
-    {
-        Low = 0,
-        Medium = 1,
-        High = 2
-    }
-    
-    [System.Serializable]
-    public enum WindowMode
-    {
-        Fullscreen = 0,
-        Windowed = 1,
-        Borderless = 2
-    }
-    
-    [System.Serializable]
-    public class Volumn
-    {
-        public float music;
-        public float effect;
-
-        public Volumn Clone()
-        {
-            return new Volumn(music, effect);
+            Screen.fullScreenMode = FullScreenMode.Windowed;
         }
         
-        public Volumn(float music, float effect)
-        {
-            this.music = music;
-            this.effect = effect;
-        }
+        Log($"{nameof(SetWindowMode)}: {windowMode}");
+    }
+
+    public float GetMusicVolumn()
+    {
+        var volumn = temperate.volumn.music;
+        SetMusicVolumn(volumn);
+        return volumn;
+    }
+    
+    public void SetMusicVolumn(float volumn)
+    {
+        temperate.volumn.music = volumn;
+        audioMixer.SetFloat("Music", volumn);
+        
+        Log($"{nameof(SetMusicVolumn)}: {volumn}");
+    }
+
+    public float GetEffectVolumn()
+    {
+        var volumn = temperate.volumn.effect;
+        SetEffectVolumn(volumn);
+        return volumn;
+    }
+
+    public void SetEffectVolumn(float volumn)
+    {
+        temperate.volumn.effect = volumn;
+        audioMixer.SetFloat("Effect", volumn);
+        
+        Log($"{nameof(SetEffectVolumn)}: {volumn}");
     }
 }

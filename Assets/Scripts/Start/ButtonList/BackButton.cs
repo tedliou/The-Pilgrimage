@@ -8,11 +8,13 @@ public class BackButton : GameButton
     {
         base.OnButtonClick();
         BackToHome();
+        ButtonClickSFX.Instance.Play();
     }
 
     private void BackToHome()
     {
         SettingManager.Instance.Revert();
         SettingUI.Instance.Hide();
+        HomeUI.Instance.Show();
     }
 }
