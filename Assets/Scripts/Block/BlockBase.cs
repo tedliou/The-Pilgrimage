@@ -13,7 +13,7 @@ public class BlockBase : CustomBehaviour<BlockBase>
     {
         GameScene.OnShowTerrain.AddListener(Show);
         GridSystem.Add(this);
-        Hide();
+        
     }
 
     public void Show()

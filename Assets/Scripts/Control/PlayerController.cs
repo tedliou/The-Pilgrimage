@@ -105,7 +105,7 @@ public class Inventory
     }
 }
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : CustomBehaviour<PlayerController>
 {
     #region API
 
@@ -244,11 +244,11 @@ public class PlayerController : MonoBehaviour
     private string _aniPick = "Pick";
     #endregion
 
+    public float radius = 1;
 
 
 
-    
-    private Vector2 m_screenBounds;
+    public Transform closetObj;
     
 
     #region Unity Messages
@@ -271,6 +271,32 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         clipTool.SetActive(hasToolProp);
+        
+        var colliders = Physics.OverlapSphere(transform.position, radius).ToList();
+        colliders.RemoveAll(c => c.CompareTag("Player"));
+        if (colliders.Count > 0)
+        {
+            var near = colliders[0];
+            if (colliders.Count > 1)
+            {
+                for (var i = 1; i < colliders.Count; i++)
+                {
+                    var preview = Vector3.Distance(transform.position, near.transform.position);
+                    var current = Vector3.Distance(transform.position, colliders[i].transform.position);
+                    if (preview > current)
+                    {
+                        near = colliders[i];
+                    }
+                }
+            }
+
+            closetObj = near.transform;
+            Log(near.name);
+        }
+        else
+        {
+            closetObj = null;
+        }
     }
 
     private void SetPlayerColor()
@@ -332,6 +358,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    
+    
     private void FixedUpdate()
     {
         //var look = false;
@@ -435,8 +463,8 @@ public class PlayerController : MonoBehaviour
                 car.PutGarbage(garbageAmount);
                 garbageAmount = 0;
             }
-            
-            
+
+
             return;
         }
         else if (canTakeProp)
@@ -445,133 +473,159 @@ public class PlayerController : MonoBehaviour
             {
                 return;
             }
-            
+
             var carExtend = triggerBlock.GetComponent<CarExtendController>();
             var amount = carExtend.Take();
             if (amount > 0)
             {
                 roadAmount = amount;
             }
-            
-            return;   
+
+            return;
         }
-        
+
         Debug.Log(nameof(Get));
 
-        
-        if (TryGetSelectedBlock(out BlockBase target))
+
+        if (closetObj == null)
         {
-            Debug.Log(target.name);
-            
-            if (target.blockType == BlockType.Tool)
+            if (TryGetSelectedBlock(out BlockBase target))
             {
-                // Take
-                if (hasToolProp)
+                if (target.blockType == BlockType.Floor)
                 {
-                    // Nothing
-                }
-                else
-                {
-                    hasToolProp = true;
-                    GridSystem.Remove(target, BlockType.Tool, CellType.Top);
-                    Animator.SetBool(_aniPick, true);
-                }
-            }
-            else if (target.blockType == BlockType.GasWreck)
-            {
-                if (garbageAmount > 0)
-                {
-                    return;
-                }
+                    // Place
+                    if (hasToolProp)
+                    {
+                        var toolObj = Instantiate(GameManager.Instance.toolPrefab);
+                        toolObj.transform.position = GridSystem.WorldToCell(transform.position);
+                        GameManager.Instance.clipIndicator.SetFollowTransform(toolObj.transform);
 
-                if (hasToolProp || hasBombProp)
-                {
-                    return;
+                        hasToolProp = false;
+                    }
+                    else if (hasBombProp)
+                    {
+                        var bombObj = Instantiate(GameManager.Instance.bombPrefab);
+                        bombObj.transform.position = target.transform.position;
+                        hasBombProp = false;
+                    }
+                    else if (garbageAmount > 0)
+                    {
+                        var garbageObj = Instantiate(GameManager.Instance.garbagePrefab);
+                        garbageObj.transform.position = target.transform.position;
+                        garbageObj.GetComponent<PropBlock>().SetAmount(garbageAmount);
+                        garbageAmount = 0;
+                    }
+                    else if (gasAmount > 0)
+                    {
+                        var gasObj = Instantiate(GameManager.Instance.gasPrefab);
+                        gasObj.transform.position = target.transform.position;
+                        gasObj.GetComponent<PropBlock>().SetAmount(gasAmount);
+                        gasAmount = 0;
+                    }
+                    else if (roadAmount > 0)
+                    {
+                        GridSystem.Remove(target, BlockType.Floor, CellType.Down);
+                        var roadObj = Instantiate(GameManager.Instance.roadPrefab);
+                        roadObj.transform.position = target.transform.position;
+                        roadAmount--;
+                    }
                 }
-                
-                var prop = target.GetComponent<PropBlock>();
-
-                if (gasAmount > 0)
-                {
-                    var placeAmount = prop.Place(gasAmount);
-                    gasAmount -= placeAmount;
-                }
-                else
-                {
-                    var takeAmount = prop.Pickup();
-                    gasAmount += takeAmount;
-                }
-            }
-            else if (target.blockType == BlockType.GarbageWreck)
-            {
-                // Take or Place
-                if (gasAmount > 0)
-                {
-                    return;
-                }
-
-                if (hasToolProp || hasBombProp)
-                {
-                    return;
-                }
-                
-                var prop = target.GetComponent<PropBlock>();
-
-                if (garbageAmount > 0)
-                {
-                    var placeAmount = prop.Place(garbageAmount);
-                    garbageAmount -= placeAmount;
-                }
-                else
-                {
-                    var takeAmount = prop.Pickup();
-                    garbageAmount += takeAmount;
-                }
-            }
-            else if (target.blockType == BlockType.Floor)
-            {
-                // Place
-                if (hasToolProp)
-                {
-                    var toolObj = Instantiate(GameManager.Instance.toolPrefab);
-                    toolObj.transform.position = target.transform.position;
-                    hasToolProp = false;
-                }
-                else if (hasBombProp)
-                {
-                    var bombObj = Instantiate(GameManager.Instance.bombPrefab);
-                    bombObj.transform.position = target.transform.position;
-                    hasBombProp = false;
-                }
-                else if (garbageAmount > 0)
-                {
-                    var garbageObj = Instantiate(GameManager.Instance.garbagePrefab);
-                    garbageObj.transform.position = target.transform.position;
-                    garbageObj.GetComponent<PropBlock>().SetAmount(garbageAmount);
-                    garbageAmount = 0;
-                }
-                else if (gasAmount > 0)
-                {
-                    var gasObj = Instantiate(GameManager.Instance.gasPrefab);
-                    gasObj.transform.position = target.transform.position;
-                    gasObj.GetComponent<PropBlock>().SetAmount(gasAmount);
-                    gasAmount = 0;
-                }else if (roadAmount > 0)
-                {
-                    GridSystem.Remove(target, BlockType.Floor, CellType.Down);
-                    var roadObj = Instantiate(GameManager.Instance.roadPrefab);
-                    roadObj.transform.position = target.transform.position;
-                    roadAmount --;
-                }
-            }
-            else if (target.blockType == BlockType.Chest)
-            {
-                // 放進去車廂
             }
         }
         else
         {
-            // Nothing
+            var target = closetObj.GetComponent<BlockBase>();
+            if (target != null)
+            {
+                Debug.Log(target.name);
+
+                if (target.blockType == BlockType.Tool)
+                {
+                    // Take
+                    if (hasToolProp)
+                    {
+                        // Nothing
+                    }
+                    else
+                    {
+                        hasToolProp = true;
+                        GridSystem.Remove(target, BlockType.Tool, CellType.Top);
+                        GameManager.Instance.clipIndicator.SetFollowTransform(null);
+                        Animator.SetBool(_aniPick, true);
+                    }
+                }
+                else if (target.blockType == BlockType.GasWreck)
+                {
+                    if (garbageAmount > 0)
+                    {
+                        return;
+                    }
+
+                    if (hasToolProp || hasBombProp)
+                    {
+                        return;
+                    }
+
+                    var prop = target.GetComponent<PropBlock>();
+
+                    if (gasAmount > 0)
+                    {
+                        if (gasAmount < gasAmountLimit)
+                        {
+                            var takeAmount = prop.Pickup();
+                            gasAmount += takeAmount;
+                        }
+                        else
+                        {
+                            var placeAmount = prop.Place(gasAmount);
+                            gasAmount -= placeAmount;
+                        }
+                    }
+                    else
+                    {
+                        var takeAmount = prop.Pickup();
+                        gasAmount += takeAmount;
+                    }
+                }
+                else if (target.blockType == BlockType.GarbageWreck)
+                {
+                    // Take or Place
+                    if (gasAmount > 0)
+                    {
+                        return;
+                    }
+
+                    if (hasToolProp || hasBombProp)
+                    {
+                        return;
+                    }
+
+                    var prop = target.GetComponent<PropBlock>();
+
+                    if (garbageAmount > 0)
+                    {
+                        if (garbageAmount < garbageAmountLimit)
+                        {
+                            var takeAmount = prop.Pickup();
+                            garbageAmount += takeAmount;
+                        }
+                        else
+                        {
+                            var placeAmount = prop.Place(garbageAmount);
+                            garbageAmount -= placeAmount;
+                        }
+                    }
+                    else
+                    {
+                        var takeAmount = prop.Pickup();
+                        garbageAmount += takeAmount;
+                    }
+                }
+                else if (target.blockType == BlockType.Chest)
+                {
+                    // 放進去車廂
+                }
+            }
         }
     }
 
@@ -582,8 +636,9 @@ public class PlayerController : MonoBehaviour
 
     public void Fire()
     {
-        if (TryGetSelectedBlock(out BlockBase target))
+        if (closetObj != null)
         {
+            var target = closetObj.GetComponent<BlockBase>();
             if (target.blockType == BlockType.Garbage)
             {
                 var prop = target.GetComponent<PropBlock>();

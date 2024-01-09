@@ -29,6 +29,9 @@ public class EnvSpawner : MonoBehaviour
     public GameObject sedanChairPrefab;
 
     public GameObject chipProp;
+    public Indicator clipIndicator;
+    
+    
     
     
     public BlockSetting grass;
@@ -39,6 +42,7 @@ public class EnvSpawner : MonoBehaviour
     public BlockSetting road;
     public BlockSetting sedanChair;
     public BlockSetting chip;
+    
     public BlockSetting car;
     public BlockSetting carExtend;
     
@@ -129,7 +133,8 @@ public class EnvSpawner : MonoBehaviour
         if (!spawnedSedanChair)
         {
             SpawnBlock(x, y, sedanChairPrefab, false);
-            SpawnBlock(x, y - 2, chipProp, false);
+            var obj = SpawnBlock(x, y - 2, chipProp, false);
+            clipIndicator.SetFollowTransform(obj.transform);
             
             spawnedSedanChair = true;
         }

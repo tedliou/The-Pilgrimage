@@ -30,9 +30,9 @@ public class GameScene : CustomBehaviour<GameScene>
         }
 
         PlayerManager.Instance.MInputManager.EnableJoining();
-        OnShowTerrain.Invoke();
+        //OnShowTerrain.Invoke();
         
-        yield return new WaitForSeconds(1);
+        //yield return new WaitForSeconds(1);
         
         var countdown = 3;
         while (countdown > 0)

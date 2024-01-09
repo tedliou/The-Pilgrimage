@@ -49,12 +49,14 @@ public class GameManager : Singleton<GameManager>
     public GameObject garbagePrefab;
     public GameObject gasPrefab;
     public GameObject roadPrefab;
+
+    public Indicator[] playerIndicators;
+    public Indicator clipIndicator;
     #endregion
 
 
     public static UnityEvent<Transform> onPlayerSpawn = new();
     
-    #region Unity Messages
 
     private void Start()
     {
@@ -63,7 +65,6 @@ public class GameManager : Singleton<GameManager>
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerLeft);
     }
 
-    #endregion
 
     #region Events
     
@@ -81,14 +82,23 @@ public class GameManager : Singleton<GameManager>
     public void SpawnAllPlayers()
     {
         var players = PlayerManager.Instance.GetPlayers();
-        for (var i = 0; i < players.Count; i++)
+        for (var i = 0; i < 4; i++)
         {
-            SpawnPlayerObject(players[i], i);
+            if (i < players.Count)
+            {
+                var obj = SpawnPlayerObject(players[i], i);
+                playerIndicators[i].SetFollowTransform(obj.transform);
+            }
+            else
+            {
+                playerIndicators[i].SetFollowTransform(null);
+            }
+            
         }
     }
 
     private Vector3 m_lastSpawnPos = new Vector3(0, -99, 0);
-    private void SpawnPlayerObject(Player player, int index)
+    private GameObject SpawnPlayerObject(Player player, int index)
     {
         if (m_lastSpawnPos.y == -99)
         {
@@ -107,6 +117,8 @@ public class GameManager : Singleton<GameManager>
         playerObj.GetComponent<PlayerController>().Player = player;
         
         onPlayerSpawn.Invoke(playerObj.transform);
+
+        return playerObj;
     }
 
     public void DespawnPlayerObject(Player player)

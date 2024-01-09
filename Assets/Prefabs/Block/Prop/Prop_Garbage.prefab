@@ -51,9 +51,9 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.4, y: 1, z: 0.4}
   m_Center: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!114 &1998952549304450270
 MonoBehaviour:
@@ -79,6 +79,7 @@ MonoBehaviour:
   dropPrefab: {fileID: 2813295293236664253, guid: 4a1e33689bc09c24baae09bdb85c9781, type: 3}
   dropAmount: 1
   wreckEffect: {fileID: 3691074968001716701, guid: 842d69ccf982e364f83a40042eb968df, type: 3}
+  m_amount: 0
 --- !u!1 &2815655139931898215
 GameObject:
   m_ObjectHideFlags: 0

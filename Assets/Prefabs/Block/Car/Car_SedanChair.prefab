@@ -369,8 +369,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781dca821ebde3241ac76267af4932a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellType: 0
-  blockType: 0
   moveSpeed: 0.2
   history: []
   m_rigidbody: {fileID: 0}
@@ -380,6 +378,7 @@ MonoBehaviour:
   isMoving: 0
   isFinding: 0
   isRoadUpdated: 0
+  m_roads: []
 --- !u!1 &6343975606873953580
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,6 +654,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7317b952b50215049b81cb61b53912b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  garbageAmount: 0
+  gasAmount: 0
 --- !u!65 &5037475685026440353
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -764,6 +765,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4877333694228911168, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4904611135035626819}
+    - targetCorrespondingSourceObject: {fileID: 2162638877797304849, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4855527441233445474}
   m_SourcePrefab: {fileID: 100100000, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
 --- !u!1 &490715512376301153 stripped
 GameObject:
@@ -782,6 +786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5183bd6ad9ae9f84e9cd803b7f930429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  amount: 0
 --- !u!65 &4904611135035626819
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -808,3 +813,29 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1075078873545172632, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
   m_PrefabInstance: {fileID: 4999164979077202465}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6585290243991570480 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2162638877797304849, guid: fdeb85ca51f780d40af9e66b83a3da42, type: 3}
+  m_PrefabInstance: {fileID: 4999164979077202465}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &4855527441233445474
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6585290243991570480}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.02, y: 0.02, z: 0.02}
+  m_Center: {x: 0, y: 0, z: 0}
