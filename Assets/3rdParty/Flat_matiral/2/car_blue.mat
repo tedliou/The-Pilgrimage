@@ -16,6 +16,7 @@ Material:
   - _CELPRIMARYMODE_SINGLE
   - _TEXTUREBLENDINGMODE_MULTIPLY
   - _UNITYSHADOWMODE_MULTIPLY
+  - _UNITYSHADOW_OCCLUSION
   m_InvalidKeywords:
   - _FLAT_RIM_ENABLED
   - _FLAT_SHADOWS_ENABLED
@@ -152,8 +153,8 @@ Material:
     - _TextureImpact: 1
     - _UVSec: 0
     - _UnityShadowMode: 1
-    - _UnityShadowOcclusion: 0
-    - _UnityShadowPower: 0.442
+    - _UnityShadowOcclusion: 1
+    - _UnityShadowPower: 1
     - _UnityShadowSharpness: 10
     - _VertexColorsEnabled: 0
     - _ZWrite: 1

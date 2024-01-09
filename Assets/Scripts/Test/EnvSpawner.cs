@@ -177,11 +177,10 @@ public class EnvSpawner : MonoBehaviour
         }
     }
 
-    #region Map
     private BlockBase SpawnBlock(float x, float z, GameObject prefab)
     {
         var position = new Vector3(x, 0, z);
-        var blockObj = Instantiate(prefab, position, Quaternion.identity);
+        var blockObj = Instantiate(prefab, position, Quaternion.identity, transform);
         var block = blockObj.GetComponent<BlockBase>();
         return block;
     }
@@ -253,7 +252,6 @@ public class EnvSpawner : MonoBehaviour
     //
     //     return null;
     // }
-    #endregion
 
     // private void SpawnSedanChair()
     // {
