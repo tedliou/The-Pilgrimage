@@ -1,4 +1,4 @@
-public class ButtonApply : GameButton
+public class ApplyButton : GameButton
 {
     protected override void OnButtonClick()
     {

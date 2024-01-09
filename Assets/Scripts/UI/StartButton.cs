@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonStart : GameButton
+public class StartButton : GameButton
 {
     protected override void OnButtonClick()
     {

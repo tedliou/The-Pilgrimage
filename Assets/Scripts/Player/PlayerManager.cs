@@ -16,63 +16,55 @@ public class PlayerManager : Singleton<PlayerManager>
 
     public Player GetPlayer(int id)
     {
-        if (!Players.ContainsKey(id))
+        if (!MPlayers.ContainsKey(id))
         {
             Debug.LogError($"玩家 {id} 不存在");
             return null;
         }
 
-        return Players[id];
+        return MPlayers[id];
     }
     
     public List<Player> GetPlayers()
     {
-        return Players.Values.Where(p => !p.IsKeyboardMouse).ToList();
+        return MPlayers.Values.Where(p => !p.IsKeyboardMouse).ToList();
     }
 
     #endregion
-    
-    
-    #region Properties
 
-    protected PlayerInputManager InputManager
+    public PlayerInputManager MInputManager
     {
         get
         {
-            _inputManager ??= GetComponent<PlayerInputManager>();
-            return _inputManager;
+            m_inputManager ??= GetComponent<PlayerInputManager>();
+            return m_inputManager;
         }
     }
-    private PlayerInputManager _inputManager;
+    private PlayerInputManager m_inputManager;
 
-    protected Dictionary<int, Player> Players
+    protected Dictionary<int, Player> MPlayers
     {
         get
         {
-            _players ??= new Dictionary<int, Player>();
-            return _players;
+            m_players ??= new Dictionary<int, Player>();
+            return m_players;
         }
     }
-    private Dictionary<int, Player> _players;
+    private Dictionary<int, Player> m_players;
 
-    #endregion
-
-    #region Unity Messages
 
     private void Start()
     {
         RegisterEvents();
     }
 
-    #endregion
 
 
-    #region Methods
 
     private void RegisterEvents()
     {
-        InputManager.onPlayerJoined += OnJoined;
-        InputManager.onPlayerLeft += OnLeft;
+        MInputManager.onPlayerJoined += OnJoined;
+        MInputManager.onPlayerLeft += OnLeft;
     }
 
     private void OnJoined(PlayerInput playerInput)
@@ -80,6 +72,7 @@ public class PlayerManager : Singleton<PlayerManager>
         var id = playerInput.playerIndex;
         var player = playerInput.GetComponent<Player>();
         Add(id, player);
+        Log($"{playerInput.name} Joined");
     }
 
     private void OnLeft(PlayerInput playerInput)
@@ -90,7 +83,7 @@ public class PlayerManager : Singleton<PlayerManager>
 
     private void Add(int id, Player player)
     {
-        if (!Players.TryAdd(id, player))
+        if (!MPlayers.TryAdd(id, player))
         {
             Debug.LogError($"玩家 {0} 已存在");
             return;
@@ -101,14 +94,12 @@ public class PlayerManager : Singleton<PlayerManager>
 
     private void Remove(int id)
     {
-        if (!Players.ContainsKey(id))
+        if (!MPlayers.ContainsKey(id))
         {
             Debug.LogError($"玩家 {id} 不存在");
             return;
         }
-        OnPlayerJoined.Invoke(id, Players[id]);
-        Players.Remove(id);
+        OnPlayerJoined.Invoke(id, MPlayers[id]);
+        MPlayers.Remove(id);
     }
-
-    #endregion
 }

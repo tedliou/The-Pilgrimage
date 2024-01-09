@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(PlayerInput), typeof(MultiplayerEventSystem))]
-public class PlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : CustomBehaviour<PlayerInputHandler>
 {
     #region Properties
 
@@ -52,7 +52,12 @@ public class PlayerInputHandler : MonoBehaviour
     public UnityEvent OnPlayerGetCancel;
     public UnityEvent onPlayerFire;
     public UnityEvent onPlayerFireCancel;
+    public UnityEvent onPlayerReset = new();
+
+    public bool isLooking;
     #endregion
+
+    private float m_lastAngle;
 
     #region Unity Messages
     private void Awake()
@@ -67,6 +72,8 @@ public class PlayerInputHandler : MonoBehaviour
         Input.currentActionMap.FindAction("Fire").performed += OnFire;
         Input.currentActionMap.FindAction("Fire").canceled += OnFireCancel;
         Input.currentActionMap.FindAction("Active").performed += OnActive;
+        Input.currentActionMap.FindAction("Reset").performed += OnReset;
+
     }
     #endregion
 
@@ -79,16 +86,22 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void OnLook(InputAction.CallbackContext ctx)
     {
-        var angle = 0f;
-        var rot = ctx.ReadValue<Vector2>();
-        if (rot.magnitude >= 1)
-        {
-            angle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
-        }
-        if (angle == 0)
-            return;
-        
-        onPlayerLook.Invoke(angle);
+        // var rot = ctx.ReadValue<Vector2>();
+        // // if (rot.magnitude >= .9)
+        // // {
+        // //     isLooking = true;
+        // //     m_lastAngle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
+        // // }
+        // // else
+        // // {
+        // //     isLooking = false;
+        // // }
+        //
+        // isLooking = true;
+        // m_lastAngle = Mathf.Atan2(rot.x, rot.y) * Mathf.Rad2Deg;
+        // Log(rot);
+        //
+        // onPlayerLook.Invoke(m_lastAngle);
     }
     
     
@@ -116,6 +129,11 @@ public class PlayerInputHandler : MonoBehaviour
         {
             EventSystem.SetSelectedGameObject(FirstSelectObject.Find());
         }
+    }
+    
+    private void OnReset(InputAction.CallbackContext _)
+    {
+        onPlayerReset.Invoke();
     }
     #endregion
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonLeave : GameButton
+public class LeaveButton : GameButton
 {
     protected override void OnButtonClick()
     {

@@ -148,9 +148,9 @@ Material:
     - _LightmapDirectionYaw: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OutlineDepthOffset: 0.005
+    - _OutlineDepthOffset: 0.032
     - _OutlineEnabled: 1
-    - _OutlineScale: 1
+    - _OutlineScale: 1.07
     - _OutlineWidth: 2
     - _OverrideLightmapDir: 0
     - _Parallax: 0.005

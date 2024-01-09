@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class SedanChair : BlockBase
+public class SedanChair : Singleton<SedanChair>
 {
+    public static UnityEvent<SedanChair> OnSedanChairCreate = new();
+    
     public float moveSpeed = .2f;
 
     public List<Vector3> history = new List<Vector3>();
@@ -37,11 +40,17 @@ public class SedanChair : BlockBase
         Left,
         Stop
     }
-    
 
-    private void Awake()
+    protected override void OnStart()
     {
+        base.OnStart();
+        
         m_child = transform.GetChild(0);
+        StartCoroutine(FindPath());
+        StartCoroutine(ObserveMoveJob());
+        RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
+        
+        OnSedanChairCreate.Invoke(this);
     }
 
     private void OnRoadUpdate()
@@ -51,54 +60,6 @@ public class SedanChair : BlockBase
         {
             StartCoroutine(FindPath());
         }
-    }
-
-    protected override void Start()
-    {
-        base.Start();
-        StartCoroutine(FindPath());
-        StartCoroutine(ObserveMoveJob());
-        RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
-    }
-
-    private void FixedUpdate()
-    {
-        return;
-        
-        // if (RoadBlock.Nodes.Count == 1)
-        // {
-        //     return;
-        // }
-        //
-        // if (!m_isTargetPosSet)
-        //     return;
-        //
-        // var dir = m_targetPos - transform.position;
-        // var dirNormalized = dir.normalized;
-        // var velocity =  moveSpeed * dirNormalized;
-        // if (Vector3.Distance(transform.position, m_targetPos) < 0.02f)
-        // {
-        //     velocity = Vector3.zero;
-        //     transform.position = Vector3.Lerp(transform.position, m_targetPos, .5f);
-        //     
-        //     history.Add(m_currentRoad.transform.position);
-        //     var pos = m_nextRoad.transform.position;
-        //     m_targetPos = new Vector3(pos.x, 0, pos.z);
-        //
-        //     var getNodeState = GetNextNode();
-        //     //isWaiting = !getNodeState;
-        //     if (getNodeState)
-        //     {
-        //         Debug.Log("Success");
-        //     }
-        // }
-        //
-        // m_rigidbody.velocity = velocity;
-        //
-        // if (dirNormalized.magnitude > 0)
-        // {
-        //     m_child.forward = Vector3.Lerp(m_child.forward, dirNormalized, .5f);
-        // }
     }
 
 
@@ -232,13 +193,13 @@ public class SedanChair : BlockBase
 
     private RoadBlock FindRoadBlock()
     {
-        var downBlock = GridSystem.FindDownBlock(this);
-        if (downBlock)
-        {
-            return downBlock.GetComponent<RoadBlock>();
-        }
-
-        Debug.Log("找不到底下的路");
+        // var downBlock = GridSystem.FindDownBlock(this);
+        // if (downBlock)
+        // {
+        //     return downBlock.GetComponent<RoadBlock>();
+        // }
+        //
+        // Debug.Log("找不到底下的路");
         return null;
     }
 

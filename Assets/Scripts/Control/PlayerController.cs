@@ -127,7 +127,7 @@ public class PlayerController : MonoBehaviour
     
     #region Properties
 
-    protected Rigidbody Rigidbody
+    public Rigidbody Rigidbody
     {
         get
         {
@@ -188,9 +188,9 @@ public class PlayerController : MonoBehaviour
     public float angle;
     public string holdName;
     
-    private Vector3 _direction;
-    private Quaternion _rotation;
-    private Vector3 _velocity;
+    private Vector3 m_direction;
+    private Quaternion m_rotation;
+    private Vector3 m_velocity;
     
     // Movement
     public float moveSpeed;
@@ -240,9 +240,16 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Private
-    private string _aniWalk = "Walk";
+    private string m_aniWalk = "Walk";
     private string _aniPick = "Pick";
     #endregion
+
+
+
+
+    
+    private Vector2 m_screenBounds;
+    
 
     #region Unity Messages
 
@@ -254,8 +261,9 @@ public class PlayerController : MonoBehaviour
         InputHandler.OnPlayerGetCancel.AddListener(GetCancel);
         InputHandler.onPlayerFire.AddListener(Fire);
         InputHandler.onPlayerFireCancel.AddListener(FireCancel);
+        InputHandler.onPlayerReset.AddListener(ResetPosition);
         
-        _direction = Vector3.zero;
+        m_direction = Vector3.zero;
         
         SetPlayerColor();
     }
@@ -272,8 +280,6 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("玩家顏色參數錯誤!");
             return;
         }
-        
-        Debug.Log(Player.Id);
         
         var playerMaterial = playerColors[Player.Id];
         var currentMaterials = skinnedMeshRenderer.materials.ToList();
@@ -328,35 +334,83 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //var look = false;
+        var move = false;
+        
+        // // Look
+        // var updateRotation = Quaternion.Euler(new Vector3(0, angle, 0));
+        // if (m_rotation != updateRotation)
+        // {
+        //     look = true;
+        //     m_rotation = Quaternion.Euler(new Vector3(0, angle, 0));
+        // }
+        
         // Move
-        var isMoving = _direction.x != 0 || _direction.z != 0;
-        _velocity = isMoving ? _direction.normalized * moveSpeed : Vector3.zero;
-        Animator.SetBool(_aniWalk, isMoving);
-
-        // Look
-        if (angle != 0)
+        if (m_direction.x != 0 || m_direction.z != 0)
         {
-            _rotation = Quaternion.Euler(new Vector3(0, angle, 0));
+            move = true;
+            
+            // if (!InputHandler.isLooking)
+            // {
+            //     // Auto Rotate
+            //     transform.forward = m_direction.normalized;
+            // }
+            transform.forward = m_direction.normalized;
+            
+            m_velocity = m_direction.normalized * moveSpeed;
+            SetMoveEffet(true);
+        }
+        else
+        {
+            m_velocity = Vector3.zero;
+            SetMoveEffet(false);
         }
         
-        // Update
-        Rigidbody.velocity = _velocity;
-        Rigidbody.angularVelocity = Vector3.zero;
-        transform.rotation = Quaternion.Lerp(transform.rotation,_rotation, .7f);
 
+        
+        // Update
+        Rigidbody.velocity = m_velocity;
+        Rigidbody.angularVelocity = Vector3.zero;
+
+        // if (InputHandler.isLooking)
+        // {
+        //     transform.rotation = Quaternion.Lerp(transform.rotation,m_rotation, .7f);
+        // }
+
+        
+        
         // Fixed Y Pos
-        var currentPos = transform.position;
-        currentPos.y = GameManager.Instance.playerYPos;
-        transform.position = currentPos;
+        var updatedPos = transform.position;
+        updatedPos.y = GameManager.Instance.playerYPos;
+        //transform.position = updatedPos;
     }
     #endregion
+
+    public void SetMoveEffet(bool active)
+    {
+        var state = Animator.GetBool(m_aniWalk);
+        if (state == active)
+        {
+            return;
+        }
+        
+        Animator.SetBool(m_aniWalk, active);
+        if (active)
+        {
+            FootstepsSFX.Instance.Play();
+        }
+        else
+        {
+            FootstepsSFX.Instance.Stop();
+        }
+    }
     
     #region Events
     public void Move(Vector2 direction)
     {
-        _direction.x = direction.x;
-        _direction.y = 0;
-        _direction.z = direction.y;
+        m_direction.x = direction.x;
+        m_direction.y = 0;
+        m_direction.z = direction.y;
     }
 
     public void Look(float value)
@@ -555,6 +609,11 @@ public class PlayerController : MonoBehaviour
     {
         Animator.SetBool(_aniPick, false);
     }
+
+    private void ResetPosition()
+    {
+        GameManager.Instance.ResetPlayerPos(this);
+    }
     #endregion
 
 
@@ -588,5 +647,10 @@ public class PlayerController : MonoBehaviour
             canTakeProp = false;
             triggerBlock = null;
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        Destroy(gameObject);
     }
 }

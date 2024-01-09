@@ -6,6 +6,5 @@ public class CustomBehaviour<T> : MonoBehaviour
     {
         var msg = $"[{typeof(T).Name}] {message}";
         Debug.unityLogger.Log(type, msg);
-        
     }
 }

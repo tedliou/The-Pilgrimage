@@ -643,8 +643,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   angle: 0
   holdName: 
-  _fowardObject: {fileID: 0}
-  _holdingObject: {fileID: 0}
   moveSpeed: 4
   forwardPlacePos: {x: 0, y: 0, z: 0}
   targetBlock: {fileID: 8974093226510119436}

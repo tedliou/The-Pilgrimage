@@ -31,6 +31,8 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
 
         name = $"[{typeof(T).Name}]";
         DontDestroyOnLoad(gameObject);
+
+        OnAwake();
     }
 
     protected virtual void OnAwake()
@@ -48,6 +50,9 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
         Init();
     }
 
+    /// <summary>
+    /// Run before Awake() or Start() but once
+    /// </summary>
     public void Init()
     {
         if (m_inited)

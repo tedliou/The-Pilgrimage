@@ -115,7 +115,7 @@ public class EnvSpawner : MonoBehaviour
         x += offset.x;
         y += offset.y;
 
-        SpawnBlock(x, y, templeBlock);
+        SpawnBlock(x, y, templeBlock, false);
         //ReplaceBlock(x, y, templeBlock, templeSize, true);
         
         // Road and SedanChair
@@ -128,8 +128,8 @@ public class EnvSpawner : MonoBehaviour
 
         if (!spawnedSedanChair)
         {
-            SpawnBlock(x, y, sedanChairPrefab);
-            SpawnBlock(x, y - 2, chipProp);
+            SpawnBlock(x, y, sedanChairPrefab, false);
+            SpawnBlock(x, y - 2, chipProp, false);
             
             spawnedSedanChair = true;
         }
@@ -177,10 +177,10 @@ public class EnvSpawner : MonoBehaviour
         }
     }
 
-    private BlockBase SpawnBlock(float x, float z, GameObject prefab)
+    private BlockBase SpawnBlock(float x, float z, GameObject prefab, bool isTerrain = true)
     {
         var position = new Vector3(x, 0, z);
-        var blockObj = Instantiate(prefab, position, Quaternion.identity, transform);
+        var blockObj = Instantiate(prefab, position, Quaternion.identity, isTerrain ? transform: null);
         var block = blockObj.GetComponent<BlockBase>();
         return block;
     }

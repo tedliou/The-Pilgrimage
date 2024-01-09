@@ -69,21 +69,39 @@ public class GameManager : Singleton<GameManager>
     
     private void OnPlayerJoined(int id, Player player)
     {
-        SpawnPlayerObject(player);
+        //SpawnPlayerObject(player);
     }
     
     private void OnPlayerLeft(int id, Player player)
     {
-        DespawnPlayerObject(player);
+        //DespawnPlayerObject(player);
     }
     #endregion
 
-    private void SpawnPlayerObject(Player player)
+    public void SpawnAllPlayers()
     {
-        var spawnPos = playerSpawnPos;
-        var sedanChair = FindObjectOfType<SedanChair>();
-        spawnPos = sedanChair.transform.position - new Vector3(0, 0, 1);
+        var players = PlayerManager.Instance.GetPlayers();
+        for (var i = 0; i < players.Count; i++)
+        {
+            SpawnPlayerObject(players[i], i);
+        }
+    }
+
+    private Vector3 m_lastSpawnPos = new Vector3(0, -99, 0);
+    private void SpawnPlayerObject(Player player, int index)
+    {
+        if (m_lastSpawnPos.y == -99)
+        {
+            m_lastSpawnPos = SedanChair.Instance.transform.position - new Vector3(0, 0, 1);
+        }
+        
+        var spawnPos = m_lastSpawnPos;
+        while (GridSystem.Find(spawnPos, CellType.Top))
+        {
+            spawnPos += new Vector3(1, 0, 0);
+        }
         spawnPos.y = playerYPos;
+        m_lastSpawnPos = spawnPos;
         
         var playerObj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
         playerObj.GetComponent<PlayerController>().Player = player;
@@ -91,8 +109,20 @@ public class GameManager : Singleton<GameManager>
         onPlayerSpawn.Invoke(playerObj.transform);
     }
 
-    private void DespawnPlayerObject(Player player)
+    public void DespawnPlayerObject(Player player)
     {
         Debug.Log("Despawn //NOTHING");
+    }
+
+    public void ResetPlayerPos(PlayerController player)
+    {
+        var spawnPos = SedanChair.Instance.transform.position - new Vector3(0, 0, 1);
+        while (GridSystem.Find(spawnPos, CellType.Top))
+        {
+            spawnPos += new Vector3(1, 0, 0);
+        }
+        spawnPos.y = playerYPos;
+        player.Rigidbody.MovePosition(spawnPos);
+        Log($"Reset {player.name}'s Position");
     }
 }

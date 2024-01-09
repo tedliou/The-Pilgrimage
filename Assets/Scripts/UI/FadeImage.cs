@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class FadeImage : Singleton<FadeImage>
 {
+    public bool IsActive => m_image.enabled;
+    
     private Image m_image;
     private Coroutine m_coroutine;
 

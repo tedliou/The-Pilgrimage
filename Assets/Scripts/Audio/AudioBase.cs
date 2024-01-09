@@ -6,7 +6,6 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class AudioBase<T> : Singleton<T> where T : MonoBehaviour
 {
-    [SerializeField]
     protected AudioSource m_audioSource;
 
     protected Coroutine m_coroutine;
@@ -18,13 +17,14 @@ public class AudioBase<T> : Singleton<T> where T : MonoBehaviour
         Debug.Assert(m_audioSource);
     }
 
-    public virtual void Play()
+    public virtual void Play(float pitch = 1)
     {
         Init();
         if (!gameObject.activeSelf)
         {
             gameObject.SetActive(true);
         }
+        m_audioSource.pitch = pitch;
         m_audioSource.Play();
 
         if (!m_audioSource.loop)
@@ -54,5 +54,6 @@ public class AudioBase<T> : Singleton<T> where T : MonoBehaviour
     {
         Init();
         m_audioSource.Stop();
+        gameObject.SetActive(false);
     }
 }
