@@ -444,4 +444,7 @@ MonoBehaviour:
   meshRenderers: []
   m_selected: 0
   foodAmount: 0
-  foods: []
+  foods:
+  - {fileID: 6570841899547638053}
+  - {fileID: 6725439042023198655}
+  - {fileID: 6714692373596950249}

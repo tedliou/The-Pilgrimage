@@ -488,16 +488,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
         {
             // 找最近的
             var block = closetObj.GetComponent<BlockBase>();
-            if (closetObj.CompareTag("SedanChair"))
-            {
-                if (foodAmount > 0)
-                {
-                    foodAmount = 0;
-                    GameManager.Instance.foodAmount = 100;
-                    return;
-                }
-            }
-            else if (block)
+            if (block)
             {
                 switch (block.blockType)
                 {
@@ -700,9 +691,22 @@ public class PlayerController : CustomBehaviour<PlayerController>
                 {
                     block.Wreck();
                 }
-                else if (hasTray)
+                Animator.SetBool(m_aniPick, true);
+            }
+            else
+            {
+                if (hasTray)
                 {
-                    if (foodAmount == 0 && GameManager.Instance.foodAmount < 100)
+                    if (closetObj.CompareTag("SedanChair"))
+                    {
+                        if (foodAmount > 0)
+                        {
+                            foodAmount = 0;
+                            GameManager.Instance.foodAmount = 100;
+                            Animator.SetBool(m_aniPick, true);
+                        }
+                    }
+                    else if (foodAmount == 0)
                     {
                         var foodBlock = closetObj.GetComponent<FoodBlock>();
                         if (foodBlock.hasFood)
@@ -710,14 +714,9 @@ public class PlayerController : CustomBehaviour<PlayerController>
                             foodBlock.Take();
                             foodAmount = 1;
                         }
+                        Animator.SetBool(m_aniPick, true);
                     }
-                    Animator.SetBool(m_aniPick, true);
                 }
-                Animator.SetBool(m_aniPick, true);
-            }
-            else
-            {
-                
             }
         }
     }

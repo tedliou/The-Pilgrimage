@@ -205,7 +205,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
             GridSystem.Add(bombObj);
             
             // 生成托盤
-            var trayPos = GetSpawnablePosition(new Vector3(x + 3, y - 2));
+            var trayPos = GetSpawnablePosition(new Vector3(x + 4, y - 2));
             var trayObj = SpawnBlock(trayPos.x, trayPos.y, trayPrefab, false);
             trayIndicator.SetFollowTransform(trayObj.transform);
             GridSystem.Add(trayObj);
