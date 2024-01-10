@@ -107,19 +107,15 @@ public class EnvSpawner : Singleton<EnvSpawner>
 
     public void GenerateBuilding(Vector2Int offset)
     {
-        var math = Random.value;
-        for (var i = 0; i < mapSize.x; i+=10)
+        for (var i = 0; i < mapSize.x; i+=1)
         {
-            // 每 1 Chunk 決定要不要建立房子
-            if (math > spawnBuildingRate)
-                continue;
-            
-            // 決定建立的位置
-            var rndX = Random.Range(offset.x, offset.x + mapSize.x);
-            var rndY = Random.Range(offset.y, offset.y + mapSize.y);
-            
-            
-            GridSystem.Add(SpawnBlock(offset.x + i, 0, buildingPrefabs[Random.Range(0, buildingPrefabs.Length)]));
+            GridSystem.Add(SpawnBlock(offset.x + i, mapSize.y, buildingPrefabs[Random.Range(0, buildingPrefabs.Length)]));
+
+            var obj = SpawnBlock(offset.x + i, -1, buildingPrefabs[Random.Range(0, buildingPrefabs.Length)]);
+            var scale = obj.transform.GetChild(0).localScale;
+            scale.z *= -1;
+            obj.transform.GetChild(0).localScale = scale;
+            GridSystem.Add(obj);
         }
     }
     
@@ -137,7 +133,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
         }
     }
 
-    private Vector3 GetSpawnablePosition(Vector3 startPos)
+    public Vector3 GetSpawnablePosition(Vector3 startPos)
     {
         var spawnPos = startPos;
         while (GridSystem.Find(spawnPos, CellType.Top))
