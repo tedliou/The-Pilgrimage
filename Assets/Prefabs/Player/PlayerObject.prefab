@@ -205,12 +205,12 @@ GameObject:
   - component: {fileID: 3592135920150395732}
   - component: {fileID: 7110262576250185588}
   m_Layer: 0
-  m_Name: ClipTool
+  m_Name: Clip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4460769805942298498
 Transform:
   m_ObjectHideFlags: 0
@@ -533,6 +533,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4460769805942298498}
+  - {fileID: 4578694748542326305}
   m_Father: {fileID: 6316222907250033295}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5219240467909550044
@@ -658,15 +659,17 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 200df9bc8ebb8cf4f870611edbe1872b, type: 2}
   skinnedMeshRenderer: {fileID: 1862988305477888867}
   replaceMaterialIndex: 2
-  hasToolProp: 0
-  hasBombProp: 0
+  hasClip: 0
+  hasBomb: 0
   gasAmount: 0
   garbageAmount: 0
+  roadAmount: 0
   gasAmountLimit: 10
   garbageAmountLimit: 10
-  roadAmount: 0
-  clipTool: {fileID: 2936444962852713701}
+  clipInHand: {fileID: 2936444962852713701}
+  bombInHand: {fileID: 6852583632800380789}
   radius: 1
+  closetList: []
   closetObj: {fileID: 0}
   canPlaceWreckProp: 0
   canTakeProp: 0
@@ -753,6 +756,91 @@ Transform:
   - {fileID: 4838457135352759654}
   m_Father: {fileID: 2634836557368299681}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6852583632800380789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4578694748542326305}
+  - component: {fileID: 8135659635002177891}
+  - component: {fileID: 3818505363957463045}
+  m_Layer: 0
+  m_Name: Bomb
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4578694748542326305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6852583632800380789}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.27447283, y: 0.6767763, z: -0.63303065, w: 0.25673085}
+  m_LocalPosition: {x: 0.0066, y: 0.0007, z: -0.011}
+  m_LocalScale: {x: 1.3378123, y: 1.3378123, z: 1.3378123}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1921001304137547692}
+  m_LocalEulerAnglesHint: {x: 93.82599, y: 0.0010070801, z: -135.849}
+--- !u!33 &8135659635002177891
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6852583632800380789}
+  m_Mesh: {fileID: 1561751683065510583, guid: 648b9fb827fe52c4eb0f06196cd501a0, type: 3}
+--- !u!23 &3818505363957463045
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6852583632800380789}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: dfefceae54feb954085b579093b8ab9f, type: 2}
+  - {fileID: 2100000, guid: f65528cfe4158fa4da500f23116fdaa3, type: 2}
+  - {fileID: 2100000, guid: 4ae1ea5a66324c34a9db17f241c78ed3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7198397195841229167
 GameObject:
   m_ObjectHideFlags: 0

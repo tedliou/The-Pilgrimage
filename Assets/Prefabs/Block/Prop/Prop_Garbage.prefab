@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1998952549304450270}
   m_Layer: 0
   m_Name: Prop_Garbage
-  m_TagString: Untagged
+  m_TagString: Garbage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67,8 +67,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c05f443fff14cdf8a6ef14e249995ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellKey:
+  - {x: 0, y: 0}
   cellType: 0
   blockType: 8
+  meshRenderers:
+  - {fileID: 9212850414919533597}
+  - {fileID: 8865885809440145340}
+  - {fileID: 4032149834245657437}
+  - {fileID: 4700033643462038121}
   isStackable: 0
   isWreckable: 1
   isPickupable: 0

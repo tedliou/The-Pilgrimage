@@ -95,7 +95,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: 9b119d7179a50b441b83ff384cc27a53, type: 2}
+  cellKey:
+  - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  - {x: 2, y: 0}
+  - {x: 3, y: 0}
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  - {x: 2, y: 1}
+  - {x: 3, y: 1}
+  - {x: 0, y: 2}
+  - {x: 1, y: 2}
+  - {x: 2, y: 2}
+  - {x: 3, y: 2}
+  - {x: 0, y: 3}
+  - {x: 1, y: 3}
+  - {x: 2, y: 3}
+  - {x: 3, y: 3}
+  cellType: 0
+  blockType: 0
 --- !u!1 &8704169200421901817
 GameObject:
   m_ObjectHideFlags: 0

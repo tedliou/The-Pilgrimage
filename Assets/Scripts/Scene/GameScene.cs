@@ -15,7 +15,7 @@ public class GameScene : CustomBehaviour<GameScene>
     {
         FadeImage.Instance.Show();
         StartBGM.Instance.Stop();
-        //GameBGM.Instance.Play();
+        GameBGM.Instance.Play();
 
         StartCoroutine(StartGame());
     }
@@ -34,7 +34,7 @@ public class GameScene : CustomBehaviour<GameScene>
         
         //yield return new WaitForSeconds(1);
         
-        var countdown = 3;
+        var countdown = 1;
         while (countdown > 0)
         {
             Log(countdown);

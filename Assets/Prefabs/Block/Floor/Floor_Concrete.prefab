@@ -128,4 +128,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5beafa78603a7e469c882309006956d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 11400000, guid: f0f58c08d30728246a080e95a3db8870, type: 2}
+  cellKey:
+  - {x: 0, y: 0}
+  cellType: 1
+  blockType: 1
+  meshRenderers:
+  - {fileID: 1866192843732053137}

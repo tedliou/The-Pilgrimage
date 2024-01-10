@@ -27,14 +27,14 @@ public class AudioBase<T> : Singleton<T> where T : MonoBehaviour
         m_audioSource.pitch = pitch;
         m_audioSource.Play();
 
-        if (!m_audioSource.loop)
-        {
-            if (m_coroutine != null)
-            {
-                StopCoroutine(m_coroutine);
-            }
-            m_coroutine = StartCoroutine(DisableOnStop());
-        }
+        // if (!m_audioSource.loop)
+        // {
+        //     if (m_coroutine != null)
+        //     {
+        //         StopCoroutine(m_coroutine);
+        //     }
+        //     m_coroutine = StartCoroutine(DisableOnStop());
+        // }
     }
 
     private IEnumerator DisableOnStop()
@@ -55,5 +55,24 @@ public class AudioBase<T> : Singleton<T> where T : MonoBehaviour
         Init();
         m_audioSource.Stop();
         gameObject.SetActive(false);
+    }
+
+    protected IEnumerator EventOnStop()
+    {
+        while (true)
+        {
+            while (m_audioSource.isPlaying)
+            {
+                yield return null;
+            }
+        
+            OnStop();
+            yield return null;
+        }
+    }
+
+    protected virtual void OnStop()
+    {
+        
     }
 }

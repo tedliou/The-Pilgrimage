@@ -4873,7 +4873,7 @@ GameObject:
   - component: {fileID: 7925944969008210548}
   m_Layer: 0
   m_Name: Prop_Gas
-  m_TagString: Untagged
+  m_TagString: Gas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4928,8 +4928,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c05f443fff14cdf8a6ef14e249995ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellKey:
+  - {x: 0, y: 0}
   cellType: 0
   blockType: 7
+  meshRenderers:
+  - {fileID: 6623790408826638238}
   isStackable: 0
   isWreckable: 1
   isPickupable: 0

@@ -5,10 +5,17 @@ TagManager:
   serializedVersion: 2
   tags:
   - Tool
-  - InteractableObject
   - Missile
   - Car
   - CarExtend
+  - Garbage
+  - Gas
+  - InteractableObject
+  - Wreck
+  - Clip
+  - Bomb
+  - GarbageWreck
+  - GasWreck
   layers:
   - Default
   - TransparentFX

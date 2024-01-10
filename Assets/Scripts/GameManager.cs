@@ -44,14 +44,15 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField] private Vector3 playerSpawnPos;
 
-    public GameObject toolPrefab;
+    [FormerlySerializedAs("toolPrefab")] public GameObject clipPrefab;
     public GameObject bombPrefab;
-    public GameObject garbagePrefab;
     public GameObject gasPrefab;
+    public GameObject garbagePrefab;
     public GameObject roadPrefab;
 
     public Indicator[] playerIndicators;
     public Indicator clipIndicator;
+    public Indicator bombIndicator;
     #endregion
 
 

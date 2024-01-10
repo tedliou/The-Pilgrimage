@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -107,7 +109,6 @@ public class Inventory
 
 public class PlayerController : CustomBehaviour<PlayerController>
 {
-    #region API
 
     public Player Player
     {
@@ -121,11 +122,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
         }
     }
     private Player _player;
-
-    #endregion
     
     
-    #region Properties
 
     public Rigidbody Rigidbody
     {
@@ -156,32 +154,6 @@ public class PlayerController : CustomBehaviour<PlayerController>
         }
     }
     private PlayerInputHandler _InputHandler;
-
-
-    /// <summary>
-    /// PropID, Amount
-    /// </summary>
-    protected Tool Tool
-    {
-        get
-        {
-            _tool ??= new Tool();
-            return _tool;
-        }
-    }
-    private Tool _tool;
-    protected Inventory Inventory
-    {
-        get
-        {
-            _inventory ??= new Inventory();
-            return _inventory;
-        }   
-    }
-    private Inventory _inventory;
-
-    #endregion
-    
     
     #region Inspector
     
@@ -228,30 +200,42 @@ public class PlayerController : CustomBehaviour<PlayerController>
     [SerializeField] private int replaceMaterialIndex = 2;
 
 
-    public bool hasToolProp = false;
-    public bool hasBombProp = false;
+    // 工具和物件條件
+    [Header("State")]
+    public bool hasClip = false;
+    public bool hasBomb = false;
+    public bool hasTray = false;
+    
+    [ShowInInspector] public bool hasGas => gasAmount > 0;
+    [ShowInInspector] public bool hasGarbage => garbageAmount > 0;
+    [ShowInInspector] public bool hasRoad => roadAmount > 0;
+    
     public int gasAmount = 0;
     public int garbageAmount = 0;
+    
     public int gasAmountLimit = 10;
     public int garbageAmountLimit = 10;
+    
     public int roadAmount = 0;
-    public GameObject clipTool;
+    
+    public GameObject clipInHand;
+    public GameObject bombInHand;
+    public GameObject roadInHand;
+    public GameObject trayInHand;
     
     #endregion
 
-    #region Private
     private string m_aniWalk = "Walk";
-    private string _aniPick = "Pick";
-    #endregion
+    private string m_aniPick = "Pick";
 
+    // 偵測範圍
     public float radius = 1;
-
-
-
-    public Transform closetObj;
+    // 範圍內的物件列表
+    public List<Collider> closetList = new List<Collider>();
+    [ShowInInspector]
+    public Transform closetObj => closetList.Count > 0 ? closetList[0].transform : null;
     
 
-    #region Unity Messages
 
     private void Start()
     {
@@ -264,38 +248,118 @@ public class PlayerController : CustomBehaviour<PlayerController>
         InputHandler.onPlayerReset.AddListener(ResetPosition);
         
         m_direction = Vector3.zero;
+
+        roadAmount = 100;
         
         SetPlayerColor();
     }
 
     private void Update()
     {
-        clipTool.SetActive(hasToolProp);
-        
+        clipInHand.SetActive(hasClip);
+        bombInHand.SetActive(hasBomb);
+
+        #region 偵測周圍物件
+
         var colliders = Physics.OverlapSphere(transform.position, radius).ToList();
+        
+        // 刪除玩家
         colliders.RemoveAll(c => c.CompareTag("Player"));
+        
+        // 刪除當前條件無法互動的物件
+        // 有夾子：不能拿炸彈、瘴氣、破壞物
+        // 沒夾子：不能拿垃圾、瘴氣
+        bool getClip = true, getBomb = true, getGas = false, getGasWreck = true, getGarbage = false, getGarbageWreck = true;
+        
+        // 工具判斷
+        if (hasClip)
+        {
+            getBomb = false;
+            getGarbage = true;
+        }
+        if (hasBomb)
+        {
+            getClip = false;
+            getGas = true;
+        }
+
+        // 垃圾判斷
+        if (!hasClip && !hasBomb && hasGas)
+        {
+            getClip = false;
+            getBomb = false;
+            getGarbageWreck = false;
+        }
+        if (!hasClip && !hasBomb && hasGarbage)
+        {
+            getClip = false;
+            getBomb = false;
+            getGasWreck = false;
+        }
+
+        #region 刪除不相干物件
+
+        if (!getClip)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Clip"));
+        }
+        if (!getBomb)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Bomb"));
+        }
+        if (!getGas)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Gas"));
+        }
+        if (!getGarbage)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Garbage"));
+        }
+        if (!getGasWreck)
+        {
+            colliders.RemoveAll(c => c.CompareTag("GasWreck"));
+        }
+        if (!getGarbageWreck)
+        {
+            colliders.RemoveAll(c => c.CompareTag("GarbageWreck"));
+        }
+
+        #endregion
+        
+        
+        
+        
+        // 由近到遠排序物件
         if (colliders.Count > 0)
         {
-            var near = colliders[0];
-            if (colliders.Count > 1)
-            {
-                for (var i = 1; i < colliders.Count; i++)
-                {
-                    var preview = Vector3.Distance(transform.position, near.transform.position);
-                    var current = Vector3.Distance(transform.position, colliders[i].transform.position);
-                    if (preview > current)
-                    {
-                        near = colliders[i];
-                    }
-                }
-            }
-
-            closetObj = near.transform;
-            Log(near.name);
+            closetList = colliders.OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).ToList();
         }
         else
         {
-            closetObj = null;
+            closetList.Clear();
+        }
+
+        #endregion
+        
+        
+        
+        
+        
+        
+    }
+
+    private void LateUpdate()
+    {
+        // 選擇高亮
+        var hasClosetObj = closetObj != null;
+        var hasTargetObj = TryGetSelectedBlock(out BlockBase targetBlock);
+        if (hasClosetObj)
+        {
+            closetObj.GetComponent<BlockBase>()?.Select();
+        }
+        else if (hasTargetObj)
+        {
+            targetBlock?.Select();
         }
     }
 
@@ -336,19 +400,11 @@ public class PlayerController : CustomBehaviour<PlayerController>
             selectedPos = selfPos + new Vector3(-1, 0, 0);
         }
 
-        if (GridSystem.Find(selectedPos, BlockType.Tool, out target))
+        if (GridSystem.Find(selectedPos, CellType.Top, out target))
         {
             return true;
         }
-        else if (GridSystem.Find(selectedPos, BlockType.Prop, out target))
-        {
-            return true;
-        }
-        else if (GridSystem.Find(selectedPos, BlockType.Drop, out target))
-        {
-            return true;
-        }
-        else if (GridSystem.Find(selectedPos, BlockType.Floor, out target))
+        else if (GridSystem.Find(selectedPos, CellType.Down, out target))
         {
             return true;
         }
@@ -410,9 +466,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
         // Fixed Y Pos
         var updatedPos = transform.position;
         updatedPos.y = GameManager.Instance.playerYPos;
-        //transform.position = updatedPos;
+        transform.position = updatedPos;
     }
-    #endregion
 
     public void SetMoveEffet(bool active)
     {
@@ -448,7 +503,97 @@ public class PlayerController : CustomBehaviour<PlayerController>
 
     public void Get()
     {
+        var hasClosetObj = closetObj != null;
+        var hasTargetObj = TryGetSelectedBlock(out BlockBase targetBlock);
+        
+        Log($"{Player.Id}: {nameof(Get)}, {closetObj}, {targetBlock}");
+        
+        if (hasClosetObj)
+        {
+            // 找最近的
+            var block = closetObj.GetComponent<BlockBase>();
+            switch (block.blockType)
+            {
+                case BlockType.Clip:
+                    hasClip = true;
+                    GridSystem.Remove(block);
+                    GameManager.Instance.clipIndicator.SetFollowTransform(null);
+                    Animator.SetBool(m_aniPick, true);
+                    break;
+            
+                case BlockType.Bomb:
+                    hasBomb = true;
+                    GridSystem.Remove(block);
+                    GameManager.Instance.bombIndicator.SetFollowTransform(null);
+                    Animator.SetBool(m_aniPick, true);
+                    break;
+            }
+        }
+        else if (hasTargetObj)
+        {
+            // 找十字的
+            var block = targetBlock;
+            switch (block.blockType)
+            {
+                case BlockType.Floor:
+                    if (hasRoad)
+                    {
+                        var blockPos = block.transform.position;
+                        GridSystem.Remove(block);
+                        var roadObj = Instantiate(GameManager.Instance.roadPrefab);
+                        roadObj.transform.position = blockPos;
+                        var roadBlock = roadObj.GetComponent<RoadBlock>();
+                        GridSystem.Add(roadBlock);
+                        roadBlock.FindAroundRoads();
+                        roadAmount--;
+                    }
+                    else
+                    {
+                        var prefab = GameManager.Instance.clipPrefab;
+                        if (hasBomb)
+                        {
+                            prefab = GameManager.Instance.bombPrefab;
+                        }
+                        else if (hasGas)
+                        {
+                            prefab = GameManager.Instance.gasPrefab;
+                        }
+                        else if (hasGarbage)
+                        {
+                            prefab = GameManager.Instance.garbagePrefab;
+                        }
 
+                        var obj = Instantiate(prefab);
+                        obj.transform.position = GridSystem.WorldToCell(transform.position);
+                        Animator.SetBool(m_aniPick, true);
+
+                        if (hasClip)
+                        {
+                            hasClip = false;
+                            GameManager.Instance.clipIndicator.SetFollowTransform(obj.transform);
+                        }
+                        else if (hasBomb)
+                        {
+                            hasBomb = false;
+                            GameManager.Instance.bombIndicator.SetFollowTransform(obj.transform);
+                        }
+                        else if (hasGas)
+                        {
+                            gasAmount = 0;
+                            obj.GetComponent<PropBlock>().SetAmount(gasAmount);
+                        }
+                        else if (hasGarbage)
+                        {
+                            garbageAmount = 0;
+                            obj.GetComponent<PropBlock>().SetAmount(garbageAmount);
+                        }
+                    }
+                    
+                    break;
+            }
+        }
+
+        /*
         if (canPlaceWreckProp)
         {
             var car = triggerBlock.GetComponent<CarController>();
@@ -469,7 +614,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
         }
         else if (canTakeProp)
         {
-            if (garbageAmount > 0 || gasAmount > 0 || hasToolProp || hasBombProp)
+            if (garbageAmount > 0 || gasAmount > 0 || hasClip || hasBomb)
             {
                 return;
             }
@@ -483,10 +628,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
 
             return;
         }
-
-        Debug.Log(nameof(Get));
-
-
+        */
+        /*
         if (closetObj == null)
         {
             if (TryGetSelectedBlock(out BlockBase target))
@@ -494,19 +637,19 @@ public class PlayerController : CustomBehaviour<PlayerController>
                 if (target.blockType == BlockType.Floor)
                 {
                     // Place
-                    if (hasToolProp)
+                    if (hasClip)
                     {
                         var toolObj = Instantiate(GameManager.Instance.toolPrefab);
                         toolObj.transform.position = GridSystem.WorldToCell(transform.position);
                         GameManager.Instance.clipIndicator.SetFollowTransform(toolObj.transform);
 
-                        hasToolProp = false;
+                        hasClip = false;
                     }
-                    else if (hasBombProp)
+                    else if (hasBomb)
                     {
                         var bombObj = Instantiate(GameManager.Instance.bombPrefab);
                         bombObj.transform.position = target.transform.position;
-                        hasBombProp = false;
+                        hasBomb = false;
                     }
                     else if (garbageAmount > 0)
                     {
@@ -542,16 +685,16 @@ public class PlayerController : CustomBehaviour<PlayerController>
                 if (target.blockType == BlockType.Tool)
                 {
                     // Take
-                    if (hasToolProp)
+                    if (hasClip)
                     {
                         // Nothing
                     }
                     else
                     {
-                        hasToolProp = true;
+                        hasClip = true;
                         GridSystem.Remove(target, BlockType.Tool, CellType.Top);
                         GameManager.Instance.clipIndicator.SetFollowTransform(null);
-                        Animator.SetBool(_aniPick, true);
+                        Animator.SetBool(m_aniPick, true);
                     }
                 }
                 else if (target.blockType == BlockType.GasWreck)
@@ -561,7 +704,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
                         return;
                     }
 
-                    if (hasToolProp || hasBombProp)
+                    if (hasClip || hasBomb)
                     {
                         return;
                     }
@@ -595,7 +738,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
                         return;
                     }
 
-                    if (hasToolProp || hasBombProp)
+                    if (hasClip || hasBomb)
                     {
                         return;
                     }
@@ -626,43 +769,31 @@ public class PlayerController : CustomBehaviour<PlayerController>
                     // 放進去車廂
                 }
             }
-        }
+        }*/
     }
 
     private void GetCancel()
     {
-        Animator.SetBool(_aniPick, false);
+        Animator.SetBool(m_aniPick, false);
     }
 
     public void Fire()
     {
-        if (closetObj != null)
+        var hasClosetObj = closetObj != null;
+        
+        Log($"{Player.Id}: {nameof(Fire)}, {closetObj}, {targetBlock}");
+        
+        if (hasClosetObj)
         {
-            var target = closetObj.GetComponent<BlockBase>();
-            if (target.blockType == BlockType.Garbage)
-            {
-                var prop = target.GetComponent<PropBlock>();
-                if (hasToolProp)
-                {
-                    prop.Wreck();
-                    Animator.SetBool(_aniPick, true);
-                }
-            }
-            else if (target.blockType == BlockType.Gas)
-            {
-                var prop = target.GetComponent<PropBlock>();
-                if (hasToolProp)
-                {
-                    prop.Wreck();
-                    Animator.SetBool(_aniPick, true);
-                }
-            }
+            var block = closetObj.GetComponent<PropBlock>();
+            block.Wreck();
+            Animator.SetBool(m_aniPick, true);
         }
     }
 
     private void FireCancel()
     {
-        Animator.SetBool(_aniPick, false);
+        Animator.SetBool(m_aniPick, false);
     }
 
     private void ResetPosition()

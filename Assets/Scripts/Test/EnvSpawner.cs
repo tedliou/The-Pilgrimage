@@ -6,61 +6,21 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class EnvSpawner : MonoBehaviour
+public class EnvSpawner : Singleton<EnvSpawner>
 {
-    #region Singleton
-
-    public static EnvSpawner current;
-
-    #endregion
-    
-    #region Inspector
-
-    [Header("Block")]
-    public GameObject grassBlock;
-    public GameObject concreteBlock;
-    public GameObject roadBlock;
-    
-    public GameObject templeBlock;
-    
-    public GameObject garbageProp;
-    public GameObject gasProp;
-
-    public GameObject sedanChairPrefab;
-
-    public GameObject chipProp;
-    public Indicator clipIndicator;
-    
-    
-    
-    
-    public BlockSetting grass;
-    public BlockSetting temple;
-    public BlockSetting garbage;
-    public BlockSetting gas;
-    public BlockSetting concrete;
-    public BlockSetting road;
-    public BlockSetting sedanChair;
-    public BlockSetting chip;
-    
-    public BlockSetting car;
-    public BlockSetting carExtend;
-    
-    
-    [Header("Generate Parameters")]
+    [Header("Map")]
     public Vector2Int mapSize;
-
+    public Vector2Int templeSize;
     public int templeMinX = 2;
     public int templeMaxX = 6;
     public int templeMinY = 2;
     public int templeMaxY = 14;
-    
-    public Vector2Int templeSize;
 
 
     public float garbageScale = .2f;
     
     public Vector2Int sedanChairSpawnPos;
+    
     public int prebuildRoadLength = 6;
 
     public bool spawnedSedanChair = false;
@@ -70,31 +30,64 @@ public class EnvSpawner : MonoBehaviour
 
     private Vector2Int m_lastMapPos;
     private int m_lastMapIndex;
-    #endregion
+    private bool m_isMailliTemple = false;
+    
+    [Header("Floor")]
+    public GameObject grassPrefab;
+    public GameObject concretePrefab;
+    public GameObject roadPrefab;
+    
+    [Header("Temple")]
+    public GameObject templeMailliPrefab;
+    public GameObject templeNorthPrefab;
+    
+    [Header("Resource")]
+    public GameObject gasPrefab;
+    public GameObject garbagePrefab;
 
-    private void Awake()
-    {
-        current = this;
-    }
+    [Header("Tool")]
+    public GameObject clipPrefab;
+    public GameObject bombPrefab;
+    
+    [Header("Tool Indicator")]
+    public Indicator clipIndicator;
+    public Indicator bombIndicator;
+    
+    [Header("Sedan Chair")]
+    public GameObject sedanChairPrefab;
+    
+    
+
 
     void Start()
     {
         m_lastMapPos = Vector2Int.zero;
         m_lastMapIndex = 0;
-        GenerateNewMap();
-        GenerateNewMap();
+        StartCoroutine(GenerateNewMap());
+        StartCoroutine(GenerateNewMap());
     }
 
-    public void GenerateNewMap()
+    public IEnumerator GenerateNewMap()
     {
         m_lastMapPos = new Vector2Int(m_lastMapIndex * mapSize.x, 0);
+
+        var startPos = m_lastMapPos;
         
-        GenerateTemple(m_lastMapPos);
-        GenerateGarbage(m_lastMapPos);
-        GenerateGas(m_lastMapPos);
-        GenerateGrass(m_lastMapPos);
+        GenerateTemple(startPos);
 
         m_lastMapIndex++;
+        
+        yield return null;
+        
+        //GenerateGarbage(startPos);
+        
+        yield return null;
+        
+        //GenerateGas(startPos);
+        
+        yield return null;
+        
+        GenerateGrass(startPos);
     }
     
     private void GenerateGrass(Vector2Int offset)
@@ -105,39 +98,69 @@ public class EnvSpawner : MonoBehaviour
             {
                 if (!GridSystem.Find(new Vector3(x, 0, z), CellType.Down))
                 {
-                    SpawnBlock(x, z, grassBlock);
+                    GridSystem.Add(SpawnBlock(x, z, grassPrefab));
                 }
             }
         }
     }
+
+    private Vector3 GetSpawnablePosition(Vector3 startPos)
+    {
+        var spawnPos = startPos;
+        while (GridSystem.Find(spawnPos, CellType.Top))
+        {
+            spawnPos += new Vector3(1, 0, 0);
+        }
+        return spawnPos;
+    }
     
     private void GenerateTemple(Vector2Int offset)
     {
-        var x = Random.Range(templeMinX, templeMaxX);
-        var y = Random.Range(templeMinY, templeMaxY);
+        var prefab = m_isMailliTemple ? templeMailliPrefab : templeNorthPrefab;
+        m_isMailliTemple = !m_isMailliTemple;
         
-        x += offset.x;
-        y += offset.y;
+        var x = Random.Range(templeMinX, templeMaxX) + offset.x;
+        var y = Random.Range(templeMinY, templeMaxY) + offset.y;
 
-        SpawnBlock(x, y, templeBlock, false);
-        //ReplaceBlock(x, y, templeBlock, templeSize, true);
+        GridSystem.Add(SpawnBlock(x, y, prefab, false));
         
         // Road and SedanChair
         x += sedanChairSpawnPos.x;
         y += sedanChairSpawnPos.y;
-        var endPoint = SpawnBlock(x, y, roadBlock).GetComponent<RoadBlock>();
-        endPoint.isPassed = m_lastMapIndex == 0;
+        var endPoint = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
         endPoint.isEndPoint = m_lastMapIndex != 0;
-        //ReplaceBlock(x, y, roadBlock, new Vector2Int(prebuildRoadLength, 1));
-
+        endPoint.FindAroundRoads();
+        GridSystem.Add(endPoint);
+        
         if (!spawnedSedanChair)
         {
             SpawnBlock(x, y, sedanChairPrefab, false);
-            var obj = SpawnBlock(x, y - 2, chipProp, false);
-            clipIndicator.SetFollowTransform(obj.transform);
+            
+            // 生成夾子
+            var clipPos = GetSpawnablePosition(new Vector3(x, y - 2));
+            var clipObj = SpawnBlock(clipPos.x, clipPos.y, clipPrefab, false);
+            clipIndicator.SetFollowTransform(clipObj.transform);
+            
+            // 生成炸彈
+            var bombPos = GetSpawnablePosition(new Vector3(x + 2, y - 2));
+            var bombObj = SpawnBlock(bombPos.x, bombPos.y, bombPrefab, false);
+            bombIndicator.SetFollowTransform(bombObj.transform);
             
             spawnedSedanChair = true;
         }
+
+        if (m_lastMapIndex == 0)
+        {
+            for (var i = 0; i < 3; i++)
+            {
+                x += 1;
+                var road = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
+                GridSystem.Add(road);
+                road.FindAroundRoads();
+            }
+        } 
+
+        
     }
 
     private void GenerateGarbage(Vector2Int offset)
@@ -149,16 +172,16 @@ public class EnvSpawner : MonoBehaviour
         {
             var randX = Random.Range(0, mapSize.x);
             var randY = Random.Range(0, mapSize.y);
-            //var size = new Vector2Int(Random.Range(1, 4), Random.Range(1, 4));
             var size = new Vector2Int(1, 1);
             var dimision = size.x * size.y;
             i += dimision;
 
+            
             var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
-            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
+            if (!GridSystem.Find(pos, CellType.Top))
             {
-                SpawnBlock(offset.x + randX, offset.y + randY, garbageProp);
-                SpawnBlock(offset.x + randX, offset.y + randY, concreteBlock);
+                SpawnBlock(pos.x, pos.z, garbagePrefab);
+                SpawnBlock(pos.x, pos.z, concretePrefab);
             }
         }
     }
@@ -177,8 +200,12 @@ public class EnvSpawner : MonoBehaviour
             var dimision = size.x * size.y;
             i += dimision;
 
-            SpawnBlock(offset.x + randX, offset.y + randY, gasProp);
-            SpawnBlock(offset.x + randX, offset.y + randY, concreteBlock);
+            var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
+            {
+                SpawnBlock(pos.x, pos.z, gasPrefab);
+                SpawnBlock(pos.x, pos.z, concretePrefab);
+            }
         }
     }
 
@@ -189,116 +216,4 @@ public class EnvSpawner : MonoBehaviour
         var block = blockObj.GetComponent<BlockBase>();
         return block;
     }
-    
-    private void ReplaceBlock(int x, int z, GameObject prefab, Vector2Int size, bool once = false)
-    {
-        var position = new Vector3Int(x, 0, z);
-        var blockBase = prefab;
-        
-        // 建立要挖空的座標
-        var queue = new List<Vector3>();
-        for (var i = 0; i < size.x; i++)
-        {
-            for (var j = 0; j < size.y; j++)
-            {
-                queue.Add(position + new Vector3(i, 0, j));
-            }
-        }
-            
-        // 挖空
-        for (var i = 0; i < queue.Count; i++)
-        {
-            GridSystem.Remove(queue[i], BlockType.Floor, CellType.Down);
-        }
-
-        if (once)
-        {
-            // 在起點建立物件，並連結到所有被挖空的位置
-            var entity = SpawnBlock(queue[0].x, queue[0].z, prefab);
-            for (var i = 1; i < queue.Count; i++)
-            {
-                GridSystem.Add(entity, queue[i]);
-            }
-        }
-        else
-        {
-            for (var i = 0; i < queue.Count; i++)
-            {
-                //GridSystem.Add(SpawnBlock(queue[i].x, queue[i].z, blockId), queue[i]);
-            }
-        }
-    }
-    
-    
-
-    // private void Map_Remove(Vector2 position)
-    // {
-    //     var key = position;
-    //
-    //     if (_map.TryGetValue(key, out GameObject obj))
-    //     {
-    //         _map.Remove(key);
-    //         Destroy(obj);
-    //         Debug.Log("Removed");
-    //     }
-    //     else
-    //     {
-    //         Debug.Log("Remove failed");
-    //     }
-    // }
-    //
-    // public GameObject Map_Find(Vector2 position)
-    // {
-    //     var key = position;
-    //     if (_map.TryGetValue(key, out GameObject obj))
-    //     {
-    //         return obj;
-    //     }
-    //
-    //     return null;
-    // }
-
-    // private void SpawnSedanChair()
-    // {
-    //     var pos = (Vector3)(Vector2)sedanChairSpawnPos;
-    //     pos.z = sedanChairSpawnPos.y;
-    //     pos.y = GameManager.Instance.propsYPos;
-    //     var obj = Instantiate(sedanChair, pos, Quaternion.identity);
-    // }
-
-    // public GameObject SpawnBlock(BlockType blockType, Vector3 position)
-    // {
-    //     GameObject prefab;
-    //     
-    //     if (blockType is BlockType.Grass or BlockType.Road or BlockType.Temple)
-    //     {
-    //         position.y = GameManager.Instance.floorYPos;
-    //     }
-    //     
-    //     switch (blockType)
-    //     {
-    //         case BlockType.Grass:
-    //             prefab = grass;
-    //             break;
-    //         case BlockType.Road:
-    //             prefab = floor;
-    //             break;
-    //         case BlockType.Temple:
-    //             prefab = temple;
-    //             break;
-    //         default:
-    //             throw new ArgumentOutOfRangeException(nameof(blockType), blockType, null);
-    //     }
-    //     
-    //     var obj = Instantiate(prefab, position, Quaternion.identity, transform);
-    //     return obj;
-    // }
-    //
-    // private GameObject SpawnTemple(Vector3 position)
-    // {
-    //     var obj = Instantiate(temple, position,
-    //         Quaternion.identity);
-    //     return obj;
-    // }
-
 }

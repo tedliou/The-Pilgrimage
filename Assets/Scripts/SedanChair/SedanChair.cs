@@ -24,12 +24,17 @@ public class SedanChair : Singleton<SedanChair>
     public RoadBlock m_nextRoad;
     private Transform m_child;
 
+    public bool isStarted = false;
     public bool isMoving = false;
     public bool isFinding = false;
     public bool isRoadUpdated = false;
 
+    public RoadBlock targetRoadBlock;
+
     private Coroutine m_moveJob;
     [SerializeField]private List<RoadBlock> m_roads;
+
+    public Direction direction = Direction.Right;
 
     [System.Serializable]
     public enum Direction
@@ -40,66 +45,73 @@ public class SedanChair : Singleton<SedanChair>
         Left,
         Stop
     }
+    
+    
+    
+    
 
     protected override void OnStart()
     {
         base.OnStart();
         
         m_child = transform.GetChild(0);
-        StartCoroutine(FindPath());
+        // StartCoroutine(FindPath());
         StartCoroutine(ObserveMoveJob());
-        RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
+        // RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
         
-        OnSedanChairCreate.Invoke(this);
+        //OnSedanChairCreate.Invoke(this);
     }
+    
+    
 
-    private void OnRoadUpdate()
-    {
-        isRoadUpdated = true;
-        if (!isFinding && !isMoving)
-        {
-            StartCoroutine(FindPath());
-        }
-    }
+    // private void OnRoadUpdate()
+    // {
+    //     isRoadUpdated = true;
+    //     if (!isFinding && !isMoving)
+    //     {
+    //         StartCoroutine(FindPath());
+    //     }
+    // }
 
 
     [Button]
-    private void StartMoveJob(Vector3 targetPos)
+    private void StartMoveJob(RoadBlock roadBlock)
     {
         if (m_moveJob != null)
             return;
 
-        m_moveJob = StartCoroutine(MoveJob(targetPos));
+        m_moveJob = StartCoroutine(MoveJob(roadBlock));
     }
 
-    private IEnumerator MoveJob(Vector3 targetPos)
+    private IEnumerator MoveJob(RoadBlock roadBlock)
     {
-        Debug.Log($"[{nameof(SedanChair)}] Start Move Job, Target Pos: {targetPos}");
+        Debug.Log($"[{nameof(SedanChair)}] Start Move Job, Target Pos: {roadBlock}");
         
         var param =  moveSpeed * Time.deltaTime;
         
         while (true)
         {
-            if (transform.position == targetPos)
+            if (transform.position == roadBlock.transform.position)
             {
                 break;
             }
             
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, param);
-            m_child.forward = Vector3.Lerp(m_child.forward, (targetPos - transform.position).normalized, .2f);
+            transform.position = Vector3.MoveTowards(transform.position, roadBlock.transform.position, param);
+            m_child.forward = Vector3.Lerp(m_child.forward, (roadBlock.transform.position - transform.position).normalized, .2f);
             isMoving = true;
             
             yield return null;
 
         }
 
-        if (m_roads[0].isEndPoint)
+        if (targetRoadBlock.isEndPoint)
         {
             Debug.Log("Reach EndPoint!");
-            m_roads[0].isEndPoint = false;
-            EnvSpawner.current.GenerateNewMap();
+            targetRoadBlock.isEndPoint = false;
+            EnvSpawner.Instance.GenerateNewMap();
         }
-        m_roads.RemoveAt(0);
+
+        targetRoadBlock = null;
         isMoving = false;
         m_moveJob = null;
         
@@ -107,26 +119,32 @@ public class SedanChair : Singleton<SedanChair>
 
         if (isRoadUpdated)
         {
-            StartCoroutine(FindPath());
+            //StartCoroutine(FindPath());
         }
     }
 
     private IEnumerator ObserveMoveJob()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(1);
+        
         while (true)
         {
             yield return new WaitUntil(() => !isMoving);
             
-            
-            if (m_roads.Count > 0)
+            while (!FindRoadBlock())
             {
-                if (m_roads[0].transform.GetGridKey() != transform.GetGridKey())
-                {
-                    m_roads[0].isPassed = true;
-                    StartMoveJob(m_roads[0].transform.position);
-                }
+                yield return null;
             }
+
+            var road = FindRoadBlock();
+            while (road.nextRoad == null)
+            {
+                yield return null;
+            }
+
+            road.isPassed = true;
+            targetRoadBlock = road.nextRoad;
+            StartMoveJob(targetRoadBlock);
 
             yield return null;
         }
@@ -193,13 +211,11 @@ public class SedanChair : Singleton<SedanChair>
 
     private RoadBlock FindRoadBlock()
     {
-        // var downBlock = GridSystem.FindDownBlock(this);
-        // if (downBlock)
-        // {
-        //     return downBlock.GetComponent<RoadBlock>();
-        // }
-        //
-        // Debug.Log("找不到底下的路");
+        var block = GridSystem.FindDownBlock(transform.position);
+        if (block)
+        {
+            return block.GetComponent<RoadBlock>();
+        }
         return null;
     }
 

@@ -6,85 +6,105 @@ using UnityEngine;
 
 public class GridSystem: Singleton<GridSystem>
 {
-    private Dictionary<Vector2, BlockBase> m_cellTop = new Dictionary<Vector2, BlockBase>();
-    private Dictionary<Vector2, BlockBase> m_cellBottom = new Dictionary<Vector2, BlockBase>();
+    private Dictionary<(int, int), BlockBase> m_cellTop = new Dictionary<(int, int), BlockBase>();
+    private Dictionary<(int, int), BlockBase> m_cellBottom = new Dictionary<(int, int), BlockBase>();
 
-    public static void Add(BlockBase block, Vector3 key)
+
+    public static (int, int) GetKey(Vector3 position)
     {
-        
+        return (Convert.ToInt32(position.x), Convert.ToInt32(position.z));
     }
+    
     public static void Add(BlockBase block)
     {
-        var key = block.transform.GetGridKey();
+        (int x, int y) key = GetKey(block.transform.position);
+        var dict = block.cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
 
-        if (block.cellType == CellType.Top)
+        foreach (var s in block.cellKey)
         {
-            if (Instance.m_cellTop.TryAdd(key, block))
+            var scopeKey = (key.x + s.x, key.y + s.y);
+            if (dict.TryAdd(scopeKey, block))
             {
-                Debug.Log($"[{nameof(GridSystem)}] {block.name} 註冊於 {block.cellType} {key}");
+                Instance.Log($"{block.name} 註冊於 {block.cellType} {scopeKey}");
             }
             else
             {
-                Debug.Log($"[{nameof(GridSystem)}] {block.name} 註冊失敗");
+                Instance.Log($"{block.name} 註冊失敗 {block.cellType} {scopeKey}");
             }
         }
-        else
+
+        if (block.blockType == BlockType.Building)
         {
-            if (Instance.m_cellBottom.TryAdd(key, block))
+            var _dict = block.cellType == CellType.Top ? Instance.m_cellBottom : Instance.m_cellTop;
+            var _type = block.cellType == CellType.Top ? CellType.Down : CellType.Top;
+            foreach (var s in block.cellKey)
             {
-                Debug.Log($"[{nameof(GridSystem)}] {block.name} 註冊於 {block.cellType} {key}");
-            }
-            else
-            {
-                Debug.Log($"[{nameof(GridSystem)}] {block.name} 註冊失敗 {key}");
+                var scopeKey = (key.x + s.x, key.y + s.y);
+                if (_dict.TryAdd(scopeKey, block))
+                {
+                    Instance.Log($"{block.name} 註冊於 {_type} {scopeKey}");
+                }
+                else
+                {
+                    Instance.Log($"{block.name} 註冊失敗 {_type} {scopeKey}");
+                }
             }
         }
     }
 
-    public static void Remove(Vector2 key, BlockType blockType, CellType cellType)
+    public static void Remove(Vector3 position, CellType cellType)
     {
-        if (cellType == CellType.Top)
+        var key = GetKey(position);
+        var dict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+
+        if (dict.TryGetValue(key, out BlockBase blockbase))
         {
-            if (Instance.m_cellTop.TryGetValue(key, out BlockBase blockbase))
+            if (dict.Remove(key))
             {
-                if (Instance.m_cellTop.Remove(key))
-                {
-                    Debug.Log($"[{nameof(GridSystem)}] 刪除位於 {key} 的 {blockbase.name}");
-                    Destroy(blockbase.gameObject);
-                }
-                else
-                {
-                    Debug.Log($"[{nameof(GridSystem)}] 刪除失敗");
-                }
+                Instance.Log($"刪除位於 {key} 的 {blockbase.name}");
+                Destroy(blockbase.gameObject);
             }
-        }
-        else
-        {
-            if (Instance.m_cellBottom.TryGetValue(key, out BlockBase blockbase))
+            else
             {
-                if (Instance.m_cellBottom.Remove(key))
-                {
-                    Debug.Log($"[{nameof(GridSystem)}] 刪除位於 {key} 的 {blockbase.name}");
-                    Destroy(blockbase.gameObject);
-                }
-                else
-                {
-                    Debug.Log($"[{nameof(GridSystem)}] {blockbase.name} 刪除失敗");
-                }
+                Instance.Log($"刪除失敗 {key} 的 {blockbase.name}");
             }
         }
     }
-    public static void Remove(BlockBase block, BlockType blockType, CellType cellType)
+    public static void Remove(BlockBase block)
     {
-        var key = block.transform.GetGridKey();
-        Remove(key, blockType, cellType);
+        Remove(block.transform.position, block.cellType);
     }
+    
+    
+    public static bool Find(Vector3 position, CellType cellType)
+    {
+        var key = GetKey(position);
+        var dict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+        //Instance.Log($"{dict.ContainsKey(key)}, {key}");
+        return dict.ContainsKey(key);
+    }
+    
+    public static bool Find(Vector3 position, CellType cellType, out BlockBase block)
+    {
+        var key = GetKey(position);
+        var dict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+
+        if (dict.TryGetValue(key, out BlockBase entity))
+        {
+            block = entity;
+            return true;
+        }
+
+        block = null;
+        return false;
+    }
+    
     
     public static void Move(BlockBase block, BlockType blockType, CellType cellType)
     {
         var cellDict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
         var oldKey = cellDict.First(c => c.Value == block).Key;
-        var newkey = block.transform.GetGridKey();
+        var newkey = GetKey(block.transform.position);
         
         if (cellDict.TryGetValue(oldKey, out BlockBase blockbase))
         {
@@ -109,73 +129,41 @@ public class GridSystem: Singleton<GridSystem>
         }
     }
 
-    public static bool Find(Vector3 position, CellType cellType)
-    {
-        var key = new Vector2(position.x, position.z);
-        var dict = cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
-        return dict.ContainsKey(key);
-
-    }
     
-    public static bool Find(Vector3 position, BlockType blockType, out BlockBase block)
-    {
-        var key = new Vector2(position.x, position.z);
-
-        if (IsTopGrid(blockType))
-        {
-            if (Instance.m_cellTop.TryGetValue(key, out BlockBase entity))
-            {
-                block = entity;
-                return true;
-            }
-        }
-        else
-        {
-            if (Instance.m_cellBottom.TryGetValue(key, out BlockBase entity))
-            {
-                block = entity;
-                return true;
-            }
-        }
-
-        block = null;
-        return false;
-    }
     
-    public static BlockBase FindDownBlock(BlockBase current)
+    public static BlockBase FindDownBlock(Vector3 position)
     {
-        var key = current.transform.GetGridKey();
+        var key = GetKey(position);
         if (Instance.m_cellBottom.TryGetValue(key, out BlockBase entity))
         {
             return entity;
         }
-
         return null;
     }
     
-    public static List<BlockBase> FindAround(BlockBase current)
+    public static BlockBase[] FindAround(BlockBase current)
     {
-        var key = current.transform.GetGridKey();
-        var aroundKeys = new Vector2Int[]
+        (int x, int y) key = GetKey(current.transform.position);
+        var aroundKeys = new (int, int)[]
         {
-            key + new Vector2Int(0, 1),
-            key + new Vector2Int(0, -1),
-            key + new Vector2Int(-1, 0),
-            key + new Vector2Int(1, 0)
+            (key.x, key.y + 1),
+            (key.x, key.y - 1),
+            (key.x - 1, key.y),
+            (key.x + 1, key.y)
         };
-        var cellDict = current.cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
+        var dict = current.cellType == CellType.Top ? Instance.m_cellTop : Instance.m_cellBottom;
 
-        var block = new BlockBase[aroundKeys.Length];
+        var block = new BlockBase[4];
 
-        for (int i = 0; i < aroundKeys.Length; i++)
+        for (int i = 0; i < 4; i++)
         {
-            if (cellDict.TryGetValue(aroundKeys[i], out BlockBase entity))
+            if (dict.TryGetValue(aroundKeys[i], out BlockBase entity))
             {
                 block[i] = entity;
             }
         }
 
-        return block.ToList();
+        return block;
     }
 
     public static bool Find(string blockId, out BlockBase block)

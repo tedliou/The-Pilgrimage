@@ -11,5 +11,7 @@ public enum BlockType
     Gas = 7,
     Garbage = 8,
     GasWreck = 9,
-    GarbageWreck = 10
+    GarbageWreck = 10,
+    Clip = 11,
+    Bomb = 12
 }

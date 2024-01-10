@@ -5,6 +5,7 @@ using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 [Serializable]
 public enum RoadDirection
@@ -22,7 +23,40 @@ public class RoadBlock : BlockBase
     public static UnityEvent OnResetRoad = new UnityEvent();
     public static int CurrentDepth = 0;
     public static List<RoadBlock> Nodes = new List<RoadBlock>();
+
+    public RoadMode mode;
+    public RoadBlock[] aroundRoads;
+    public BlockBase[] aroundBlocks;
+    public RoadBlock nextRoad;
     
+    [ShowInInspector]
+    public bool IsPerfact {
+        get
+        {
+            if (aroundRoads.Length == 0)
+            {
+                return false;
+            }
+            switch (mode)
+            {
+                case RoadMode.Vertical:
+                    return (aroundRoads[0]) && (aroundRoads[1]);
+                case RoadMode.Horizontal:
+                    return (aroundRoads[2]) && (aroundRoads[3]);
+                case RoadMode.TopToLeft:
+                    return (aroundRoads[0]) && (aroundRoads[2]);
+                case RoadMode.TopToRight:
+                    return (aroundRoads[0]) && (aroundRoads[3]);
+                case RoadMode.DownToLeft:
+                    return (aroundRoads[1]) && (aroundRoads[2]);
+                case RoadMode.DownToRight:
+                    return (aroundRoads[1]) && (aroundRoads[3]);
+            }
+            return false;
+        }
+    }
+
+    public GameObject indicatorKnown;
     public GameObject indicatorHorizontal;
     public GameObject indicatorVertical;
     public GameObject indicatorTopToRight;
@@ -49,8 +83,12 @@ public class RoadBlock : BlockBase
     {
         OnResetRoad.AddListener(ResetRoad);
         isPassed = false;
-        ResetRoad();
+        // ResetRoad();
+
+        aroundRoads = new RoadBlock[4];
     }
+    
+    
 
     private void ResetRoad()
     {
@@ -71,21 +109,221 @@ public class RoadBlock : BlockBase
         }
         SetRoadMode(RoadMode.Unknown);
     }
+    
+    
 
     protected override void Start()
     {
         base.Start();
+    }
+
+    public void FindAroundRoads()
+    {
         SetRoadMode(RoadMode.Unknown);
+        
+        aroundBlocks = GridSystem.FindAround(this);
+        for (var i = 0; i < 4; i++)
+        {
+            var b = aroundBlocks[i];
+            if (b == null || b.blockType != BlockType.Road)
+            {
+                aroundBlocks[i] = null;
+                continue;
+            }
+        }
+
+        aroundRoads = new RoadBlock[4];
+        for (var i = 0; i < aroundBlocks.Length; i++)
+        {
+            var ab = aroundBlocks[i];
+            if (ab == null || ab.GetComponent<RoadBlock>() == null)
+            {
+                aroundRoads[i] = null;
+                continue;
+            }
+
+            aroundRoads[i] = ab.GetComponent<RoadBlock>();
+        }
+        
+        
+        
+        
+        
+        if (aroundRoads[0] != null && !aroundRoads[0].IsPerfact && !aroundRoads[0].isPassed)
+        {
+            if (aroundRoads[0].aroundRoads[0])
+            {
+                aroundRoads[0].SetRoadMode(RoadMode.Vertical);
+            }
+            else if (aroundRoads[0].aroundRoads[2])
+            {
+                aroundRoads[0].SetRoadMode(RoadMode.DownToLeft);
+            }
+            else if (aroundRoads[0].aroundRoads[3])
+            {
+                aroundRoads[0].SetRoadMode(RoadMode.DownToRight);
+            }
+            else
+            {
+                aroundRoads[0].SetRoadMode(RoadMode.Vertical);
+            }
+
+            aroundRoads[0].nextRoad = this;
+        }
+        else if (aroundRoads[1] != null && !aroundRoads[1].IsPerfact && !aroundRoads[1].isPassed)
+        {
+            if (aroundRoads[1].aroundRoads[1])
+            {
+                aroundRoads[1].SetRoadMode(RoadMode.Vertical);
+            }
+            else if (aroundRoads[1].aroundRoads[2])
+            {
+                aroundRoads[1].SetRoadMode(RoadMode.TopToLeft);
+            }
+            else if (aroundRoads[1].aroundRoads[3])
+            {
+                aroundRoads[1].SetRoadMode(RoadMode.TopToRight);
+            }
+            else
+            {
+                aroundRoads[1].SetRoadMode(RoadMode.Vertical);
+            }
+            
+            aroundRoads[1].nextRoad = this;
+        }
+        else if (aroundRoads[2] != null && !aroundRoads[2].IsPerfact && !aroundRoads[2].isPassed)
+        {
+            if (aroundRoads[2].aroundRoads[0])
+            {
+                aroundRoads[2].SetRoadMode(RoadMode.TopToRight);
+            }
+            else if (aroundRoads[2].aroundRoads[1])
+            {
+                aroundRoads[2].SetRoadMode(RoadMode.DownToRight);
+            }
+            else if (aroundRoads[2].aroundRoads[2])
+            {
+                aroundRoads[2].SetRoadMode(RoadMode.Horizontal);
+            }
+            else
+            {
+                aroundRoads[2].SetRoadMode(RoadMode.Horizontal);
+            }
+            
+            aroundRoads[2].nextRoad = this;
+        }
+        else if (aroundRoads[3] != null && !aroundRoads[3].IsPerfact && !aroundRoads[3].isPassed)
+        {
+            if (aroundRoads[3].aroundRoads[0])
+            {
+                aroundRoads[3].SetRoadMode(RoadMode.TopToLeft);
+            }
+            else if (aroundRoads[3].aroundRoads[1])
+            {
+                aroundRoads[3].SetRoadMode(RoadMode.DownToLeft);
+            }
+            else if (aroundRoads[3].aroundRoads[3])
+            {
+                aroundRoads[3].SetRoadMode(RoadMode.Horizontal);
+            }
+            else
+            {
+                aroundRoads[3].SetRoadMode(RoadMode.Horizontal);
+            }
+            
+            aroundRoads[3].nextRoad = this;
+        }
+
+        // 設定自己
+        if (aroundRoads[0])
+        {
+            if (aroundRoads[1])
+            {
+                SetRoadMode(RoadMode.Vertical);
+            }
+            else if (aroundRoads[2])
+            {
+                SetRoadMode(RoadMode.TopToLeft);
+            }
+            else if (aroundRoads[3])
+            {
+                SetRoadMode(RoadMode.TopToRight);
+            }
+            else
+            {
+                SetRoadMode(RoadMode.Vertical);
+            }
+        }
+        else if (aroundRoads[1])
+        {
+            if (aroundRoads[0])
+            {
+                SetRoadMode(RoadMode.Vertical);
+            }
+            else if (aroundRoads[2])
+            {
+                SetRoadMode(RoadMode.DownToLeft);
+            }
+            else if (aroundRoads[3])
+            {
+                SetRoadMode(RoadMode.DownToRight);
+            }
+            else
+            {
+                SetRoadMode(RoadMode.Vertical);
+            }
+        }
+        else if (aroundRoads[2])
+        {
+            if (aroundRoads[3])
+            {
+                SetRoadMode(RoadMode.Horizontal);
+            }
+            else if (aroundRoads[0])
+            {
+                SetRoadMode(RoadMode.TopToLeft);
+            }
+            else if (aroundRoads[1])
+            {
+                SetRoadMode(RoadMode.DownToLeft);
+            }
+            else
+            {
+                SetRoadMode(RoadMode.Horizontal);
+            }
+        }
+        else if (aroundRoads[3])
+        {
+            if (aroundRoads[2])
+            {
+                SetRoadMode(RoadMode.Horizontal);
+            }
+            else if (aroundRoads[0])
+            {
+                SetRoadMode(RoadMode.TopToRight);
+            }
+            else if (aroundRoads[1])
+            {
+                SetRoadMode(RoadMode.DownToRight);
+            }
+            else
+            {
+                SetRoadMode(RoadMode.Horizontal);
+            }
+        }
     }
 
     public void SetRoadMode(RoadMode roadMode)
     {
+        mode = roadMode;
+        
         indicatorHorizontal.SetActive(false);
         indicatorVertical.SetActive(false);
         indicatorTopToRight.SetActive(false);
         indicatorTopToLeft.SetActive(false);
         indicatorBottomToRight.SetActive(false);
         indicatorBottomToLeft.SetActive(false);
+        indicatorKnown.SetActive(false);
         
         switch (roadMode)
         {
@@ -106,6 +344,9 @@ public class RoadBlock : BlockBase
                 break;
             case RoadMode.DownToLeft:
                 indicatorBottomToLeft.SetActive(true);
+                break;
+            case RoadMode.Unknown:
+                indicatorKnown.SetActive(true);
                 break;
             default:
                 break;
@@ -270,7 +511,7 @@ public class RoadBlock : BlockBase
         aroundRoadDict.Clear();
         
         var aroundBlocks = GridSystem.FindAround(this);
-        for (var i = 0; i < aroundBlocks.Count; i++)
+        for (var i = 0; i < 4; i++)
         {
             // 過濾無方塊
             if (aroundBlocks[i] is null)

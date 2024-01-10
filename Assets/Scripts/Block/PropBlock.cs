@@ -69,7 +69,7 @@ public class PropBlock : BlockBase
         var drop = Instantiate(dropPrefab);
         drop.transform.position = transform.position;
         drop.GetComponent<PropBlock>().SetAmount(dropAmount);
-        GridSystem.Remove(this, blockType, cellType);
+        GridSystem.Remove(this);
 
         var effect = Instantiate(wreckEffect);
         effect.transform.position = transform.position;
@@ -170,7 +170,7 @@ public class PropBlock : BlockBase
 
         if (amount >= m_amount)
         {
-            GridSystem.Remove(this, blockType, cellType);
+            GridSystem.Remove(this);
             return amount;
         }
 
