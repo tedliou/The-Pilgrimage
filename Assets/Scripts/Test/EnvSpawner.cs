@@ -21,7 +21,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
     
     public Vector2Int sedanChairSpawnPos;
     
-    public int prebuildRoadLength = 6;
+    public int prebuildRoadLength = 4;
 
     public bool spawnedSedanChair = false;
     
@@ -33,7 +33,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
     private bool m_isMailliTemple = false;
     
     [Header("Floor")]
-    public GameObject grassPrefab;
+    public GameObject[] grassPrefabs;
     public GameObject concretePrefab;
     public GameObject roadPrefab;
     
@@ -48,14 +48,22 @@ public class EnvSpawner : Singleton<EnvSpawner>
     [Header("Tool")]
     public GameObject clipPrefab;
     public GameObject bombPrefab;
+    public GameObject trayPrefab;
     
     [Header("Tool Indicator")]
     public Indicator clipIndicator;
     public Indicator bombIndicator;
+    public Indicator trayIndicator;
     
     [Header("Sedan Chair")]
     public GameObject sedanChairPrefab;
-    
+    public GameObject carPrefab;
+    public GameObject carExtendPrefab;
+
+    [Header("Building")]
+    public float spawnBuildingRate = .3f;
+    public GameObject[] buildingPrefabs;
+    public GameObject foodPrefab;
     
 
 
@@ -63,7 +71,12 @@ public class EnvSpawner : Singleton<EnvSpawner>
     {
         m_lastMapPos = Vector2Int.zero;
         m_lastMapIndex = 0;
-        StartCoroutine(GenerateNewMap());
+        Generate();
+        Generate();
+    }
+
+    public void Generate()
+    {
         StartCoroutine(GenerateNewMap());
     }
 
@@ -78,16 +91,36 @@ public class EnvSpawner : Singleton<EnvSpawner>
         m_lastMapIndex++;
         
         yield return null;
-        
-        //GenerateGarbage(startPos);
+
+        GenerateFood(startPos);
+        GenerateBuilding(startPos);
+        GenerateGarbage(startPos);
         
         yield return null;
         
-        //GenerateGas(startPos);
+        GenerateGas(startPos);
         
         yield return null;
         
         GenerateGrass(startPos);
+    }
+
+    public void GenerateBuilding(Vector2Int offset)
+    {
+        var math = Random.value;
+        for (var i = 0; i < mapSize.x; i+=10)
+        {
+            // 每 1 Chunk 決定要不要建立房子
+            if (math > spawnBuildingRate)
+                continue;
+            
+            // 決定建立的位置
+            var rndX = Random.Range(offset.x, offset.x + mapSize.x);
+            var rndY = Random.Range(offset.y, offset.y + mapSize.y);
+            
+            
+            GridSystem.Add(SpawnBlock(offset.x + i, 0, buildingPrefabs[Random.Range(0, buildingPrefabs.Length)]));
+        }
     }
     
     private void GenerateGrass(Vector2Int offset)
@@ -98,7 +131,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
             {
                 if (!GridSystem.Find(new Vector3(x, 0, z), CellType.Down))
                 {
-                    GridSystem.Add(SpawnBlock(x, z, grassPrefab));
+                    GridSystem.Add(SpawnBlock(x, z, grassPrefabs[Random.Range(0, grassPrefabs.Length)]));
                 }
             }
         }
@@ -130,28 +163,14 @@ public class EnvSpawner : Singleton<EnvSpawner>
         var endPoint = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
         endPoint.isEndPoint = m_lastMapIndex != 0;
         GridSystem.Add(endPoint);
-        
         if (!spawnedSedanChair)
         {
             endPoint.Enable();
-            SpawnBlock(x, y, sedanChairPrefab, false);
-            
-            // 生成夾子
-            var clipPos = GetSpawnablePosition(new Vector3(x, y - 2));
-            var clipObj = SpawnBlock(clipPos.x, clipPos.y, clipPrefab, false);
-            clipIndicator.SetFollowTransform(clipObj.transform);
-            
-            // 生成炸彈
-            var bombPos = GetSpawnablePosition(new Vector3(x + 2, y - 2));
-            var bombObj = SpawnBlock(bombPos.x, bombPos.y, bombPrefab, false);
-            bombIndicator.SetFollowTransform(bombObj.transform);
-            
-            spawnedSedanChair = true;
         }
 
         if (m_lastMapIndex == 0)
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < prebuildRoadLength; i++)
             {
                 x += 1;
                 var road = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
@@ -159,16 +178,55 @@ public class EnvSpawner : Singleton<EnvSpawner>
                 GridSystem.Add(road);
             }
         } 
+        
+        if (!spawnedSedanChair)
+        {
+            SpawnBlock(x, y, sedanChairPrefab, false);
+            // for (int i = 0; i < 6; i++)
+            // {
+            //     var road = SpawnBlock(x - i + 1, y, roadPrefab).GetComponent<RoadBlock>();
+            //     road.SetRoadMode(RoadMode.Horizontal);
+            //     GridSystem.Add(road);
+            // }
+            var car = SpawnBlock(x - 4, y, carPrefab, false).GetComponent<Car>();
+            var extendCar = SpawnBlock(x - 6, y, carExtendPrefab, false).GetComponent<Car>();
+            car.extendCar = extendCar;
+            
+            // 生成夾子
+            var clipPos = GetSpawnablePosition(new Vector3(x, y - 2));
+            var clipObj = SpawnBlock(clipPos.x, clipPos.y, clipPrefab, false);
+            clipIndicator.SetFollowTransform(clipObj.transform);
+            GridSystem.Add(clipObj);
+            
+            // 生成炸彈
+            var bombPos = GetSpawnablePosition(new Vector3(x + 2, y - 2));
+            var bombObj = SpawnBlock(bombPos.x, bombPos.y, bombPrefab, false);
+            bombIndicator.SetFollowTransform(bombObj.transform);
+            GridSystem.Add(bombObj);
+            
+            // 生成托盤
+            var trayPos = GetSpawnablePosition(new Vector3(x + 3, y - 2));
+            var trayObj = SpawnBlock(trayPos.x, trayPos.y, trayPrefab, false);
+            trayIndicator.SetFollowTransform(trayObj.transform);
+            GridSystem.Add(trayObj);
+            
+            spawnedSedanChair = true;
+        }
+
+        
 
         
     }
-
-    private void GenerateGarbage(Vector2Int offset)
+    
+    private void GenerateFood(Vector2Int offset)
     {
+        
         var mapDimision = mapSize.x * mapSize.y;
+        
+        
         var scale = Convert.ToInt32(mapDimision * garbageScale);
 
-        for (var i = 0; i < scale; i++)
+        for (var i = 0; i < scale; i+=5)
         {
             var randX = Random.Range(0, mapSize.x);
             var randY = Random.Range(0, mapSize.y);
@@ -180,8 +238,33 @@ public class EnvSpawner : Singleton<EnvSpawner>
             var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
             if (!GridSystem.Find(pos, CellType.Top))
             {
-                SpawnBlock(pos.x, pos.z, garbagePrefab);
-                SpawnBlock(pos.x, pos.z, concretePrefab);
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, foodPrefab));
+            }
+        }
+    }
+
+    private void GenerateGarbage(Vector2Int offset)
+    {
+        
+        var mapDimision = mapSize.x * mapSize.y;
+        
+        
+        var scale = Convert.ToInt32(mapDimision * garbageScale);
+
+        for (var i = 0; i < scale; i+=1)
+        {
+            var randX = Random.Range(0, mapSize.x);
+            var randY = Random.Range(0, mapSize.y);
+            var size = new Vector2Int(1, 1);
+            var dimision = size.x * size.y;
+            i += dimision;
+
+            
+            var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
+            if (!GridSystem.Find(pos, CellType.Top))
+            {
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, garbagePrefab));
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, concretePrefab));
             }
         }
     }
@@ -203,8 +286,8 @@ public class EnvSpawner : Singleton<EnvSpawner>
             var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
             if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
             {
-                SpawnBlock(pos.x, pos.z, gasPrefab);
-                SpawnBlock(pos.x, pos.z, concretePrefab);
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, gasPrefab));
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, concretePrefab));
             }
         }
     }

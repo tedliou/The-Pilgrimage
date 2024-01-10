@@ -30,26 +30,26 @@ public class BlockBase : CustomBehaviour<BlockBase>
         //GameScene.OnShowTerrain.AddListener(Show);
         //GridSystem.Add(this);
         
-        m_colors = new Color[meshRenderers.Length];
-        m_scales = new float[meshRenderers.Length];
-        for (var i = 0; i < meshRenderers.Length; i++)
-        {
-            if (meshRenderers[i].material.HasColor("_OutlineColor"))
-            {
-                m_colors[i] = meshRenderers[i].material.GetColor("_OutlineColor");
-            }
-
-            if (meshRenderers[i].material.HasFloat("_OutlineScale"))
-            {
-                m_scales[i] = meshRenderers[i].material.GetFloat("_OutlineScale");
-            }
-        }
+        // m_colors = new Color[meshRenderers.Length];
+        // m_scales = new float[meshRenderers.Length];
+        // for (var i = 0; i < meshRenderers.Length; i++)
+        // {
+        //     if (meshRenderers[i].material.HasColor("_OutlineColor"))
+        //     {
+        //         m_colors[i] = meshRenderers[i].material.GetColor("_OutlineColor");
+        //     }
+        //
+        //     if (meshRenderers[i].material.HasFloat("_OutlineScale"))
+        //     {
+        //         m_scales[i] = meshRenderers[i].material.GetFloat("_OutlineScale");
+        //     }
+        // }
         
     }
 
     private void Update()
     {
-        Deselect();
+        // Deselect();
     }
 
     public void Select()

@@ -69,6 +69,10 @@ public class GridSystem: Singleton<GridSystem>
                 Instance.Log($"刪除失敗 {key} 的 {blockbase.name}");
             }
         }
+        else
+        {
+            Instance.Log($"刪除失敗");
+        }
     }
     public static void Remove(BlockBase block)
     {

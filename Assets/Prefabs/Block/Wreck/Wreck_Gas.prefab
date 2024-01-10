@@ -164,11 +164,11 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.4, y: 1, z: 0.4}
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!114 &808800271439579130
 MonoBehaviour:
@@ -188,6 +188,7 @@ MonoBehaviour:
   blockType: 9
   meshRenderers:
   - {fileID: 2055552968202220449}
+  m_selected: 0
   isStackable: 1
   isWreckable: 0
   isPickupable: 1

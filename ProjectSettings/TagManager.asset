@@ -19,6 +19,7 @@ TagManager:
   - Road
   - Food
   - Tray
+  - SedanChair
   layers:
   - Default
   - TransparentFX

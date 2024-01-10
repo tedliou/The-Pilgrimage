@@ -10,9 +10,12 @@ using UnityEngine.Serialization;
 public class SedanChair : Singleton<SedanChair>
 {
     public static UnityEvent<SedanChair> OnSedanChairCreate = new();
+    public static UnityEvent OnMoved = new();
     
     public float moveSpeed = .2f;
-
+    public float currentSpeed;
+    public Vector3 lastPos;
+    
     public List<Vector3> history = new List<Vector3>();
     
     public Rigidbody m_rigidbody;
@@ -36,6 +39,7 @@ public class SedanChair : Singleton<SedanChair>
     [SerializeField]private List<RoadBlock> m_roads;
 
     public Direction direction = Direction.Right;
+    public AudioSource sfx;
 
     [System.Serializable]
     public enum Direction
@@ -63,9 +67,39 @@ public class SedanChair : Singleton<SedanChair>
         // RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
         
         //OnSedanChairCreate.Invoke(this);
+        lastPos = transform.position;
+        StartCoroutine(GetSpeed());
     }
-    
-    
+
+    private void Update()
+    {
+        if (isMoving)
+        {
+            if (!sfx.isPlaying)
+            {
+                sfx.Play();
+            }
+        }
+        else
+        {
+            if (sfx.isPlaying)
+            {
+                sfx.Stop();
+            }    
+        }
+    }
+
+    private IEnumerator GetSpeed()
+    {
+        yield return null;
+        while (true)
+        {
+            currentSpeed = Vector3.Distance(transform.position, lastPos);
+            lastPos = transform.position;
+            yield return new WaitForSeconds(1);
+        }
+    }
+
 
     // private void OnRoadUpdate()
     // {
@@ -111,7 +145,7 @@ public class SedanChair : Singleton<SedanChair>
         {
             Debug.Log("Reach EndPoint!");
             targetRoadBlock.isEndPoint = false;
-            EnvSpawner.Instance.GenerateNewMap();
+            EnvSpawner.Instance.Generate();
         }
 
         targetRoadBlock = null;
@@ -129,18 +163,21 @@ public class SedanChair : Singleton<SedanChair>
     private IEnumerator ObserveMoveJob()
     {
         yield return new WaitForSeconds(1);
-        
+
+        m_nodeIndex = EnvSpawner.Instance.prebuildRoadLength;
         while (true)
         {
             yield return new WaitUntil(() => !isMoving);
-            yield return new WaitUntil(() => RoadBlock.Nodes.Count > 1);
+            yield return new WaitUntil(() => RoadBlock.Nodes.Count > m_nodeIndex);
 
             RoadBlock.Nodes[m_nodeIndex].isPassed = true;
             m_nodeIndex++;
             yield return new WaitUntil(() => m_nodeIndex < RoadBlock.Nodes.Count);
+            yield return new WaitUntil(() => GameManager.Instance.CanMove);
             
             targetRoadBlock = RoadBlock.Nodes[m_nodeIndex];
             StartMoveJob(targetRoadBlock);
+            OnMoved.Invoke();
 
             yield return null;
         }

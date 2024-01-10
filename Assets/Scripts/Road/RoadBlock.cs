@@ -142,13 +142,27 @@ public class RoadBlock : BlockBase
         }
         SetRoadMode(RoadMode.Unknown);
     }
-    
-    
+
+    private void LateUpdate()
+    {
+        if (IsEnable)
+            return;
+        
+        var around = GetRoads().Where(x => x == LastNode).Count();
+        if (around > 0)
+        {
+            Enable();
+            Log("Enable!!!!!!");
+        }
+    }
+
 
     protected override void Start()
     {
         base.Start();
     }
+    
+    
 
     private RoadBlock[] GetRoads()
     {

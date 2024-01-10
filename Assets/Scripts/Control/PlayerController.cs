@@ -127,6 +127,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
     public GameObject bombInHand;
     public GameObject roadInHand;
     public GameObject trayInHand;
+    public GameObject garbageInHand;
+    public GameObject gasInHand;
     
     #endregion
 
@@ -154,7 +156,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
         
         m_direction = Vector3.zero;
 
-        roadAmount = 100;
+        roadAmount = 0;
         
         SetPlayerColor();
     }
@@ -163,6 +165,10 @@ public class PlayerController : CustomBehaviour<PlayerController>
     {
         clipInHand.SetActive(hasClip);
         bombInHand.SetActive(hasBomb);
+        roadInHand.SetActive(hasRoad);
+        trayInHand.SetActive(hasTray);
+        garbageInHand.SetActive(hasGarbage);
+        gasInHand.SetActive(hasGas);
 
         #region 偵測周圍物件
 
@@ -175,6 +181,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
         // 有夾子：不能拿炸彈、瘴氣、破壞物
         // 沒夾子：不能拿垃圾、瘴氣
         bool getClip = true, getBomb = true, getTray = true, getGas = false, getGasWreck = true, getGarbage = false, getGarbageWreck = true, getFood = false, getRoad = true;
+        bool getCar = false, getCarExtend = true, getSedanChair = false;
         
         // 工具判斷
         if (hasClip)
@@ -182,16 +189,22 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getBomb = false;
             getTray = false;
             getGarbage = true;
+            getGasWreck = false;
+            getGarbageWreck = false;
             getFood = false;
             getRoad = false;
+            getCarExtend = false;
         }
         if (hasBomb)
         {
             getClip = false;
             getTray = false;
             getGas = true;
+            getGasWreck = false;
+            getGarbageWreck = false;
             getFood = false;
             getRoad = false;
+            getCarExtend = false;
         }
         if (hasTray)
         {
@@ -199,8 +212,16 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getClip = false;
             getGas = false;
             getGarbage = false;
+            getGasWreck = false;
+            getGarbageWreck = false;
             getFood = true;
             getRoad = false;
+            getCarExtend = false;
+        }
+
+        if (hasTray && hasFood)
+        {
+            getSedanChair = true;
         }
 
         // 雜物判斷
@@ -212,6 +233,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getGarbageWreck = false;
             getFood = false;
             getRoad = false;
+            getCar = true;
+            getCarExtend = false;
         }
         if (!hasClip && !hasBomb && !hasTray && hasGarbage)
         {
@@ -221,6 +244,8 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getGasWreck = false;
             getFood = false;
             getRoad = false;
+            getCar = true;
+            getCarExtend = false;
         }
         if (!hasClip && !hasBomb && hasTray)
         {
@@ -231,6 +256,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getGarbageWreck = false;
             getFood = true;
             getRoad = false;
+            getCarExtend = false;
         }
 
         if (hasRoad)
@@ -242,6 +268,7 @@ public class PlayerController : CustomBehaviour<PlayerController>
             getGarbageWreck = false;
             getFood = false;
             getRoad = true;
+            getCarExtend = false;
         }
 
         #region 刪除不相干物件
@@ -282,7 +309,19 @@ public class PlayerController : CustomBehaviour<PlayerController>
         {
             colliders.RemoveAll(c => c.CompareTag("Road"));
         }
+        if (!getCar)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Car"));
+        }
+        if (!getCarExtend)
+        {
+            colliders.RemoveAll(c => c.CompareTag("CarExtend"));
+        }
 
+        if (!getSedanChair)
+        {
+            colliders.RemoveAll(c => c.CompareTag("SedanChair"));
+        }
         #endregion
         
         
@@ -309,17 +348,17 @@ public class PlayerController : CustomBehaviour<PlayerController>
 
     private void LateUpdate()
     {
-        // 選擇高亮
-        var hasClosetObj = closetObj != null;
-        var hasTargetObj = TryGetSelectedBlock(out BlockBase targetBlock);
-        if (hasClosetObj)
-        {
-            closetObj.GetComponent<BlockBase>()?.Select();
-        }
-        else if (hasTargetObj)
-        {
-            targetBlock?.Select();
-        }
+        // // 選擇高亮
+        // var hasClosetObj = closetObj != null;
+        // var hasTargetObj = TryGetSelectedBlock(out BlockBase targetBlock);
+        // if (hasClosetObj)
+        // {
+        //     closetObj.GetComponent<BlockBase>()?.Select();
+        // }
+        // else if (hasTargetObj)
+        // {
+        //     targetBlock?.Select();
+        // }
     }
 
     private void SetPlayerColor()
@@ -349,40 +388,6 @@ public class PlayerController : CustomBehaviour<PlayerController>
         }
 
         return false;
-        
-        //
-        // var selectedPos = Vector3.zero;
-        // var lookAngle = angle;
-        //
-        // if (lookAngle >= -45 && lookAngle < 45)
-        // {
-        //     selectedPos = selfPos + new Vector3(0, 0, 1);
-        // }
-        // else if (lookAngle >= 45 && lookAngle < 135)
-        // {
-        //     selectedPos = selfPos + new Vector3(1, 0, 0);
-        // }
-        // else if ((lookAngle >= 135 && lookAngle < 180) || (lookAngle >= -135 && lookAngle < -180)) 
-        // {
-        //     selectedPos = selfPos + new Vector3(0, 0, -1);
-        // }
-        // else
-        // {
-        //     selectedPos = selfPos + new Vector3(-1, 0, 0);
-        // }
-        //
-        // if (GridSystem.Find(selectedPos, CellType.Top, out target))
-        // {
-        //     return true;
-        // }
-        // else if (GridSystem.Find(selectedPos, CellType.Down, out target))
-        // {
-        //     return true;
-        // }
-        // else
-        // {
-        //     return false;
-        // }
     }
 
     
@@ -483,7 +488,16 @@ public class PlayerController : CustomBehaviour<PlayerController>
         {
             // 找最近的
             var block = closetObj.GetComponent<BlockBase>();
-            if (block)
+            if (closetObj.CompareTag("SedanChair"))
+            {
+                if (foodAmount > 0)
+                {
+                    foodAmount = 0;
+                    GameManager.Instance.foodAmount = 100;
+                    return;
+                }
+            }
+            else if (block)
             {
                 switch (block.blockType)
                 {
@@ -498,6 +512,54 @@ public class PlayerController : CustomBehaviour<PlayerController>
                         hasBomb = true;
                         GridSystem.Remove(block);
                         GameManager.Instance.bombIndicator.SetFollowTransform(null);
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                    
+                    case BlockType.GasWreck:
+                        var gasProp = block.GetComponent<PropBlock>();
+                        gasAmount += gasProp.Pickup();
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                    
+                    case BlockType.GarbageWreck:
+                        var garbageProp = block.GetComponent<PropBlock>();
+                        garbageAmount += garbageProp.Pickup();
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                    
+                    case BlockType.Car:
+                        var car = block.GetComponent<Car>();
+                        if (hasGas)
+                        {
+                            car.PlaceGas(gasAmount);
+                            gasAmount = 0;
+                            Log("Place Gas");
+                        }
+                        else if (hasGarbage)
+                        {
+                            car.PlaceGarbage(garbageAmount);
+                            garbageAmount = 0;
+                            Log("Place Garbage");
+                        }
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                    
+                    case BlockType.CarExtend:
+                        var carExtend = block.GetComponent<Car>();
+                        if (carExtend.roadObj.m_amount > 0)
+                        {
+                            carExtend.roadObj.Pickup(1, false);
+                            roadAmount += 1;
+                            Log("Get 1 Road");
+                        }
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                    
+                    case BlockType.Tray:
+                        hasTray = true;
+                        foodAmount = block.GetComponent<TrayProp>().foodAmount;
+                        GridSystem.Remove(block);
+                        GameManager.Instance.trayIndicator.SetFollowTransform(null);
                         Animator.SetBool(m_aniPick, true);
                         return;
                 }
@@ -529,8 +591,12 @@ public class PlayerController : CustomBehaviour<PlayerController>
                     }
                     else
                     {
-                        var prefab = GameManager.Instance.clipPrefab;
-                        if (hasBomb)
+                        GameObject prefab = null;
+                        if (hasClip)
+                        {
+                            prefab = GameManager.Instance.clipPrefab;
+                        }
+                        else if (hasBomb)
                         {
                             prefab = GameManager.Instance.bombPrefab;
                         }
@@ -542,31 +608,61 @@ public class PlayerController : CustomBehaviour<PlayerController>
                         {
                             prefab = GameManager.Instance.garbagePrefab;
                         }
+                        else if (hasTray)
+                        {
+                            prefab = EnvSpawner.Instance.trayPrefab;
+                        }
 
-                        var obj = Instantiate(prefab);
-                        obj.transform.position = GridSystem.WorldToCell(transform.position);
-                        Animator.SetBool(m_aniPick, true);
+                        if (prefab != null)
+                        {
+                            var obj = Instantiate(prefab);
+                            obj.transform.position = GridSystem.WorldToCell(transform.position);
+                            GridSystem.Add(obj.GetComponent<BlockBase>());
+                            Animator.SetBool(m_aniPick, true);
 
-                        if (hasClip)
-                        {
-                            hasClip = false;
-                            GameManager.Instance.clipIndicator.SetFollowTransform(obj.transform);
+                            if (hasGas || hasGarbage)
+                            {
+                                var prop = obj.GetComponent<PropBlock>();
+                                if (hasGas)
+                                {
+                                    prop.SetAmount(gasAmount);
+                                    gasAmount = 0;
+                                }
+                                else if (hasGarbage)
+                                {
+                                    prop.SetAmount(garbageAmount);
+                                    garbageAmount = 0;
+                                }
+                            }
+
+                            if (hasClip)
+                            {
+                                hasClip = false;
+                                GameManager.Instance.clipIndicator.SetFollowTransform(obj.transform);
+                            }
+                            else if (hasBomb)
+                            {
+                                hasBomb = false;
+                                GameManager.Instance.bombIndicator.SetFollowTransform(obj.transform);
+                            }
+                            else if (hasGas)
+                            {
+                                gasAmount = 0;
+                                obj.GetComponent<PropBlock>().SetAmount(gasAmount);
+                            }
+                            else if (hasGarbage)
+                            {
+                                garbageAmount = 0;
+                                obj.GetComponent<PropBlock>().SetAmount(garbageAmount);
+                            }else if (hasTray)
+                            {
+                                hasTray = false;
+                                obj.GetComponent<TrayProp>().foodAmount = foodAmount;
+                                foodAmount = 0;
+                                GameManager.Instance.trayIndicator.SetFollowTransform(obj.transform);
+                            }
                         }
-                        else if (hasBomb)
-                        {
-                            hasBomb = false;
-                            GameManager.Instance.bombIndicator.SetFollowTransform(obj.transform);
-                        }
-                        else if (hasGas)
-                        {
-                            gasAmount = 0;
-                            obj.GetComponent<PropBlock>().SetAmount(gasAmount);
-                        }
-                        else if (hasGarbage)
-                        {
-                            garbageAmount = 0;
-                            obj.GetComponent<PropBlock>().SetAmount(garbageAmount);
-                        }
+                        
                     }
                     return;
             }
@@ -587,8 +683,42 @@ public class PlayerController : CustomBehaviour<PlayerController>
         if (hasClosetObj)
         {
             var block = closetObj.GetComponent<PropBlock>();
-            block.Wreck();
-            Animator.SetBool(m_aniPick, true);
+            if (block)
+            {
+                if (hasBomb)
+                {
+                    if (!block.isReadyWreck)
+                    {
+                        Log("BOOM");
+                        var obj = Instantiate(GameManager.Instance.bombTinyPrefab);
+                        obj.transform.position = GridSystem.WorldToCell(block.transform.position);
+                        obj.GetComponent<BombTinyProp>().propBlock = block;
+                        block.isReadyWreck = true;
+                    }
+                }
+                else if (hasClip)
+                {
+                    block.Wreck();
+                }
+                else if (hasTray)
+                {
+                    if (foodAmount == 0 && GameManager.Instance.foodAmount < 100)
+                    {
+                        var foodBlock = closetObj.GetComponent<FoodBlock>();
+                        if (foodBlock.hasFood)
+                        {
+                            foodBlock.Take();
+                            foodAmount = 1;
+                        }
+                    }
+                    Animator.SetBool(m_aniPick, true);
+                }
+                Animator.SetBool(m_aniPick, true);
+            }
+            else
+            {
+                
+            }
         }
     }
 

@@ -38,6 +38,8 @@ public class PropBlock : BlockBase
     public int dropAmount = 1;
     [ShowIf(nameof(isWreckable))] public GameObject wreckEffect;
 
+    public bool isReadyWreck = false;
+
     #endregion
 
     #region Private
@@ -70,6 +72,7 @@ public class PropBlock : BlockBase
         drop.transform.position = transform.position;
         drop.GetComponent<PropBlock>().SetAmount(dropAmount);
         GridSystem.Remove(this);
+        GridSystem.Add(drop.GetComponent<BlockBase>());
 
         var effect = Instantiate(wreckEffect);
         effect.transform.position = transform.position;
@@ -84,10 +87,10 @@ public class PropBlock : BlockBase
             return false;
         }
 
-        if (amount > stackingLimit)
-        {
-            return false;
-        }
+        // if (amount > stackingLimit)
+        // {
+        //     return false;
+        // }
 
         m_amount = amount;
         UpdateCurrentObject();
@@ -132,31 +135,33 @@ public class PropBlock : BlockBase
     [ShowIf(nameof(isStackable))]
     public int Place(int amount)
     {
-        var remainSpace = stackingLimit - m_amount;
-        
-        if (amount <= remainSpace)
-        {
-            Debug.Log($"放置成功 {amount}");
-            SetAmount(amount + m_amount);
-            return amount;
-        }
-
-        var overflowAmount = amount - remainSpace;
-        if (SetAmount(overflowAmount + m_amount))
-        {
-            Debug.Log($"放置成功，但溢出 {overflowAmount}");
-            return overflowAmount;
-        }
-        else
-        {
-            Debug.Log($"放置失敗");
-            return 0;
-        }
+        SetAmount(amount + m_amount);
+        return amount;
+        // var remainSpace = stackingLimit - m_amount;
+        //
+        // if (amount <= remainSpace)
+        // {
+        //     Debug.Log($"放置成功 {amount}");
+        //     SetAmount(amount + m_amount);
+        //     return amount;
+        // }
+        //
+        // var overflowAmount = amount - remainSpace;
+        // if (SetAmount(overflowAmount + m_amount))
+        // {
+        //     Debug.Log($"放置成功，但溢出 {overflowAmount}");
+        //     return overflowAmount;
+        // }
+        // else
+        // {
+        //     Debug.Log($"放置失敗");
+        //     return 0;
+        // }
     }
 
     [Button("拾取(指定數量)")]
     [ShowIf(nameof(isPickupable))]
-    public int Pickup(int amount)
+    public int Pickup(int amount, bool remove = true)
     {
         if (!isPickupable)
         {
@@ -165,12 +170,15 @@ public class PropBlock : BlockBase
 
         if (amount > m_amount)
         {
-            return 0;
+            amount = m_amount;
+            // return 0;
         }
 
         if (amount >= m_amount)
         {
-            GridSystem.Remove(this);
+            SetAmount(0);
+            if (remove)
+                GridSystem.Remove(this);
             return amount;
         }
 

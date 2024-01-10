@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -49,21 +50,75 @@ public class GameManager : Singleton<GameManager>
     public GameObject gasPrefab;
     public GameObject garbagePrefab;
     public GameObject roadPrefab;
+    public GameObject bombTinyPrefab;
 
     public Indicator[] playerIndicators;
     public Indicator clipIndicator;
     public Indicator bombIndicator;
+    public Indicator trayIndicator;
+    public Indicator foodIndicator;
+    public Indicator distanceIndicator;
+
+    public TMP_Text distanceText;
+    public TMP_Text speedText;
+    public TMP_Text timeText;
+
+    public AudioSource distanceSFX;
+
+    public bool CanMove => foodAmount > 0;
+    public int foodAmount = 100;
+    public int stepFood = 5;
     #endregion
 
 
     public static UnityEvent<Transform> onPlayerSpawn = new();
-    
+
+    public DateTime startTime;
 
     private void Start()
     {
         // _gamePrefab.Init();
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerLeft);
+
+        startTime = DateTime.Now;
+        
+        SedanChair.OnMoved.AddListener(() =>
+        {
+            foodAmount -= stepFood;
+            foodAmount = Mathf.Clamp(foodAmount, 0, 100);
+        });
+    }
+
+    private void Update()
+    {
+        distanceText.text = $"{SedanChair.Instance.m_nodeIndex}M";
+        var speed = SedanChair.Instance.currentSpeed * 100;
+        speedText.text = $"{Convert.ToInt32(speed)}CM/s";
+
+        var sec = (DateTime.Now - startTime).TotalSeconds;
+        timeText.text = $"{(Convert.ToInt32(sec) / 60).ToString("00")}:{(Convert.ToInt32(sec) % 60).ToString("00")}";
+
+        distanceIndicator.SetFollowTransform(SedanChair.Instance.transform);
+        distanceIndicator.gameObject.SetActive(SedanChair.Instance.m_nodeIndex >= RoadBlock.Nodes.Count - 2);
+        
+        foodIndicator.SetFollowTransform(SedanChair.Instance.transform);
+        if (foodAmount < 10)
+        {
+            foodIndicator.gameObject.SetActive(true);
+            if (!distanceSFX.isPlaying)
+            {
+                distanceSFX.Play();
+            }
+        }
+        else
+        {
+            foodIndicator.gameObject.SetActive(false);
+            if (distanceSFX.isPlaying)
+            {
+                distanceSFX.Stop();
+            }
+        }
     }
 
 

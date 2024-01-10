@@ -13,5 +13,10 @@ public enum BlockType
     GasWreck = 9,
     GarbageWreck = 10,
     Clip = 11,
-    Bomb = 12
+    Bomb = 12,
+    Car = 13,
+    CarExtend = 14,
+    SedanChair = 15,
+    Food = 16,
+    Tray = 17
 }

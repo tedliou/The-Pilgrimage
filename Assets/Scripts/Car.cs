@@ -6,82 +6,128 @@ using UnityEngine;
 
 public class Car : BlockBase
 {
+    public bool isGenerator = false;
+    public Car extendCar;
+    public int gasProp;
+    public int garbageProp;
+    public PropBlock gasObj;
+    public PropBlock garbageObj;
+    public PropBlock roadObj;
+    
     public SedanChair sedanChair;
-    [Range(1, 10)]
-    public int historyIndexOffset = 1;
-    public int currentHistoryIndex = -1;
-
-    private Rigidbody m_rigidbody;
+    public RoadBlock targetRoadBlock;
+    public bool isMoving;
+    
     private Transform m_child;
+    private Coroutine m_moveJob;
+    public int m_nodeIndex;
+    public int offset = 3;
+
+    public AudioSource sfx;
 
     private void Awake()
     {
-        m_rigidbody = GetComponent<Rigidbody>();
         m_child = transform.GetChild(0);
     }
 
-    protected override void Start()
+    private void Start()
     {
-        StartCoroutine(FindSedanChair());
-        
-        transform.localScale = Vector3.zero;
-    }
-
-    private void FixedUpdate()
-    {
-        return;
-        if (sedanChair.history.Count > historyIndexOffset)
+        StartCoroutine(ObserveMoveJob());
+        if (isGenerator)
         {
-            if (currentHistoryIndex == -1)
-            {
-                currentHistoryIndex = sedanChair.history.Count - historyIndexOffset - 1;
-            }
-            var m_targetPos = sedanChair.history[currentHistoryIndex];
             
-            var dir = m_targetPos - transform.position;
-            var dirNormalized = dir.normalized;
-            var velocity =  sedanChair.moveSpeed * dirNormalized;
-
-            if (sedanChair.m_rigidbody.velocity.magnitude > 0)
-            {
-                if (Vector3.Distance(transform.position, m_targetPos) < .05f)
-                {
-                    velocity = Vector3.zero;
-                    transform.position = m_targetPos;
-                    currentHistoryIndex++;
-                }
-            
-                if (dirNormalized.magnitude > 0)
-                {
-                    m_child.forward = Vector3.Lerp(m_child.forward, dirNormalized, .5f);
-                }
-            }
-            else
-            {
-                velocity = Vector3.zero;
-            }
-            
-        
-            m_rigidbody.velocity = velocity;
-
-            if (velocity.magnitude > 0)
-            {
-                transform.localScale = Vector3.Lerp(transform.localScale, Vector3.one, .5f);
-            }
+            gasObj.SetAmount(0);
+            garbageObj.SetAmount(0);
+            StartCoroutine(GeneratorJob());
+        }
+        else
+        {
+            roadObj.SetAmount(0);
         }
     }
 
-    private IEnumerator FindSedanChair()
+    public void PlaceGas(int amount)
+    {
+        gasObj.Place(amount);
+    }
+
+    public void PlaceGarbage(int amount)
+    {
+        garbageObj.Place(amount);
+    }
+
+    private IEnumerator GeneratorJob()
     {
         while (true)
         {
-            sedanChair = FindObjectOfType<SedanChair>();
-            if (sedanChair)
+            yield return new WaitUntil(() => gasObj.m_amount > 0 && garbageObj.m_amount > 0);
+
+            extendCar.roadObj.Place(1);
+            gasObj.Pickup(1, false);
+            garbageObj.Pickup(1, false);
+            Log("生成 1 祈路");
+            sfx.Play();
+            
+            yield return new WaitForSeconds(1);
+        }
+    }
+
+    private void StartMoveJob(RoadBlock roadBlock)
+    {
+        if (m_moveJob != null)
+            return;
+
+        m_moveJob = StartCoroutine(MoveJob(roadBlock));
+    }
+
+    private IEnumerator MoveJob(RoadBlock roadBlock)
+    {
+        var param =  sedanChair.moveSpeed * Time.deltaTime;
+        
+        while (true)
+        {
+            if (transform.position == roadBlock.transform.position)
             {
-                transform.position = sedanChair.transform.position;
-                
-                yield break;
+                break;
             }
+            
+            transform.position = Vector3.MoveTowards(transform.position, roadBlock.transform.position, param);
+            m_child.forward = Vector3.Lerp(m_child.forward, (roadBlock.transform.position - transform.position).normalized, .2f);
+            isMoving = true;
+            
+            yield return null;
+
+        }
+
+        targetRoadBlock = null;
+        isMoving = false;
+        m_moveJob = null;
+    }
+
+    private IEnumerator ObserveMoveJob()
+    {
+        yield return new WaitForSeconds(1);
+
+        sedanChair = FindObjectOfType<SedanChair>();
+        
+        while (true)
+        {
+            yield return new WaitUntil(() => !isMoving);
+            yield return new WaitUntil(() => RoadBlock.Nodes.Count > 1);
+
+            if (m_nodeIndex >= sedanChair.m_nodeIndex - offset)
+            {
+                // targetRoadBlock = RoadBlock.Nodes[1];
+                // StartMoveJob(targetRoadBlock);
+            }
+            else
+            {
+                m_nodeIndex++;
+                targetRoadBlock = RoadBlock.Nodes[m_nodeIndex];
+                StartMoveJob(targetRoadBlock);
+            }
+
+            yield return null;
         }
     }
 }
