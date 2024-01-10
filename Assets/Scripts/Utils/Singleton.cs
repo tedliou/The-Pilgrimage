@@ -8,7 +8,7 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
         get
         {
             _instance ??= FindObjectOfType<T>();
-            if (_instance is null)
+            if (_instance == null)
             {
                 var prefab = Resources.Load<T>(typeof(T).Name).gameObject;
                 var instanceObj = Instantiate(prefab);
@@ -23,7 +23,7 @@ public class Singleton<T> : CustomBehaviour<T> where T : UnityEngine.MonoBehavio
 
     private void Awake()
     {
-        if (Instance is not null && Instance != this)
+        if (Instance != null && Instance != this)
         {
             gameObject.SetActive(false);
             return;

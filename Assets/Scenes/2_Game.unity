@@ -1669,7 +1669,11 @@ MonoBehaviour:
   templeMaxX: 6
   templeMinY: 6
   templeMaxY: 14
-  garbageScale: 0.2
+  garbageScale: 0.1
+  gasScale: 0.1
+  waterScale: 0.05
+  foodScale: 0.07
+  treeScale: 0.3
   sedanChairSpawnPos: {x: 0, y: -1}
   prebuildRoadLength: 5
   spawnedSedanChair: 0
@@ -1679,8 +1683,12 @@ MonoBehaviour:
   - {fileID: 6249144520780671330, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
   - {fileID: 6249144520780671330, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
   - {fileID: 6249144520780671330, guid: a6e7bd3cd2a17994995a000aed677b41, type: 3}
+  - {fileID: 5238113593967809447, guid: 387cdf917dbac8946b17b406dda772c0, type: 3}
+  - {fileID: 4171532897758653046, guid: 1ed28880102f89d4f83c42fd21dc604d, type: 3}
   concretePrefab: {fileID: 1048741726195854624, guid: 825027c2dc582894dafdd6a9827a00b8, type: 3}
   roadPrefab: {fileID: 4491813755074349423, guid: e0ce48687a2c2674e90ee59e354bfab5, type: 3}
+  waterPrefab: {fileID: 6149428543850400703, guid: 482737ddccd0ee74d898c887acd0316f, type: 3}
+  treePrefab: {fileID: 6626246421888075647, guid: 21af225ee772fcd4d919ad4cc21c1dd9, type: 3}
   templeMailliPrefab: {fileID: 8091614514934923835, guid: 9b7f47a22356d5f45a3ab78a89caf0c1, type: 3}
   templeNorthPrefab: {fileID: 8956844805619030281, guid: 4aa7ba92c142dee40bb9090129948c4a, type: 3}
   gasPrefab: {fileID: 7659076405668296362, guid: 23de41589edc769438efe36e357e7d9d, type: 3}

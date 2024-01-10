@@ -33,7 +33,7 @@ public class GridSystem: Singleton<GridSystem>
             }
         }
 
-        if (block.blockType == BlockType.Building)
+        if (block.blockType == BlockType.Building || block.blockType == BlockType.Food)
         {
             var _dict = block.cellType == CellType.Top ? Instance.m_cellBottom : Instance.m_cellTop;
             var _type = block.cellType == CellType.Top ? CellType.Down : CellType.Top;

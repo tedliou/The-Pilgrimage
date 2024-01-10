@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : CustomBehaviour<PlayerController>
 {
@@ -153,6 +154,16 @@ public class PlayerController : CustomBehaviour<PlayerController>
         InputHandler.onPlayerFire.AddListener(Fire);
         InputHandler.onPlayerFireCancel.AddListener(FireCancel);
         InputHandler.onPlayerReset.AddListener(ResetPosition);
+        InputHandler.onPlayerBack.AddListener(() =>
+        {
+            GameBGM.Instance.Stop();
+            SceneManager.LoadScene(0);
+            GameManager.Instance = null;
+            Destroy(GameManager.Instance.gameObject);
+            Destroy(SedanChair.Instance.gameObject);
+            Destroy(EnvSpawner.Instance.gameObject);
+            Destroy(GridSystem.Instance.gameObject);
+        });
         
         m_direction = Vector3.zero;
 
@@ -729,6 +740,20 @@ public class PlayerController : CustomBehaviour<PlayerController>
     private void ResetPosition()
     {
         GameManager.Instance.ResetPlayerPos(this);
+
+        // var clip = FindObjectOfType<ClipProp>();
+        // var bomb = FindObjectOfType<BombProp>();
+        // var tray = FindObjectOfType<TrayProp>();
+        // if (clip)
+        // {
+        //     GridSystem.Remove(clip);
+        //
+        //     var sadanChairPos = SedanChair.Instance.transform.position;
+        //     var clipPos = EnvSpawner.Instance.GetSpawnablePosition(new Vector3(sadanChairPos.x + 2, sadanChairPos.y));
+        //     var clipObj = SpawnBlock(clipPos.x, clipPos.y, clipPrefab, false);
+        //     clipIndicator.SetFollowTransform(clipObj.transform);
+        //     GridSystem.Add(clipObj);       
+        // }
     }
     #endregion
 

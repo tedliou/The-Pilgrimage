@@ -6,8 +6,10 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
-public class GameManager : Singleton<GameManager>
+public class GameManager : CustomBehaviour<GameManager>
 {
+    public static GameManager Instance;
+    
     #region API
 
     public BlockBase GetPrefab(string id) => _gamePrefab.GetPrefab(id);
@@ -77,6 +79,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        Instance = this;
         // _gamePrefab.Init();
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerJoined);
         PlayerManager.Instance.OnPlayerJoined.AddListener(OnPlayerLeft);

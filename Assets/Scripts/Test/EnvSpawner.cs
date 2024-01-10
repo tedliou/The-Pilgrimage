@@ -18,6 +18,10 @@ public class EnvSpawner : Singleton<EnvSpawner>
 
 
     public float garbageScale = .2f;
+    public float gasScale = .2f;
+    public float waterScale = .2f;
+    public float foodScale = .2f;
+    public float treeScale = .01f;
     
     public Vector2Int sedanChairSpawnPos;
     
@@ -36,6 +40,8 @@ public class EnvSpawner : Singleton<EnvSpawner>
     public GameObject[] grassPrefabs;
     public GameObject concretePrefab;
     public GameObject roadPrefab;
+    public GameObject waterPrefab;
+    public GameObject treePrefab;
     
     [Header("Temple")]
     public GameObject templeMailliPrefab;
@@ -65,7 +71,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
     public GameObject[] buildingPrefabs;
     public GameObject foodPrefab;
     
-
+    
 
     void Start()
     {
@@ -92,16 +98,18 @@ public class EnvSpawner : Singleton<EnvSpawner>
         
         yield return null;
 
-        GenerateFood(startPos);
         GenerateBuilding(startPos);
-        GenerateGarbage(startPos);
         
         yield return null;
         
+        GenerateFood(startPos);
+        GenerateGarbage(startPos);
         GenerateGas(startPos);
         
         yield return null;
-        
+
+        GenerateWater(startPos);
+        GenerateTree(startPos);
         GenerateGrass(startPos);
     }
 
@@ -133,6 +141,54 @@ public class EnvSpawner : Singleton<EnvSpawner>
         }
     }
 
+    private void GenerateWater(Vector2Int offset)
+    {
+        var mapDimision = mapSize.x * mapSize.y;
+        
+        
+        var scale = Convert.ToInt32(mapDimision * waterScale);
+
+        for (var i = 0; i < scale; i+=5)
+        {
+            var randX = Random.Range(0, mapSize.x);
+            var randY = Random.Range(0, mapSize.y);
+            var size = new Vector2Int(1, 1);
+            var dimision = size.x * size.y;
+            i += dimision;
+
+            
+            var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
+            {
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, waterPrefab));
+            }
+        }
+    }
+
+    private void GenerateTree(Vector2Int offset)
+    {
+        var mapDimision = mapSize.x * mapSize.y;
+        
+        
+        var scale = Convert.ToInt32(mapDimision * treeScale);
+
+        for (var i = 0; i < scale; i+=5)
+        {
+            var randX = Random.Range(0, mapSize.x);
+            var randY = Random.Range(0, mapSize.y);
+            var size = new Vector2Int(1, 1);
+            var dimision = size.x * size.y;
+            i += dimision;
+
+            
+            var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
+            {
+                GridSystem.Add(SpawnBlock(pos.x, pos.z, treePrefab));
+            }
+        }
+    }
+    
     public Vector3 GetSpawnablePosition(Vector3 startPos)
     {
         var spawnPos = startPos;
@@ -214,13 +270,15 @@ public class EnvSpawner : Singleton<EnvSpawner>
         
     }
     
+    
+    
     private void GenerateFood(Vector2Int offset)
     {
         
         var mapDimision = mapSize.x * mapSize.y;
         
         
-        var scale = Convert.ToInt32(mapDimision * garbageScale);
+        var scale = Convert.ToInt32(mapDimision * foodScale);
 
         for (var i = 0; i < scale; i+=5)
         {
@@ -232,7 +290,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
 
             
             var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
-            if (!GridSystem.Find(pos, CellType.Top))
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
             {
                 GridSystem.Add(SpawnBlock(pos.x, pos.z, foodPrefab));
             }
@@ -257,7 +315,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
 
             
             var pos = new Vector3(offset.x + randX, 0, offset.y + randY);
-            if (!GridSystem.Find(pos, CellType.Top))
+            if (!GridSystem.Find(pos, CellType.Top) && !GridSystem.Find(pos, CellType.Down))
             {
                 GridSystem.Add(SpawnBlock(pos.x, pos.z, garbagePrefab));
                 GridSystem.Add(SpawnBlock(pos.x, pos.z, concretePrefab));
@@ -268,7 +326,7 @@ public class EnvSpawner : Singleton<EnvSpawner>
     private void GenerateGas(Vector2Int offset)
     {
         var mapDimision = mapSize.x * mapSize.y;
-        var scale = Convert.ToInt32(mapDimision * garbageScale);
+        var scale = Convert.ToInt32(mapDimision * gasScale);
 
         for (var i = 0; i < scale; i++)
         {

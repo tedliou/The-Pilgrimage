@@ -132,7 +132,7 @@ MonoBehaviour:
   cellKey:
   - {x: 0, y: 0}
   cellType: 1
-  blockType: 1
+  blockType: 0
   meshRenderers:
   - {fileID: 2933634174090490579}
   m_selected: 0

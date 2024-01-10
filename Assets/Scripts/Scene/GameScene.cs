@@ -38,7 +38,7 @@ public class GameScene : CustomBehaviour<GameScene>
         while (countdown > 0)
         {
             Log(countdown);
-            overlayText.text = countdown.ToString();
+            //overlayText.text = countdown.ToString();
             yield return new WaitForSeconds(1);
             countdown--;
         }
@@ -50,7 +50,7 @@ public class GameScene : CustomBehaviour<GameScene>
         
         
         Log("Start");
-        overlayText.text = "START";
+        //overlayText.text = "START";
         yield return new WaitForSeconds(1);
         overlayText.text = string.Empty;
     }

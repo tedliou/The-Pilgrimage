@@ -53,6 +53,7 @@ public class PlayerInputHandler : CustomBehaviour<PlayerInputHandler>
     public UnityEvent onPlayerFire;
     public UnityEvent onPlayerFireCancel;
     public UnityEvent onPlayerReset = new();
+    public UnityEvent onPlayerBack = new();
 
     public bool isLooking;
     #endregion
@@ -73,6 +74,7 @@ public class PlayerInputHandler : CustomBehaviour<PlayerInputHandler>
         Input.currentActionMap.FindAction("Fire").canceled += OnFireCancel;
         Input.currentActionMap.FindAction("Active").performed += OnActive;
         Input.currentActionMap.FindAction("Reset").performed += OnReset;
+        Input.currentActionMap.FindAction("Back").performed += OnBack;
 
     }
     #endregion
@@ -134,6 +136,10 @@ public class PlayerInputHandler : CustomBehaviour<PlayerInputHandler>
     private void OnReset(InputAction.CallbackContext _)
     {
         onPlayerReset.Invoke();
+    }
+    private void OnBack(InputAction.CallbackContext _)
+    {
+        onPlayerBack.Invoke();
     }
     #endregion
 }

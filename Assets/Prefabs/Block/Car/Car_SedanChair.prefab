@@ -368,7 +368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781dca821ebde3241ac76267af4932a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
+  moveSpeed: 0.2
   currentSpeed: 0
   lastPos: {x: 0, y: 0, z: 0}
   history: []

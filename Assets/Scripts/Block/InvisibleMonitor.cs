@@ -8,6 +8,8 @@ public class InvisibleMonitor : MonoBehaviour
     
     private void OnBecameInvisible()
     {
+        return;
+        Debug.Log(nameof(OnBecameInvisible));
         var sedanChair = SedanChair.Instance.transform.position;
         var newPos = EnvSpawner.Instance.GetSpawnablePosition(new Vector3(sedanChair.x, sedanChair.y - 2));
         master.transform.position = newPos;

@@ -62,10 +62,10 @@ public class Car : BlockBase
         {
             yield return new WaitUntil(() => gasObj.m_amount > 0 && garbageObj.m_amount > 0);
 
-            extendCar.roadObj.Place(1);
+            extendCar.roadObj.Place(5);
             gasObj.Pickup(1, false);
             garbageObj.Pickup(1, false);
-            Log("生成 1 祈路");
+            Log("生成 5 祈路");
             sfx.Play();
             
             yield return new WaitForSeconds(1);
