@@ -129,11 +129,11 @@ public class EnvSpawner : Singleton<EnvSpawner>
         y += sedanChairSpawnPos.y;
         var endPoint = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
         endPoint.isEndPoint = m_lastMapIndex != 0;
-        endPoint.FindAroundRoads();
         GridSystem.Add(endPoint);
         
         if (!spawnedSedanChair)
         {
+            endPoint.Enable();
             SpawnBlock(x, y, sedanChairPrefab, false);
             
             // 生成夾子
@@ -155,8 +155,8 @@ public class EnvSpawner : Singleton<EnvSpawner>
             {
                 x += 1;
                 var road = SpawnBlock(x, y, roadPrefab).GetComponent<RoadBlock>();
+                road.Enable();
                 GridSystem.Add(road);
-                road.FindAroundRoads();
             }
         } 
 

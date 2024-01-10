@@ -9,104 +9,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.Events;
 
-public class Tool
-{
-    protected bool hasTool;
-    protected string id;
-
-    public Tool()
-    {
-        Reset();
-    }
-    
-    public bool TryGet(out string id)
-    {
-        if (!hasTool)
-        {
-            id = string.Empty;
-            return false;
-        }
-
-        id = this.id;
-        return true;
-    }
-
-    public bool TrySet(string id)
-    {
-        if (hasTool)
-        {
-            return false;
-        }
-
-        if (id == string.Empty)
-            return false;
-
-        hasTool = true;
-        this.id = id;
-        return true;
-    }
-
-    public void Reset()
-    {
-        hasTool = false;
-        this.id = string.Empty;
-    }
-}
-
-public class Inventory
-{
-    protected bool hasItem;
-    protected string id;
-    protected int amount;
-
-    public Inventory()
-    {
-        Reset();
-    }
-
-    public bool TryGet(out string id, out int amount)
-    {
-        if (!hasItem)
-        {
-            id = string.Empty;
-            amount = 0;
-            return false;
-        }
-
-        id = this.id;
-        amount = this.amount;
-        return true;
-    }
-
-    public bool TrySet(string id, int amount = 1)
-    {
-        if (hasItem && this.id != id)
-        {
-            return false;
-        }
-
-        if (id == string.Empty)
-            return false;
-
-        hasItem = true;
-        if (this.id == id)
-            this.amount += amount;
-        else
-        {
-            this.id = id;
-            this.amount = amount;
-        }
-        return true;
-    }
-
-    public void Reset()
-    {
-        hasItem = false;
-        id = string.Empty;
-        amount = 0;
-    }
-}
-
 public class PlayerController : CustomBehaviour<PlayerController>
 {
 
@@ -208,13 +110,16 @@ public class PlayerController : CustomBehaviour<PlayerController>
     
     [ShowInInspector] public bool hasGas => gasAmount > 0;
     [ShowInInspector] public bool hasGarbage => garbageAmount > 0;
+    [ShowInInspector] public bool hasFood => foodAmount > 0;
     [ShowInInspector] public bool hasRoad => roadAmount > 0;
     
     public int gasAmount = 0;
     public int garbageAmount = 0;
+    public int foodAmount;
     
     public int gasAmountLimit = 10;
     public int garbageAmountLimit = 10;
+    public int foodAmountLimit = 10;
     
     public int roadAmount = 0;
     
@@ -269,32 +174,74 @@ public class PlayerController : CustomBehaviour<PlayerController>
         // 刪除當前條件無法互動的物件
         // 有夾子：不能拿炸彈、瘴氣、破壞物
         // 沒夾子：不能拿垃圾、瘴氣
-        bool getClip = true, getBomb = true, getGas = false, getGasWreck = true, getGarbage = false, getGarbageWreck = true;
+        bool getClip = true, getBomb = true, getTray = true, getGas = false, getGasWreck = true, getGarbage = false, getGarbageWreck = true, getFood = false, getRoad = true;
         
         // 工具判斷
         if (hasClip)
         {
             getBomb = false;
+            getTray = false;
             getGarbage = true;
+            getFood = false;
+            getRoad = false;
         }
         if (hasBomb)
         {
             getClip = false;
+            getTray = false;
             getGas = true;
+            getFood = false;
+            getRoad = false;
+        }
+        if (hasTray)
+        {
+            getBomb = false;
+            getClip = false;
+            getGas = false;
+            getGarbage = false;
+            getFood = true;
+            getRoad = false;
         }
 
-        // 垃圾判斷
-        if (!hasClip && !hasBomb && hasGas)
+        // 雜物判斷
+        if (!hasClip && !hasBomb && !hasTray && hasGas)
         {
             getClip = false;
             getBomb = false;
+            getTray = false;
             getGarbageWreck = false;
+            getFood = false;
+            getRoad = false;
         }
-        if (!hasClip && !hasBomb && hasGarbage)
+        if (!hasClip && !hasBomb && !hasTray && hasGarbage)
         {
             getClip = false;
             getBomb = false;
+            getTray = false;
             getGasWreck = false;
+            getFood = false;
+            getRoad = false;
+        }
+        if (!hasClip && !hasBomb && hasTray)
+        {
+            getClip = false;
+            getBomb = false;
+            getTray = false;
+            getGasWreck = false;
+            getGarbageWreck = false;
+            getFood = true;
+            getRoad = false;
+        }
+
+        if (hasRoad)
+        {
+            getClip = false;
+            getBomb = false;
+            getTray = false;
+            getGasWreck = false;
+            getGarbageWreck = false;
+            getFood = false;
+            getRoad = true;
         }
 
         #region 刪除不相干物件
@@ -306,6 +253,10 @@ public class PlayerController : CustomBehaviour<PlayerController>
         if (!getBomb)
         {
             colliders.RemoveAll(c => c.CompareTag("Bomb"));
+        }
+        if (!getTray)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Tray"));
         }
         if (!getGas)
         {
@@ -322,6 +273,14 @@ public class PlayerController : CustomBehaviour<PlayerController>
         if (!getGarbageWreck)
         {
             colliders.RemoveAll(c => c.CompareTag("GarbageWreck"));
+        }
+        if (!getFood)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Food"));
+        }
+        if (!getRoad)
+        {
+            colliders.RemoveAll(c => c.CompareTag("Road"));
         }
 
         #endregion
@@ -379,39 +338,51 @@ public class PlayerController : CustomBehaviour<PlayerController>
 
     private bool TryGetSelectedBlock(out BlockBase target)
     {
-        var selectedPos = Vector3.zero;
         var selfPos = GridSystem.WorldToCell(transform.position);
-        var lookAngle = angle;
-        
-        if (lookAngle >= -45 && lookAngle < 45)
+        if (GridSystem.Find(selfPos, CellType.Top, out target))
         {
-            selectedPos = selfPos + new Vector3(0, 0, 1);
+            return true;
         }
-        else if (lookAngle >= 45 && lookAngle < 135)
+        else if (GridSystem.Find(selfPos, CellType.Down, out target))
         {
-            selectedPos = selfPos + new Vector3(1, 0, 0);
-        }
-        else if ((lookAngle >= 135 && lookAngle < 180) || (lookAngle >= -135 && lookAngle < -180)) 
-        {
-            selectedPos = selfPos + new Vector3(0, 0, -1);
-        }
-        else
-        {
-            selectedPos = selfPos + new Vector3(-1, 0, 0);
+            return true;
         }
 
-        if (GridSystem.Find(selectedPos, CellType.Top, out target))
-        {
-            return true;
-        }
-        else if (GridSystem.Find(selectedPos, CellType.Down, out target))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
+        
+        //
+        // var selectedPos = Vector3.zero;
+        // var lookAngle = angle;
+        //
+        // if (lookAngle >= -45 && lookAngle < 45)
+        // {
+        //     selectedPos = selfPos + new Vector3(0, 0, 1);
+        // }
+        // else if (lookAngle >= 45 && lookAngle < 135)
+        // {
+        //     selectedPos = selfPos + new Vector3(1, 0, 0);
+        // }
+        // else if ((lookAngle >= 135 && lookAngle < 180) || (lookAngle >= -135 && lookAngle < -180)) 
+        // {
+        //     selectedPos = selfPos + new Vector3(0, 0, -1);
+        // }
+        // else
+        // {
+        //     selectedPos = selfPos + new Vector3(-1, 0, 0);
+        // }
+        //
+        // if (GridSystem.Find(selectedPos, CellType.Top, out target))
+        // {
+        //     return true;
+        // }
+        // else if (GridSystem.Find(selectedPos, CellType.Down, out target))
+        // {
+        //     return true;
+        // }
+        // else
+        // {
+        //     return false;
+        // }
     }
 
     
@@ -512,26 +483,30 @@ public class PlayerController : CustomBehaviour<PlayerController>
         {
             // 找最近的
             var block = closetObj.GetComponent<BlockBase>();
-            switch (block.blockType)
+            if (block)
             {
-                case BlockType.Clip:
-                    hasClip = true;
-                    GridSystem.Remove(block);
-                    GameManager.Instance.clipIndicator.SetFollowTransform(null);
-                    Animator.SetBool(m_aniPick, true);
-                    break;
+                switch (block.blockType)
+                {
+                    case BlockType.Clip:
+                        hasClip = true;
+                        GridSystem.Remove(block);
+                        GameManager.Instance.clipIndicator.SetFollowTransform(null);
+                        Animator.SetBool(m_aniPick, true);
+                        return;
             
-                case BlockType.Bomb:
-                    hasBomb = true;
-                    GridSystem.Remove(block);
-                    GameManager.Instance.bombIndicator.SetFollowTransform(null);
-                    Animator.SetBool(m_aniPick, true);
-                    break;
+                    case BlockType.Bomb:
+                        hasBomb = true;
+                        GridSystem.Remove(block);
+                        GameManager.Instance.bombIndicator.SetFollowTransform(null);
+                        Animator.SetBool(m_aniPick, true);
+                        return;
+                }
             }
         }
-        else if (hasTargetObj)
+        
+        if (hasTargetObj)
         {
-            // 找十字的
+            // 找腳下
             var block = targetBlock;
             switch (block.blockType)
             {
@@ -539,13 +514,18 @@ public class PlayerController : CustomBehaviour<PlayerController>
                     if (hasRoad)
                     {
                         var blockPos = block.transform.position;
-                        GridSystem.Remove(block);
-                        var roadObj = Instantiate(GameManager.Instance.roadPrefab);
-                        roadObj.transform.position = blockPos;
-                        var roadBlock = roadObj.GetComponent<RoadBlock>();
-                        GridSystem.Add(roadBlock);
-                        roadBlock.FindAroundRoads();
-                        roadAmount--;
+                        var aroundRoadCount = GridSystem.FindAround(block).Where(x => x.blockType == BlockType.Road && x.GetComponent<RoadBlock>() == RoadBlock.LastNode).Count();
+                        
+                        if (aroundRoadCount > 0)
+                        {
+                            GridSystem.Remove(block);
+                            var roadObj = Instantiate(GameManager.Instance.roadPrefab);
+                            roadObj.transform.position = blockPos;
+                            var roadBlock = roadObj.GetComponent<RoadBlock>();
+                            GridSystem.Add(roadBlock);
+                            roadBlock.Enable();
+                            roadAmount--;
+                        }
                     }
                     else
                     {
@@ -588,188 +568,9 @@ public class PlayerController : CustomBehaviour<PlayerController>
                             obj.GetComponent<PropBlock>().SetAmount(garbageAmount);
                         }
                     }
-                    
-                    break;
+                    return;
             }
         }
-
-        /*
-        if (canPlaceWreckProp)
-        {
-            var car = triggerBlock.GetComponent<CarController>();
-
-            if (gasAmount > 0)
-            {
-                car.PutGas(gasAmount);
-                gasAmount = 0;
-            }
-            else if (garbageAmount > 0)
-            {
-                car.PutGarbage(garbageAmount);
-                garbageAmount = 0;
-            }
-
-
-            return;
-        }
-        else if (canTakeProp)
-        {
-            if (garbageAmount > 0 || gasAmount > 0 || hasClip || hasBomb)
-            {
-                return;
-            }
-
-            var carExtend = triggerBlock.GetComponent<CarExtendController>();
-            var amount = carExtend.Take();
-            if (amount > 0)
-            {
-                roadAmount = amount;
-            }
-
-            return;
-        }
-        */
-        /*
-        if (closetObj == null)
-        {
-            if (TryGetSelectedBlock(out BlockBase target))
-            {
-                if (target.blockType == BlockType.Floor)
-                {
-                    // Place
-                    if (hasClip)
-                    {
-                        var toolObj = Instantiate(GameManager.Instance.toolPrefab);
-                        toolObj.transform.position = GridSystem.WorldToCell(transform.position);
-                        GameManager.Instance.clipIndicator.SetFollowTransform(toolObj.transform);
-
-                        hasClip = false;
-                    }
-                    else if (hasBomb)
-                    {
-                        var bombObj = Instantiate(GameManager.Instance.bombPrefab);
-                        bombObj.transform.position = target.transform.position;
-                        hasBomb = false;
-                    }
-                    else if (garbageAmount > 0)
-                    {
-                        var garbageObj = Instantiate(GameManager.Instance.garbagePrefab);
-                        garbageObj.transform.position = target.transform.position;
-                        garbageObj.GetComponent<PropBlock>().SetAmount(garbageAmount);
-                        garbageAmount = 0;
-                    }
-                    else if (gasAmount > 0)
-                    {
-                        var gasObj = Instantiate(GameManager.Instance.gasPrefab);
-                        gasObj.transform.position = target.transform.position;
-                        gasObj.GetComponent<PropBlock>().SetAmount(gasAmount);
-                        gasAmount = 0;
-                    }
-                    else if (roadAmount > 0)
-                    {
-                        GridSystem.Remove(target, BlockType.Floor, CellType.Down);
-                        var roadObj = Instantiate(GameManager.Instance.roadPrefab);
-                        roadObj.transform.position = target.transform.position;
-                        roadAmount--;
-                    }
-                }
-            }
-        }
-        else
-        {
-            var target = closetObj.GetComponent<BlockBase>();
-            if (target != null)
-            {
-                Debug.Log(target.name);
-
-                if (target.blockType == BlockType.Tool)
-                {
-                    // Take
-                    if (hasClip)
-                    {
-                        // Nothing
-                    }
-                    else
-                    {
-                        hasClip = true;
-                        GridSystem.Remove(target, BlockType.Tool, CellType.Top);
-                        GameManager.Instance.clipIndicator.SetFollowTransform(null);
-                        Animator.SetBool(m_aniPick, true);
-                    }
-                }
-                else if (target.blockType == BlockType.GasWreck)
-                {
-                    if (garbageAmount > 0)
-                    {
-                        return;
-                    }
-
-                    if (hasClip || hasBomb)
-                    {
-                        return;
-                    }
-
-                    var prop = target.GetComponent<PropBlock>();
-
-                    if (gasAmount > 0)
-                    {
-                        if (gasAmount < gasAmountLimit)
-                        {
-                            var takeAmount = prop.Pickup();
-                            gasAmount += takeAmount;
-                        }
-                        else
-                        {
-                            var placeAmount = prop.Place(gasAmount);
-                            gasAmount -= placeAmount;
-                        }
-                    }
-                    else
-                    {
-                        var takeAmount = prop.Pickup();
-                        gasAmount += takeAmount;
-                    }
-                }
-                else if (target.blockType == BlockType.GarbageWreck)
-                {
-                    // Take or Place
-                    if (gasAmount > 0)
-                    {
-                        return;
-                    }
-
-                    if (hasClip || hasBomb)
-                    {
-                        return;
-                    }
-
-                    var prop = target.GetComponent<PropBlock>();
-
-                    if (garbageAmount > 0)
-                    {
-                        if (garbageAmount < garbageAmountLimit)
-                        {
-                            var takeAmount = prop.Pickup();
-                            garbageAmount += takeAmount;
-                        }
-                        else
-                        {
-                            var placeAmount = prop.Place(garbageAmount);
-                            garbageAmount -= placeAmount;
-                        }
-                    }
-                    else
-                    {
-                        var takeAmount = prop.Pickup();
-                        garbageAmount += takeAmount;
-                    }
-                }
-                else if (target.blockType == BlockType.Chest)
-                {
-                    // 放進去車廂
-                }
-            }
-        }*/
     }
 
     private void GetCancel()

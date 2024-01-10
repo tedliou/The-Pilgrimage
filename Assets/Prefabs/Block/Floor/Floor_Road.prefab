@@ -510,7 +510,7 @@ GameObject:
   - component: {fileID: 3488034681163930221}
   m_Layer: 0
   m_Name: Floor_Road
-  m_TagString: Untagged
+  m_TagString: Road
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -556,6 +556,7 @@ MonoBehaviour:
   blockType: 6
   meshRenderers:
   - {fileID: 4498480969840566932}
+  m_selected: 0
   mode: 0
   aroundRoads: []
   aroundBlocks: []

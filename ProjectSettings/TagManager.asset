@@ -16,6 +16,9 @@ TagManager:
   - Bomb
   - GarbageWreck
   - GasWreck
+  - Road
+  - Food
+  - Tray
   layers:
   - Default
   - TransparentFX

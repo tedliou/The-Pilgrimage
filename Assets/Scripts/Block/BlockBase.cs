@@ -12,6 +12,8 @@ public class BlockBase : CustomBehaviour<BlockBase>
     public BlockType blockType;
     public MeshRenderer[] meshRenderers;
 
+    [SerializeField]
+    private bool m_selected;
     private Color[] m_colors;
     private float[] m_scales;
 
@@ -27,6 +29,22 @@ public class BlockBase : CustomBehaviour<BlockBase>
     {
         //GameScene.OnShowTerrain.AddListener(Show);
         //GridSystem.Add(this);
+        
+        m_colors = new Color[meshRenderers.Length];
+        m_scales = new float[meshRenderers.Length];
+        for (var i = 0; i < meshRenderers.Length; i++)
+        {
+            if (meshRenderers[i].material.HasColor("_OutlineColor"))
+            {
+                m_colors[i] = meshRenderers[i].material.GetColor("_OutlineColor");
+            }
+
+            if (meshRenderers[i].material.HasFloat("_OutlineScale"))
+            {
+                m_scales[i] = meshRenderers[i].material.GetFloat("_OutlineScale");
+            }
+        }
+        
     }
 
     private void Update()
@@ -36,8 +54,10 @@ public class BlockBase : CustomBehaviour<BlockBase>
 
     public void Select()
     {
-        m_colors = new Color[meshRenderers.Length];
-        m_scales = new float[meshRenderers.Length];
+        if (m_selected)
+            return;
+        
+        m_selected = true;
         for (var i = 0; i < meshRenderers.Length; i++)
         {
             if (meshRenderers[i].material.HasColor("_OutlineColor"))
@@ -49,13 +69,17 @@ public class BlockBase : CustomBehaviour<BlockBase>
             if (meshRenderers[i].material.HasFloat("_OutlineScale"))
             {
                 m_scales[i] = meshRenderers[i].material.GetFloat("_OutlineScale");
-                meshRenderers[i].material.SetFloat("_OutlineScale", 1.5f);
+                meshRenderers[i].material.SetFloat("_OutlineScale", 1.1f);
             }
         }
     }
 
     public void Deselect()
     {
+        if (!m_selected)
+            return;
+        
+        m_selected = false;
         for (var i = 0; i < meshRenderers.Length; i++)
         {
             if (meshRenderers[i].material.HasColor("_OutlineColor"))

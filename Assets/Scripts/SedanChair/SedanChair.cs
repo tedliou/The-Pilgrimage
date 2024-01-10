@@ -19,7 +19,8 @@ public class SedanChair : Singleton<SedanChair>
     private Vector3 m_targetPos;
     private bool m_isTargetPosSet = false;
 
-    public int m_currentNodeIndex;
+    public int m_nodeIndex;
+    
     public RoadBlock m_currentRoad;
     public RoadBlock m_nextRoad;
     private Transform m_child;
@@ -56,7 +57,9 @@ public class SedanChair : Singleton<SedanChair>
         
         m_child = transform.GetChild(0);
         // StartCoroutine(FindPath());
+        m_nodeIndex = 0;
         StartCoroutine(ObserveMoveJob());
+        
         // RoadBlock.OnRoadUpdate.AddListener(OnRoadUpdate);
         
         //OnSedanChairCreate.Invoke(this);
@@ -130,20 +133,13 @@ public class SedanChair : Singleton<SedanChair>
         while (true)
         {
             yield return new WaitUntil(() => !isMoving);
+            yield return new WaitUntil(() => RoadBlock.Nodes.Count > 1);
+
+            RoadBlock.Nodes[m_nodeIndex].isPassed = true;
+            m_nodeIndex++;
+            yield return new WaitUntil(() => m_nodeIndex < RoadBlock.Nodes.Count);
             
-            while (!FindRoadBlock())
-            {
-                yield return null;
-            }
-
-            var road = FindRoadBlock();
-            while (road.nextRoad == null)
-            {
-                yield return null;
-            }
-
-            road.isPassed = true;
-            targetRoadBlock = road.nextRoad;
+            targetRoadBlock = RoadBlock.Nodes[m_nodeIndex];
             StartMoveJob(targetRoadBlock);
 
             yield return null;
@@ -221,11 +217,11 @@ public class SedanChair : Singleton<SedanChair>
 
     private bool GetNextNode()
     {
-        m_currentNodeIndex += 1;
-        if (m_currentNodeIndex < RoadBlock.Nodes.Count - 1)
+        m_nodeIndex += 1;
+        if (m_nodeIndex < RoadBlock.Nodes.Count - 1)
         {
-            m_currentRoad = RoadBlock.Nodes[m_currentNodeIndex];
-            m_nextRoad = RoadBlock.Nodes[m_currentNodeIndex + 1];
+            m_currentRoad = RoadBlock.Nodes[m_nodeIndex];
+            m_nextRoad = RoadBlock.Nodes[m_nodeIndex + 1];
             m_targetPos = m_nextRoad.transform.position;
             Debug.Log(nameof(GetNextNode));
             return true;

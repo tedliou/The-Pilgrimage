@@ -156,3 +156,4 @@ MonoBehaviour:
   blockType: 11
   meshRenderers:
   - {fileID: 8473596368049825998}
+  m_selected: 0

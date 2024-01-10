@@ -22,8 +22,33 @@ public class RoadBlock : BlockBase
     public static UnityEvent OnRoadUpdate = new UnityEvent();
     public static UnityEvent OnResetRoad = new UnityEvent();
     public static int CurrentDepth = 0;
+    
     public static List<RoadBlock> Nodes = new List<RoadBlock>();
+    public static RoadBlock LastNode => Nodes.Count > 0 ? Nodes.Last() : null;
 
+    [ShowInInspector]
+    public int NodeIndex => Nodes.FindIndex(x => x == this);
+
+    [ShowInInspector]
+    public RoadBlock LastRoad
+    {
+        get
+        {
+            if (Nodes.Count > 1 && NodeIndex > 0)
+            {
+                return Nodes[NodeIndex - 1];
+            }
+
+            return null;
+        }
+    }
+    
+    [ShowInInspector]
+    public RoadDirection LastNodeDirection { get; private set; }
+    
+    [ShowInInspector]
+    public bool IsEnable { get; private set; }
+    
     public RoadMode mode;
     public RoadBlock[] aroundRoads;
     public BlockBase[] aroundBlocks;
@@ -33,24 +58,26 @@ public class RoadBlock : BlockBase
     public bool IsPerfact {
         get
         {
+            GetRoads();
             if (aroundRoads.Length == 0)
             {
                 return false;
             }
+            
             switch (mode)
             {
                 case RoadMode.Vertical:
-                    return (aroundRoads[0]) && (aroundRoads[1]);
+                    return aroundRoads[0] && aroundRoads[1];
                 case RoadMode.Horizontal:
-                    return (aroundRoads[2]) && (aroundRoads[3]);
+                    return aroundRoads[2] && aroundRoads[3];
                 case RoadMode.TopToLeft:
-                    return (aroundRoads[0]) && (aroundRoads[2]);
+                    return aroundRoads[0] && aroundRoads[2];
                 case RoadMode.TopToRight:
-                    return (aroundRoads[0]) && (aroundRoads[3]);
+                    return aroundRoads[0] && aroundRoads[3];
                 case RoadMode.DownToLeft:
-                    return (aroundRoads[1]) && (aroundRoads[2]);
+                    return aroundRoads[1] && aroundRoads[2];
                 case RoadMode.DownToRight:
-                    return (aroundRoads[1]) && (aroundRoads[3]);
+                    return aroundRoads[1] && aroundRoads[3];
             }
             return false;
         }
@@ -87,8 +114,14 @@ public class RoadBlock : BlockBase
 
         aroundRoads = new RoadBlock[4];
     }
-    
-    
+
+    public void Enable()
+    {
+        IsEnable = true;
+        Nodes.Add(this);
+        SetRoadMode(RoadMode.Horizontal);
+        UpdateRoad();
+    }
 
     private void ResetRoad()
     {
@@ -117,10 +150,10 @@ public class RoadBlock : BlockBase
         base.Start();
     }
 
-    public void FindAroundRoads()
+    private RoadBlock[] GetRoads()
     {
-        SetRoadMode(RoadMode.Unknown);
-        
+        #region 過濾
+
         aroundBlocks = GridSystem.FindAround(this);
         for (var i = 0; i < 4; i++)
         {
@@ -145,171 +178,105 @@ public class RoadBlock : BlockBase
             aroundRoads[i] = ab.GetComponent<RoadBlock>();
         }
         
-        
-        
-        
-        
-        if (aroundRoads[0] != null && !aroundRoads[0].IsPerfact && !aroundRoads[0].isPassed)
-        {
-            if (aroundRoads[0].aroundRoads[0])
-            {
-                aroundRoads[0].SetRoadMode(RoadMode.Vertical);
-            }
-            else if (aroundRoads[0].aroundRoads[2])
-            {
-                aroundRoads[0].SetRoadMode(RoadMode.DownToLeft);
-            }
-            else if (aroundRoads[0].aroundRoads[3])
-            {
-                aroundRoads[0].SetRoadMode(RoadMode.DownToRight);
-            }
-            else
-            {
-                aroundRoads[0].SetRoadMode(RoadMode.Vertical);
-            }
+        #endregion
 
-            aroundRoads[0].nextRoad = this;
-        }
-        else if (aroundRoads[1] != null && !aroundRoads[1].IsPerfact && !aroundRoads[1].isPassed)
+        return aroundRoads;
+    }
+
+    public void FindAroundRoads()
+    {
+        Log(LastNode.transform.position);
+        SetRoadMode(RoadMode.Unknown);
+        GetRoads();
+        UpdateRoad();
+    }
+
+    private int GetLastNodeDirection()
+    {
+        if (NodeIndex == 0)
         {
-            if (aroundRoads[1].aroundRoads[1])
-            {
-                aroundRoads[1].SetRoadMode(RoadMode.Vertical);
-            }
-            else if (aroundRoads[1].aroundRoads[2])
-            {
-                aroundRoads[1].SetRoadMode(RoadMode.TopToLeft);
-            }
-            else if (aroundRoads[1].aroundRoads[3])
-            {
-                aroundRoads[1].SetRoadMode(RoadMode.TopToRight);
-            }
-            else
-            {
-                aroundRoads[1].SetRoadMode(RoadMode.Vertical);
-            }
-            
-            aroundRoads[1].nextRoad = this;
-        }
-        else if (aroundRoads[2] != null && !aroundRoads[2].IsPerfact && !aroundRoads[2].isPassed)
-        {
-            if (aroundRoads[2].aroundRoads[0])
-            {
-                aroundRoads[2].SetRoadMode(RoadMode.TopToRight);
-            }
-            else if (aroundRoads[2].aroundRoads[1])
-            {
-                aroundRoads[2].SetRoadMode(RoadMode.DownToRight);
-            }
-            else if (aroundRoads[2].aroundRoads[2])
-            {
-                aroundRoads[2].SetRoadMode(RoadMode.Horizontal);
-            }
-            else
-            {
-                aroundRoads[2].SetRoadMode(RoadMode.Horizontal);
-            }
-            
-            aroundRoads[2].nextRoad = this;
-        }
-        else if (aroundRoads[3] != null && !aroundRoads[3].IsPerfact && !aroundRoads[3].isPassed)
-        {
-            if (aroundRoads[3].aroundRoads[0])
-            {
-                aroundRoads[3].SetRoadMode(RoadMode.TopToLeft);
-            }
-            else if (aroundRoads[3].aroundRoads[1])
-            {
-                aroundRoads[3].SetRoadMode(RoadMode.DownToLeft);
-            }
-            else if (aroundRoads[3].aroundRoads[3])
-            {
-                aroundRoads[3].SetRoadMode(RoadMode.Horizontal);
-            }
-            else
-            {
-                aroundRoads[3].SetRoadMode(RoadMode.Horizontal);
-            }
-            
-            aroundRoads[3].nextRoad = this;
+            return -1;
         }
 
-        // 設定自己
-        if (aroundRoads[0])
+        var aroundNodes = GetRoads();
+        var lastNode = Nodes[NodeIndex - 1];
+        for (var i = 0; i < 4; i++)
         {
-            if (aroundRoads[1])
+            if (lastNode == aroundNodes[i])
             {
-                SetRoadMode(RoadMode.Vertical);
-            }
-            else if (aroundRoads[2])
-            {
-                SetRoadMode(RoadMode.TopToLeft);
-            }
-            else if (aroundRoads[3])
-            {
-                SetRoadMode(RoadMode.TopToRight);
-            }
-            else
-            {
-                SetRoadMode(RoadMode.Vertical);
+                return i;
             }
         }
-        else if (aroundRoads[1])
+
+        return -1;
+    }
+
+    public void UpdateRoad()
+    {
+        LastNodeDirection = (RoadDirection)GetLastNodeDirection();
+        Log(LastNodeDirection);
+        switch (LastNodeDirection)
         {
-            if (aroundRoads[0])
-            {
+            case RoadDirection.Top:
+                if (LastRoad.LastNodeDirection == RoadDirection.Top)
+                {
+                    LastRoad.SetRoadMode(RoadMode.Vertical);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Left)
+                {
+                    LastRoad.SetRoadMode(RoadMode.DownToLeft);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Right)
+                {
+                    LastRoad.SetRoadMode(RoadMode.DownToRight);
+                }
                 SetRoadMode(RoadMode.Vertical);
-            }
-            else if (aroundRoads[2])
-            {
-                SetRoadMode(RoadMode.DownToLeft);
-            }
-            else if (aroundRoads[3])
-            {
-                SetRoadMode(RoadMode.DownToRight);
-            }
-            else
-            {
+                break;
+            case RoadDirection.Down:
+                if (LastRoad.LastNodeDirection == RoadDirection.Down)
+                {
+                    LastRoad.SetRoadMode(RoadMode.Vertical);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Left)
+                {
+                    LastRoad.SetRoadMode(RoadMode.TopToLeft);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Right)
+                {
+                    LastRoad.SetRoadMode(RoadMode.TopToRight);
+                }
                 SetRoadMode(RoadMode.Vertical);
-            }
-        }
-        else if (aroundRoads[2])
-        {
-            if (aroundRoads[3])
-            {
+                break;
+            case RoadDirection.Left:
+                if (LastRoad.LastNodeDirection == RoadDirection.Left)
+                {
+                    LastRoad.SetRoadMode(RoadMode.Horizontal);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Top)
+                {
+                    LastRoad.SetRoadMode(RoadMode.TopToRight);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Down)
+                {
+                    LastRoad.SetRoadMode(RoadMode.DownToRight);
+                }
                 SetRoadMode(RoadMode.Horizontal);
-            }
-            else if (aroundRoads[0])
-            {
-                SetRoadMode(RoadMode.TopToLeft);
-            }
-            else if (aroundRoads[1])
-            {
-                SetRoadMode(RoadMode.DownToLeft);
-            }
-            else
-            {
+                break;
+            case RoadDirection.Right:
+                if (LastRoad.LastNodeDirection == RoadDirection.Right)
+                {
+                    LastRoad.SetRoadMode(RoadMode.Horizontal);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Top)
+                {
+                    LastRoad.SetRoadMode(RoadMode.TopToLeft);
+                }
+                else if (LastRoad.LastNodeDirection == RoadDirection.Down)
+                {
+                    LastRoad.SetRoadMode(RoadMode.DownToLeft);
+                }
                 SetRoadMode(RoadMode.Horizontal);
-            }
-        }
-        else if (aroundRoads[3])
-        {
-            if (aroundRoads[2])
-            {
-                SetRoadMode(RoadMode.Horizontal);
-            }
-            else if (aroundRoads[0])
-            {
-                SetRoadMode(RoadMode.TopToRight);
-            }
-            else if (aroundRoads[1])
-            {
-                SetRoadMode(RoadMode.DownToRight);
-            }
-            else
-            {
-                SetRoadMode(RoadMode.Horizontal);
-            }
+                break;
         }
     }
 
@@ -423,7 +390,6 @@ public class RoadBlock : BlockBase
 
     public void UpdateRoadState()
     {
-        Nodes.Add(this);
         if (previewRoadDirection == RoadDirection.Unknown || aroundRoadDict.Count == 0)
         {
             if (aroundRoadDict.Count == 0)
